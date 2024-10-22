@@ -10,6 +10,10 @@
 --     @db4, nvarchar(256), фильтровать по имени базы данных
 
 -- Create a Queue
+
+declare @traceDuration int = 60
+declare @fileName varchar(max) = CONCAT('D:\SqlProfiling\trace_', format(getdate(), 'yyyy-MM-dd-HHmmss'))
+
 declare @rc int
 declare @TraceID int
 declare @maxfilesize bigint
@@ -95,10 +99,10 @@ exec sp_trace_setevent @TraceID, 12, 50, @on  -- XactSequence. bigint.
 
 
 -- Set the Filters
-exec sp_trace_setfilter @TraceID, 35, 0, 6, @db1
-exec sp_trace_setfilter @TraceID, 35, 1, 6, @db2
-exec sp_trace_setfilter @TraceID, 35, 1, 6, @db3
-exec sp_trace_setfilter @TraceID, 35, 1, 6, @db4
+--exec sp_trace_setfilter @TraceID, 35, 0, 6, @db1
+--exec sp_trace_setfilter @TraceID, 35, 1, 6, @db2
+--exec sp_trace_setfilter @TraceID, 35, 1, 6, @db3
+--exec sp_trace_setfilter @TraceID, 35, 1, 6, @db4
 -- Set the trace status to start
 exec sp_trace_setstatus @TraceID, 1
 

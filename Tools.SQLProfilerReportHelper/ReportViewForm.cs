@@ -1,72 +1,68 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Text;
 using System.Windows.Forms;
-using System.Collections.ObjectModel;
 
 namespace Tools.SQLProfilerReportHelper
 {
-	public partial class ReportViewForm : Form
-	{
-		Helper TableUtil { get; set; }
+    public partial class ReportViewForm : Form
+    {
+        Helper TableUtil { get; set; }
 
-		public ReportViewForm(Helper tableUtil)
-		{
-			TableUtil = tableUtil;
-			InitializeComponent();
-		}
+        public ReportViewForm(Helper tableUtil)
+        {
+            TableUtil = tableUtil;
+            InitializeComponent();
+        }
 
-		IEnumerable<Model.DetailStat> Data { get; set; }
+        IEnumerable<Model.DetailStat> Data { get; set; }
 
-		public void LoadDetailStat(IEnumerable<Model.DetailStat> data)
-		{
-			Data = data;
+        public void LoadDetailStat(IEnumerable<Model.DetailStat> data)
+        {
+            Data = data;
 
-			listViewDetails.Groups.Clear();
-			listViewDetails.Columns.Clear();
+            listViewDetails.Groups.Clear();
+            listViewDetails.Columns.Clear();
 
-			listViewDetails.Columns.Add("DatabaseName");
-			listViewDetails.Columns.Add("TextKey-key");
-			listViewDetails.Columns.Add("avg(CPU)-key");
-			listViewDetails.Columns.Add("avg(Duration)-key");
-			listViewDetails.Columns.Add("% Duration-key");
-			listViewDetails.Columns.Add("avg(Reads)-key");
-			listViewDetails.Columns.Add("Count-key");
-			listViewDetails.Columns.Add("TextKey");
+            listViewDetails.Columns.Add("DatabaseName");
+            listViewDetails.Columns.Add("TextKey-key");
+            listViewDetails.Columns.Add("avg(CPU)-key");
+            listViewDetails.Columns.Add("avg(Duration)-key");
+            listViewDetails.Columns.Add("% Duration-key");
+            listViewDetails.Columns.Add("avg(Reads)-key");
+            listViewDetails.Columns.Add("Count-key");
+            listViewDetails.Columns.Add("TextKey");
 
-			listViewDetails.Columns.Add("min(CPU)");
-			listViewDetails.Columns.Add("avg(CPU)");
-			listViewDetails.Columns.Add("max(CPU)");
-			listViewDetails.Columns.Add("sum(CPU)");
-			listViewDetails.Columns.Add("% CPU");
+            listViewDetails.Columns.Add("min(CPU)");
+            listViewDetails.Columns.Add("avg(CPU)");
+            listViewDetails.Columns.Add("max(CPU)");
+            listViewDetails.Columns.Add("sum(CPU)");
+            listViewDetails.Columns.Add("% CPU");
 
-			listViewDetails.Columns.Add("min(Duration)");
-			listViewDetails.Columns.Add("avg(Duration)");
-			listViewDetails.Columns.Add("max(Duration)");
-			listViewDetails.Columns.Add("sum(Duration)");
-			listViewDetails.Columns.Add("% Duration");
+            listViewDetails.Columns.Add("min(Duration)");
+            listViewDetails.Columns.Add("avg(Duration)");
+            listViewDetails.Columns.Add("max(Duration)");
+            listViewDetails.Columns.Add("sum(Duration)");
+            listViewDetails.Columns.Add("% Duration");
 
-			listViewDetails.Columns.Add("min(Reads)");
-			listViewDetails.Columns.Add("avg(Reads)");
-			listViewDetails.Columns.Add("max(Reads)");
-			listViewDetails.Columns.Add("sum(Reads)");
-			listViewDetails.Columns.Add("% Reads");
+            listViewDetails.Columns.Add("min(Reads)");
+            listViewDetails.Columns.Add("avg(Reads)");
+            listViewDetails.Columns.Add("max(Reads)");
+            listViewDetails.Columns.Add("sum(Reads)");
+            listViewDetails.Columns.Add("% Reads");
 
-			listViewDetails.Columns.Add("min(Writes)");
-			listViewDetails.Columns.Add("avg(Writes)");
-			listViewDetails.Columns.Add("max(Writes)");
-			listViewDetails.Columns.Add("sum(Writes)");
-			listViewDetails.Columns.Add("% Writes");
+            listViewDetails.Columns.Add("min(Writes)");
+            listViewDetails.Columns.Add("avg(Writes)");
+            listViewDetails.Columns.Add("max(Writes)");
+            listViewDetails.Columns.Add("sum(Writes)");
+            listViewDetails.Columns.Add("% Writes");
 
-			listViewDetails.Columns.Add("Count");
-			listViewDetails.Columns.Add("% Count");
+            listViewDetails.Columns.Add("Count");
+            listViewDetails.Columns.Add("% Count");
 
             UpdateDetailStat(data);
-		}
+        }
 
         public void UpdateDetailStat(IEnumerable<Model.DetailStat> data)
         {
@@ -114,83 +110,84 @@ namespace Tools.SQLProfilerReportHelper
             }
         }
 
-		private void listViewDetails_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
-		{
-			ListViewItem item = e.Item;
-			if (item != null)
-			{
-				Model.DetailStat dataItem = item.Tag as Model.DetailStat;
+        private void listViewDetails_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
+        {
+            ListViewItem item = e.Item;
+            if (item != null)
+            {
+                Model.DetailStat dataItem = item.Tag as Model.DetailStat;
 
-				dataItem = TableUtil.FillDetailStat(dataItem);
+                dataItem = TableUtil.FillDetailStat(dataItem);
 
-				this.textBoxMinDuration.Text = trancate(dataItem.TextDataMinDuration);
-				this.textBoxMaxDuration.Text = trancate(dataItem.TextDataMaxDuration);
+                textBoxMinDuration.Text = trancate(dataItem.TextDataMinDuration);
+                textBoxMaxDuration.Text = trancate(dataItem.TextDataMaxDuration);
 
-				this.textBoxMinCPU.Text = trancate(dataItem.TextDataMinCPU);
-				this.textBoxMaxCPU.Text = trancate(dataItem.TextDataMaxCPU);
+                textBoxMinCPU.Text = trancate(dataItem.TextDataMinCPU);
+                textBoxMaxCPU.Text = trancate(dataItem.TextDataMaxCPU);
 
-				this.textBoxMinReads.Text = trancate(dataItem.TextDataMinReads);
-				this.textBoxMaxReads.Text = trancate(dataItem.TextDataMaxReads);
+                textBoxMinReads.Text = trancate(dataItem.TextDataMinReads);
+                textBoxMaxReads.Text = trancate(dataItem.TextDataMaxReads);
 
-				this.textBoxMinWrites.Text = trancate(dataItem.TextDataMinWrites);
-				this.textBoxMaxWrites.Text = trancate(dataItem.TextDataMaxWrites);
-			}
-		}
+                textBoxMinWrites.Text = trancate(dataItem.TextDataMinWrites);
+                textBoxMaxWrites.Text = trancate(dataItem.TextDataMaxWrites);
+            }
+        }
 
-		private string trancate(string content)
-		{
-			int size = 10000;
-			if (content.Length > size)
-			{
-				return content.Substring(0, size);
-			}
-			else
-			{
-				return content;
-			}
-		}
+        private string trancate(string content)
+        {
+            int size = 10000;
+            if (content.Length > size)
+            {
+                return content.Substring(0, size);
+            }
+            else
+            {
+                return content;
+            }
+        }
 
-		private void TrySaveFile(string fileName, string content)
-		{
-			try{
-				System.IO.File.WriteAllText(fileName, content);
-			}
-			catch(Exception)
-			{
-			}
-		}
+        private void TrySaveFile(string fileName, string content)
+        {
+            try
+            {
+                System.IO.File.WriteAllText(fileName, content);
+            }
+            catch (Exception)
+            {
+            }
+        }
 
-		private void listViewDetails_ColumnClick(object sender, ColumnClickEventArgs e)
-		{
-			if (e.Column >= 0 && e.Column <= 8)
-			{
-				IEnumerable<Model.DetailStat> data = null;
-				switch (e.Column)
-				{
-					case 0:
-						data = Data.OrderBy(item => item.DatabaseName);
-						break;
-					case 1:
-						data = Data.OrderBy(item => item.TextKeyKey);
-						break;
-					case 2:
-						data = Data.OrderByDescending(item => item.AvgCPUKey);
-						break;
-					case 3:
-						data = Data.OrderByDescending(item => item.AvgDurationKey);
-						break;
-					case 4:
-						data = Data.OrderByDescending(item => item.PercentDurationKey);
-						break;
-					case 5:
-						data = Data.OrderByDescending(item => item.AvgReadsKey);
-						break;
-					case 6:
-						data = Data.OrderByDescending(item => item.CountKey);
-						break;
-				}
+        private void listViewDetails_ColumnClick(object sender, ColumnClickEventArgs e)
+        {
+            if (e.Column >= 0 && e.Column <= 8)
+            {
+                IEnumerable<Model.DetailStat> data = null;
+                switch (e.Column)
+                {
+                    case 0:
+                        data = Data.OrderBy(item => item.DatabaseName);
+                        break;
+                    case 1:
+                        data = Data.OrderBy(item => item.TextKeyKey);
+                        break;
+                    case 2:
+                        data = Data.OrderByDescending(item => item.AvgCPUKey);
+                        break;
+                    case 3:
+                        data = Data.OrderByDescending(item => item.AvgDurationKey);
+                        break;
+                    case 4:
+                        data = Data.OrderByDescending(item => item.PercentDurationKey);
+                        break;
+                    case 5:
+                        data = Data.OrderByDescending(item => item.AvgReadsKey);
+                        break;
+                    case 6:
+                        data = Data.OrderByDescending(item => item.CountKey);
+                        break;
+                }
                 UpdateDetailStat(data);
-			}
-		}
-	}
+            }
+        }
+    }
 }

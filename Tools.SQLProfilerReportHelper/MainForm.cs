@@ -1,16 +1,13 @@
 ﻿namespace Tools.SQLProfilerReportHelper
 {
-	using System;
-	using System.Collections.Generic;
-	using System.ComponentModel;
-	using System.Data;
-	using System.Drawing;
-	using System.Linq;
-	using System.Text;
-	using System.Windows.Forms;
+    using System;
+    using System.Collections.Generic;
+    using System.ComponentModel;
     using System.IO;
+    using System.Linq;
+    using System.Windows.Forms;
 
-	public partial class MainForm : Form
+    public partial class MainForm : Form
     {
         class ConnectionParam
         {
@@ -22,7 +19,7 @@
                 char[] splitters = { '\t', ' ' };
                 string[] connectionStringParts = connectionString.Split(splitters, 2, StringSplitOptions.RemoveEmptyEntries);
                 SqlServer = Database = string.Empty;
-                if(connectionStringParts.Length >= 1)
+                if (connectionStringParts.Length >= 1)
                 {
                     SqlServer = connectionStringParts[0];
                 }
@@ -41,7 +38,7 @@
         public MainForm()
         {
             InitializeComponent();
-			TableUtil = new Helper();
+            TableUtil = new Helper();
             backgroundWorkerPrepareTabele.WorkerReportsProgress = true;
             backgroundWorkerPrepareTabele.WorkerSupportsCancellation = true;
             loadConnectionParamSettings();
@@ -50,7 +47,7 @@
             comboBoxDB.AutoCompleteCustomSource.Clear();
             comboBoxDB.Items.Clear();
 
-            foreach(ConnectionParam option in ConnectionParameters)
+            foreach (ConnectionParam option in ConnectionParameters)
             {
                 comboBoxSQLServer.AutoCompleteCustomSource.Add(option.SqlServer);
                 comboBoxSQLServer.Items.Add(option.SqlServer);
@@ -58,25 +55,25 @@
                 comboBoxDB.AutoCompleteCustomSource.Add(option.Database);
                 comboBoxDB.Items.Add(option.Database);
             }
-
+            buttonStart.Enabled = true;
         }
 
         private void saveConnectionParamSettings(ConnectionParam connection)
         {
             string appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
             string settingsFolderPath = Path.Combine(appDataPath, SettingsFolderName);
-            if(!Directory.Exists(settingsFolderPath))
+            if (!Directory.Exists(settingsFolderPath))
             {
                 Directory.CreateDirectory(settingsFolderPath);
             }
             string settingsFilePath = Path.Combine(settingsFolderPath, SettingsFileName);
-            if(!File.Exists(settingsFilePath))
+            if (!File.Exists(settingsFilePath))
             {
                 StreamWriter writer = File.CreateText(settingsFilePath);
                 writer.Close();
             }
             string[] settings = File.ReadAllLines(settingsFilePath);
-            if(!settings.Contains(connection.ConnectionString, StringComparer.InvariantCultureIgnoreCase))
+            if (!settings.Contains(connection.ConnectionString, StringComparer.InvariantCultureIgnoreCase))
             {
                 File.AppendAllText(settingsFilePath, connection.ConnectionString);
             }
@@ -103,14 +100,14 @@
 
         private void buttonConnect_Click(object sender, EventArgs e)
         {
-            var sqlServer = this.comboBoxSQLServer.Text;
-            var dataBase = this.comboBoxDB.Text;
+            var sqlServer = comboBoxSQLServer.Text;
+            var dataBase = comboBoxDB.Text;
 
             try
             {
                 TableUtil.Connect(sqlServer, dataBase);
-                this.comboBoxTable.Items.Clear();
-                this.comboBoxTable.Items.AddRange(TableUtil.Tables);
+                comboBoxTable.Items.Clear();
+                comboBoxTable.Items.AddRange(TableUtil.Tables);
                 ConnectionParam options = new ConnectionParam()
                 {
                     SqlServer = sqlServer,
@@ -126,31 +123,31 @@
                         , sqlServer
                         , ex.Message
                     )
-                    , "Ошибка соединения" );
+                    , "Ошибка соединения");
             }
         }
 
         private void buttonTextKeyCheck_Click(object sender, EventArgs e)
         {
-            var tableName = this.comboBoxTable.Text;
-            this.checkBoxTextKeyStatus.Checked = TableUtil.ColumnExistInTable(tableName, "TextKey");
-            this.buttonTextKeyCreate.Enabled = !this.checkBoxTextKeyStatus.Checked;
-            this.buttonStartSP.Enabled = this.checkBoxTextKeyStatus.Checked;
-            this.buttonDetailReportCheck.Enabled = this.checkBoxTextKeyStatus.Checked;
-            this.buttonDraftReportCheck.Enabled = this.checkBoxTextKeyStatus.Checked;
-            this.buttonErrorStatCheck.Enabled = this.checkBoxTextKeyStatus.Checked;
+            var tableName = comboBoxTable.Text;
+            checkBoxTextKeyStatus.Checked = TableUtil.ColumnExistInTable(tableName, "TextKey");
+            buttonTextKeyCreate.Enabled = !checkBoxTextKeyStatus.Checked;
+            buttonStartSP.Enabled = checkBoxTextKeyStatus.Checked;
+            buttonDetailReportCheck.Enabled = checkBoxTextKeyStatus.Checked;
+            buttonDraftReportCheck.Enabled = checkBoxTextKeyStatus.Checked;
+            buttonErrorStatCheck.Enabled = checkBoxTextKeyStatus.Checked;
 
-            this.textBoxRowCount.Text = TableUtil.RowCountForPrepare.ToString();
-            this.textBoxPreparedRowCount.Text = TableUtil.RowCountPrepared.ToString();
+            textBoxRowCount.Text = TableUtil.RowCountForPrepare.ToString();
+            textBoxPreparedRowCount.Text = TableUtil.RowCountPrepared.ToString();
 
         }
 
         private void comboBoxTable_TextChanged(object sender, EventArgs e)
         {
-            TableUtil.TableName = this.comboBoxTable.Text;
-            this.buttonTextKeyCheck.Enabled = true;
-            this.buttonDeadlockReportCheck.Enabled = true;
-			this.buttonMinuteAndSecondCheck.Enabled = true;
+            TableUtil.TableName = comboBoxTable.Text;
+            buttonTextKeyCheck.Enabled = true;
+            buttonDeadlockReportCheck.Enabled = true;
+            buttonMinuteAndSecondCheck.Enabled = true;
         }
 
         private void buttonStart_Click(object sender, EventArgs e)
@@ -160,20 +157,20 @@
                 TableUtil.RowCountForPrepare = TableUtil.GetRowCountForPrepare();
                 TableUtil.RowCountPrepared = 0;
 
-                this.textBoxRowCount.Text = TableUtil.RowCountForPrepare.ToString();
-                this.textBoxPreparedRowCount.Text = TableUtil.RowCountPrepared.ToString();
+                textBoxRowCount.Text = TableUtil.RowCountForPrepare.ToString();
+                textBoxPreparedRowCount.Text = TableUtil.RowCountPrepared.ToString();
                 TableUtil.StartTime = System.DateTime.Now;
-                this.textBoxStartTime.Text = TableUtil.StartTime.ToString();
-                this.textBoxStopTime.Text = TableUtil.ExpectedStopTime.ToString();
+                textBoxStartTime.Text = TableUtil.StartTime.ToString();
+                textBoxStopTime.Text = TableUtil.ExpectedStopTime.ToString();
 
                 backgroundWorkerPrepareTabele.RunWorkerAsync();
 
-                this.buttonStart.Enabled = false;
-                this.buttonStop.Enabled = true;
+                buttonStart.Enabled = false;
+                buttonStop.Enabled = true;
 
-				this.buttonStartSP.Enabled = false;
-				this.buttonStopSP.Enabled = false;
-			}
+                buttonStartSP.Enabled = false;
+                buttonStopSP.Enabled = false;
+            }
         }
 
         private void buttonStop_Click(object sender, EventArgs e)
@@ -182,25 +179,25 @@
             {
                 backgroundWorkerPrepareTabele.CancelAsync();
 
-                this.buttonStop.Enabled = false;
-                this.buttonStart.Enabled = true;
+                buttonStop.Enabled = false;
+                buttonStart.Enabled = true;
 
-				this.buttonStopSP.Enabled = false;
-				this.buttonStartSP.Enabled = true;
-			}
+                buttonStopSP.Enabled = false;
+                buttonStartSP.Enabled = true;
+            }
         }
 
         private void backgroundWorkerPrepareTabele_DoWork(object sender, DoWorkEventArgs e)
         {
             BackgroundWorker worker = sender as BackgroundWorker;
-			try
-			{
-				TableUtil.DropIndexOnTextKeys();
-			}
-			catch (Exception ex)
-			{ }
+            try
+            {
+                TableUtil.DropIndexOnTextKeys();
+            }
+            catch (Exception ex)
+            { }
 
-			while (TableUtil.PreparedIsComplete == false)
+            while (TableUtil.PreparedIsComplete == false)
             {
                 if (worker.CancellationPending == true)
                 {
@@ -214,24 +211,24 @@
                     worker.ReportProgress(100 * TableUtil.RowCountPrepared / TableUtil.RowCountForPrepare);
                 }
             }
-			if (TableUtil.PreparedIsComplete)
-			{
-				worker.ReportProgress(100);
-			}
+            if (TableUtil.PreparedIsComplete)
+            {
+                worker.ReportProgress(100);
+            }
         }
 
         private void backgroundWorkerPrepareTabele_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            this.textBoxPreparedRowCount.Text = TableUtil.RowCountPrepared.ToString();
-            this.textBoxPreparedRowProgress.Text = string.Format("{0} %", e.ProgressPercentage.ToString());
-            this.textBoxStopTime.Text = TableUtil.ExpectedStopTime.ToString();
+            textBoxPreparedRowCount.Text = TableUtil.RowCountPrepared.ToString();
+            textBoxPreparedRowProgress.Text = string.Format("{0} %", e.ProgressPercentage.ToString());
+            textBoxStopTime.Text = TableUtil.ExpectedStopTime.ToString();
         }
 
         private void buttonDraftReportCheck_Click(object sender, EventArgs e)
         {
             var isExist = TableUtil.TableExist(TableUtil.TableNameDraft);
-            this.checkBoxDraftReportStatus.Checked = isExist;
-            this.buttonDraftReportCreate.Enabled = !isExist;
+            checkBoxDraftReportStatus.Checked = isExist;
+            buttonDraftReportCreate.Enabled = !isExist;
         }
 
         private void buttonTextKeyCreate_Click(object sender, EventArgs e)
@@ -244,227 +241,227 @@
         private void buttonDetailReportCheck_Click(object sender, EventArgs e)
         {
             var tableExist = TableUtil.TableExist(TableUtil.TableNameDetail);
-            this.checkBoxDetailReportStatus.Checked = tableExist;
-            this.buttonDetailReportCreate.Enabled = !this.checkBoxDetailReportStatus.Checked;
+            checkBoxDetailReportStatus.Checked = tableExist;
+            buttonDetailReportCreate.Enabled = !checkBoxDetailReportStatus.Checked;
         }
 
         private void buttonDetailReportCreate_Click(object sender, EventArgs e)
         {
             TableUtil.CreateDetailReport();
-            this.checkBoxDetailReportStatus.Checked = true;
-            this.buttonDetailReportCreate.Enabled = false;
+            checkBoxDetailReportStatus.Checked = true;
+            buttonDetailReportCreate.Enabled = false;
         }
 
         private void buttonDraftReportCreate_Click(object sender, EventArgs e)
         {
             TableUtil.CreateDraftReport();
-            this.checkBoxDraftReportStatus.Checked = true;
-            this.buttonDraftReportCreate.Enabled = false;
+            checkBoxDraftReportStatus.Checked = true;
+            buttonDraftReportCreate.Enabled = false;
         }
 
         private void buttonErrorStatCheck_Click(object sender, EventArgs e)
         {
             var tableExist = TableUtil.TableExist(TableUtil.TableNameError);
-            this.checkBoxErrorReportStatus.Checked = tableExist;
-            this.buttonErrorReportCreate.Enabled = !tableExist;
+            checkBoxErrorReportStatus.Checked = tableExist;
+            buttonErrorReportCreate.Enabled = !tableExist;
         }
 
         private void buttonErrorReportCreate_Click(object sender, EventArgs e)
         {
             TableUtil.CreateErrorReport();
-            this.checkBoxErrorReportStatus.Checked = true;
-            this.buttonErrorReportCreate.Enabled = false;
+            checkBoxErrorReportStatus.Checked = true;
+            buttonErrorReportCreate.Enabled = false;
         }
 
         private void buttonDeadlockReportCheck_Click(object sender, EventArgs e)
         {
             var tableExist = TableUtil.TableExist(TableUtil.TableNameDeadlock);
-            this.checkBoxDeadlockReportStatus.Checked = tableExist;
-            this.buttonDeadlockReportCreate.Enabled = !tableExist;
+            checkBoxDeadlockReportStatus.Checked = tableExist;
+            buttonDeadlockReportCreate.Enabled = !tableExist;
         }
 
         private void buttonDeadlockReportCreate_Click(object sender, EventArgs e)
         {
             TableUtil.CreateDeadlockReport();
-            this.checkBoxDeadlockReportStatus.Checked = true;
-            this.buttonDeadlockReportCreate.Enabled = false;
+            checkBoxDeadlockReportStatus.Checked = true;
+            buttonDeadlockReportCreate.Enabled = false;
         }
 
-		private void buttonMinuteAndSecondCheck_Click(object sender, EventArgs e)
-		{
-			var columnsExist = TableUtil.ColumnExistInTable(TableUtil.TableName, "Second01");
-			columnsExist = columnsExist && TableUtil.ColumnExistInTable(TableUtil.TableName, "Second05");
-			columnsExist = columnsExist && TableUtil.ColumnExistInTable(TableUtil.TableName, "Second10");
-			columnsExist = columnsExist && TableUtil.ColumnExistInTable(TableUtil.TableName, "Munute01");
-			columnsExist = columnsExist && TableUtil.ColumnExistInTable(TableUtil.TableName, "Munute02");
-			columnsExist = columnsExist && TableUtil.ColumnExistInTable(TableUtil.TableName, "Munute03");
-			columnsExist = columnsExist && TableUtil.ColumnExistInTable(TableUtil.TableName, "Munute04");
-			columnsExist = columnsExist && TableUtil.ColumnExistInTable(TableUtil.TableName, "Munute05");
+        private void buttonMinuteAndSecondCheck_Click(object sender, EventArgs e)
+        {
+            var columnsExist = TableUtil.ColumnExistInTable(TableUtil.TableName, "Second01");
+            columnsExist = columnsExist && TableUtil.ColumnExistInTable(TableUtil.TableName, "Second05");
+            columnsExist = columnsExist && TableUtil.ColumnExistInTable(TableUtil.TableName, "Second10");
+            columnsExist = columnsExist && TableUtil.ColumnExistInTable(TableUtil.TableName, "Munute01");
+            columnsExist = columnsExist && TableUtil.ColumnExistInTable(TableUtil.TableName, "Munute02");
+            columnsExist = columnsExist && TableUtil.ColumnExistInTable(TableUtil.TableName, "Munute03");
+            columnsExist = columnsExist && TableUtil.ColumnExistInTable(TableUtil.TableName, "Munute04");
+            columnsExist = columnsExist && TableUtil.ColumnExistInTable(TableUtil.TableName, "Munute05");
 
-			this.checkBoxMinuteAndSecondStatus.Checked = columnsExist;
-			this.buttonMinuteAndSecondCreate.Enabled = !columnsExist;
-		}
+            checkBoxMinuteAndSecondStatus.Checked = columnsExist;
+            buttonMinuteAndSecondCreate.Enabled = !columnsExist;
+        }
 
-		private void buttonMinuteAndSecondCreate_Click(object sender, EventArgs e)
-		{
-			TableUtil.CreateMinuteAndSecondColumn();
-			TableUtil.FillMinuteAndSecondColumn();
-			buttonMinuteAndSecondCheck_Click(sender, e);
-		}
+        private void buttonMinuteAndSecondCreate_Click(object sender, EventArgs e)
+        {
+            TableUtil.CreateMinuteAndSecondColumn();
+            TableUtil.FillMinuteAndSecondColumn();
+            buttonMinuteAndSecondCheck_Click(sender, e);
+        }
 
-		private void DisableAllButtons()
-		{
-			this.buttonMinuteAndSecondCheck.Enabled = false;
-			this.buttonConnect.Enabled = false;
-			this.buttonDeadlockReportCheck.Enabled = false;
-			this.buttonDeadlockReportCreate.Enabled = false;
-			this.buttonDetailReportCheck.Enabled = false;
-			this.buttonDetailReportCreate.Enabled = false;
-			this.buttonDraftReportCheck.Enabled = false;
-			this.buttonDraftReportCreate.Enabled = false;
-			this.buttonErrorReportCreate.Enabled = false;
-			this.buttonErrorStatCheck.Enabled = false;
-			this.buttonMinuteAndSecondCheck.Enabled = false;
-			this.buttonMinuteAndSecondCreate.Enabled = false;
-			this.buttonStart.Enabled = false;
-			this.buttonStop.Enabled = false;
-			this.buttonTextKeyCheck.Enabled = false;
-			this.buttonTextKeyCreate.Enabled = false;
-		}
+        private void DisableAllButtons()
+        {
+            buttonMinuteAndSecondCheck.Enabled = false;
+            buttonConnect.Enabled = false;
+            buttonDeadlockReportCheck.Enabled = false;
+            buttonDeadlockReportCreate.Enabled = false;
+            buttonDetailReportCheck.Enabled = false;
+            buttonDetailReportCreate.Enabled = false;
+            buttonDraftReportCheck.Enabled = false;
+            buttonDraftReportCreate.Enabled = false;
+            buttonErrorReportCreate.Enabled = false;
+            buttonErrorStatCheck.Enabled = false;
+            buttonMinuteAndSecondCheck.Enabled = false;
+            buttonMinuteAndSecondCreate.Enabled = false;
+            buttonStart.Enabled = false;
+            buttonStop.Enabled = false;
+            buttonTextKeyCheck.Enabled = false;
+            buttonTextKeyCreate.Enabled = false;
+        }
 
-		private void CheckEnableAllButtons(object sender, EventArgs e)
-		{
-			this.buttonDeadlockReportCheck.Enabled = true;
-			buttonDeadlockReportCheck_Click(sender, e);
+        private void CheckEnableAllButtons(object sender, EventArgs e)
+        {
+            buttonDeadlockReportCheck.Enabled = true;
+            buttonDeadlockReportCheck_Click(sender, e);
 
-			this.buttonMinuteAndSecondCheck.Enabled = true;
-			buttonMinuteAndSecondCheck_Click(sender, e);
-		}
+            buttonMinuteAndSecondCheck.Enabled = true;
+            buttonMinuteAndSecondCheck_Click(sender, e);
+        }
 
-		private void backgroundWorkerPrepareTabele_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
-		{
-			this.buttonStart.Enabled = true;
-			this.buttonStartSP.Enabled = true;
+        private void backgroundWorkerPrepareTabele_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            buttonStart.Enabled = true;
+            buttonStartSP.Enabled = true;
 
-			this.buttonStop.Enabled = false;
-			this.buttonStopSP.Enabled = false;
+            buttonStop.Enabled = false;
+            buttonStopSP.Enabled = false;
 
 
-			try
-			{
-				TableUtil.CreateIndexOnTextKeys();
-			}
-			catch (Exception ex)
-			{
-			}
-		}
+            try
+            {
+                TableUtil.CreateIndexOnTextKeys();
+            }
+            catch (Exception ex)
+            {
+            }
+        }
 
-		private void backgroundWorkerPrepareTableSP_DoWork(object sender, DoWorkEventArgs e)
-		{
-			BackgroundWorker worker = sender as BackgroundWorker;
-			try
-			{
-				TableUtil.DropIndexOnTextKeys();
-			}
-			catch (Exception ex)
-			{ }
+        private void backgroundWorkerPrepareTableSP_DoWork(object sender, DoWorkEventArgs e)
+        {
+            BackgroundWorker worker = sender as BackgroundWorker;
+            try
+            {
+                TableUtil.DropIndexOnTextKeys();
+            }
+            catch (Exception ex)
+            { }
 
-			while (!TableUtil.PreparedIsCompleteSP)
-			{
-				if (worker.CancellationPending)
-				{
-					e.Cancel = true;
-					break;
-				}
-				else
-				{
-					// Perform a time consuming operation and report progress.
-					TableUtil.PrepareTextKeysSP();
-					worker.ReportProgress(100 * TableUtil.RowCountPreparedSP / TableUtil.RowCountForPrepareSP);
-				}
-			}
-			if (TableUtil.PreparedIsCompleteSP)
-			{
-				worker.ReportProgress(100);
-			}
-		}
+            while (!TableUtil.PreparedIsCompleteSP)
+            {
+                if (worker.CancellationPending)
+                {
+                    e.Cancel = true;
+                    break;
+                }
+                else
+                {
+                    // Perform a time consuming operation and report progress.
+                    TableUtil.PrepareTextKeysSP();
+                    worker.ReportProgress(100 * TableUtil.RowCountPreparedSP / TableUtil.RowCountForPrepareSP);
+                }
+            }
+            if (TableUtil.PreparedIsCompleteSP)
+            {
+                worker.ReportProgress(100);
+            }
+        }
 
-		private void buttonStartSP_Click(object sender, EventArgs e)
-		{
-			if (backgroundWorkerPrepareTableSP.IsBusy != true)
-			{
-				TableUtil.RowCountForPrepareSP = TableUtil.GetRowCountForPrepareSP();
-				TableUtil.RowCountPreparedSP = 0;
+        private void buttonStartSP_Click(object sender, EventArgs e)
+        {
+            if (backgroundWorkerPrepareTableSP.IsBusy != true)
+            {
+                TableUtil.RowCountForPrepareSP = TableUtil.GetRowCountForPrepareSP();
+                TableUtil.RowCountPreparedSP = 0;
 
-				this.textBoxRowCount.Text = TableUtil.RowCountForPrepareSP.ToString();
-				this.textBoxPreparedRowCount.Text = TableUtil.RowCountPreparedSP.ToString();
-				TableUtil.StartTime = System.DateTime.Now;
-				this.textBoxStartTime.Text = TableUtil.StartTime.ToString();
-				this.textBoxStopTime.Text = TableUtil.ExpectedStopTimeSP.ToString();
+                textBoxRowCount.Text = TableUtil.RowCountForPrepareSP.ToString();
+                textBoxPreparedRowCount.Text = TableUtil.RowCountPreparedSP.ToString();
+                TableUtil.StartTime = System.DateTime.Now;
+                textBoxStartTime.Text = TableUtil.StartTime.ToString();
+                textBoxStopTime.Text = TableUtil.ExpectedStopTimeSP.ToString();
 
-				backgroundWorkerPrepareTableSP.RunWorkerAsync();
+                backgroundWorkerPrepareTableSP.RunWorkerAsync();
 
-				this.buttonStartSP.Enabled = false;
-				this.buttonStopSP.Enabled = true;
+                buttonStartSP.Enabled = false;
+                buttonStopSP.Enabled = true;
 
-				this.buttonStart.Enabled = false;
-				this.buttonStop.Enabled = false;
-			}
-		}
+                buttonStart.Enabled = false;
+                buttonStop.Enabled = false;
+            }
+        }
 
-		private void buttonStopSP_Click(object sender, EventArgs e)
-		{
-			if (backgroundWorkerPrepareTableSP.WorkerSupportsCancellation == true)
-			{
-				backgroundWorkerPrepareTableSP.CancelAsync();
+        private void buttonStopSP_Click(object sender, EventArgs e)
+        {
+            if (backgroundWorkerPrepareTableSP.WorkerSupportsCancellation == true)
+            {
+                backgroundWorkerPrepareTableSP.CancelAsync();
 
-				this.buttonStop.Enabled = false;
-				this.buttonStart.Enabled = true;
+                buttonStop.Enabled = false;
+                buttonStart.Enabled = true;
 
-				this.buttonStopSP.Enabled = false;
-				this.buttonStartSP.Enabled = true;
-			}
+                buttonStopSP.Enabled = false;
+                buttonStartSP.Enabled = true;
+            }
 
-		}
+        }
 
-		private void backgroundWorkerPrepareTableSP_ProgressChanged(object sender, ProgressChangedEventArgs e)
-		{
-			this.textBoxPreparedRowCount.Text = TableUtil.RowCountPreparedSP.ToString();
-			this.textBoxPreparedRowProgress.Text = string.Format("{0} %", e.ProgressPercentage.ToString());
-			this.textBoxStopTime.Text = TableUtil.ExpectedStopTimeSP.ToString();
-		}
+        private void backgroundWorkerPrepareTableSP_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            textBoxPreparedRowCount.Text = TableUtil.RowCountPreparedSP.ToString();
+            textBoxPreparedRowProgress.Text = string.Format("{0} %", e.ProgressPercentage.ToString());
+            textBoxStopTime.Text = TableUtil.ExpectedStopTimeSP.ToString();
+        }
 
-		private void backgroundWorkerPrepareTableSP_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
-		{
-			this.buttonStart.Enabled = true;
-			this.buttonStartSP.Enabled = true;
+        private void backgroundWorkerPrepareTableSP_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            buttonStart.Enabled = true;
+            buttonStartSP.Enabled = true;
 
-			this.buttonStop.Enabled = false;
-			this.buttonStopSP.Enabled = false;
+            buttonStop.Enabled = false;
+            buttonStopSP.Enabled = false;
 
-		}
+        }
 
-		private void buttonDetailReportView_Click(object sender, EventArgs e)
-		{
-			ReportViewForm reportView = new ReportViewForm(TableUtil);
-			reportView.LoadDetailStat(
-				TableUtil.GetDetailStat()
-				);
-			reportView.Show();
+        private void buttonDetailReportView_Click(object sender, EventArgs e)
+        {
+            ReportViewForm reportView = new ReportViewForm(TableUtil);
+            reportView.LoadDetailStat(
+                TableUtil.GetDetailStat()
+                );
+            reportView.Show();
         }
 
         private void buttonCheckFunction_Click(object sender, EventArgs e)
         {
             bool functionExist = TableUtil.FunctionExists("PrepareTextData4");
-            this.checkBoxFunctionExist.Checked = functionExist;
-            this.buttonCreateFunction.Enabled = !functionExist;
+            checkBoxFunctionExist.Checked = functionExist;
+            buttonCreateFunction.Enabled = !functionExist;
         }
 
         private void buttonCreateFunction_Click(object sender, EventArgs e)
         {
             TableUtil.CreateFunctionPrepareTextData();
-            this.checkBoxFunctionExist.Checked = true;
-            this.buttonCreateFunction.Enabled = false;
+            checkBoxFunctionExist.Checked = true;
+            buttonCreateFunction.Enabled = false;
         }
     }
 }

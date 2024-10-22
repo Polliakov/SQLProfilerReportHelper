@@ -15,3 +15,17 @@ D:\Projects\_TFS_\Synerdocs.LoadTest.2.6.2\Tools.SQLProfilerReportHelper\obj\Deb
 D:\Projects\_TFS_\Synerdocs.LoadTest.2.6.2\Tools.SQLProfilerReportHelper\obj\Debug\Tools.SQLProfilerReportHelper.pdb
 D:\Projects\GitHub\SQLProfilerReportHelper\Tools.SQLProfilerReportHelper\obj\Debug\Tools.SQLProfilerReportHelper.exe
 D:\Projects\GitHub\SQLProfilerReportHelper\Tools.SQLProfilerReportHelper\obj\Debug\Tools.SQLProfilerReportHelper.pdb
+C:\Users\Администратор\Source\Repos\SQLProfilerReportHelper\Tools.SQLProfilerReportHelper\obj\Debug\Tools.SQLProfilerReportHelper.csproj.AssemblyReference.cache
+C:\Users\Администратор\Source\Repos\SQLProfilerReportHelper\Tools.SQLProfilerReportHelper\obj\Debug\Tools.SQLProfilerReportHelper.MainForm.resources
+C:\Users\Администратор\Source\Repos\SQLProfilerReportHelper\Tools.SQLProfilerReportHelper\obj\Debug\Tools.SQLProfilerReportHelper.Properties.Resources.resources
+C:\Users\Администратор\Source\Repos\SQLProfilerReportHelper\Tools.SQLProfilerReportHelper\obj\Debug\Tools.SQLProfilerReportHelper.ReportViewForm.resources
+C:\Users\Администратор\Source\Repos\SQLProfilerReportHelper\Tools.SQLProfilerReportHelper\obj\Debug\Tools.SQLProfilerReportHelper.csproj.GenerateResource.cache
+C:\Users\Администратор\Source\Repos\SQLProfilerReportHelper\Tools.SQLProfilerReportHelper\obj\Debug\Tools.SQLProfilerReportHelper.csproj.CoreCompileInputs.cache
+C:\Users\Администратор\Source\Repos\SQLProfilerReportHelper\Tools.SQLProfilerReportHelper\obj\Debug\Tools.SQLProfilerReportHelper.exe
+C:\Users\Администратор\Source\Repos\SQLProfilerReportHelper\Tools.SQLProfilerReportHelper\obj\Debug\Tools.SQLProfilerReportHelper.pdb
+C:\Users\Администратор\Source\Repos\SQLProfilerReportHelper\Tools.SQLProfilerReportHelper\bin\Debug\Tools.SQLProfilerReportHelper.exe.config
+C:\Users\Администратор\Source\Repos\SQLProfilerReportHelper\Tools.SQLProfilerReportHelper\bin\Debug\Tools.SQLProfilerReportHelper.exe
+C:\Users\Администратор\Source\Repos\SQLProfilerReportHelper\Tools.SQLProfilerReportHelper\bin\Debug\Tools.SQLProfilerReportHelper.pdb
+C:\Users\Администратор\Source\Repos\SQLProfilerReportHelper\Tools.SQLProfilerReportHelper\bin\Debug\Tools.dll
+C:\Users\Администратор\Source\Repos\SQLProfilerReportHelper\Tools.SQLProfilerReportHelper\bin\Debug\Tools.pdb
+C:\Users\Администратор\Source\Repos\SQLProfilerReportHelper\Tools.SQLProfilerReportHelper\obj\Debug\Tools.SQ.130BEECD.Up2Date

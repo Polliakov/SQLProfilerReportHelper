@@ -1,13 +1,11 @@
 ﻿namespace Tools.SQLProfilerReportHelper
 {
-	using System;
-	using System.Collections.Generic;
-	using System.Linq;
-	using System.Text;
-	using System.Data.SqlClient;
-	using System.Collections.ObjectModel;
+    using System;
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.Data.SqlClient;
 
-	public class Helper
+    public class Helper
     {
         private SqlConnection Connection { get; set; }
         private string Server { get; set; }
@@ -67,46 +65,46 @@
 
         public DateTime StartTime { get; set; }
         public DateTime ExpectedStopTime { get { return GetExpectedStopTime(); } }
-		public DateTime ExpectedStopTimeSP { get { return GetExpectedStopTimeSP(); } }
+        public DateTime ExpectedStopTimeSP { get { return GetExpectedStopTimeSP(); } }
 
-		public bool PreparedIsComplete { get { return (RowCountForPrepare < RowCountPrepared) || RowCountForPrepare == 0; } }
+        public bool PreparedIsComplete { get { return (RowCountForPrepare < RowCountPrepared) || RowCountForPrepare == 0; } }
 
-		public bool PreparedIsCompleteSP { get { return (RowCountForPrepareSP < RowCountPreparedSP) || RowCountForPrepareSP == 0; } }
+        public bool PreparedIsCompleteSP { get { return (RowCountForPrepareSP < RowCountPreparedSP) || RowCountForPrepareSP == 0; } }
 
         public string[] Tables { get { return GetTables(); } }
 
         public int RowCountForPrepare { get; set; }
         public int RowCountPrepared { get; set; }
 
-		public int RowCountForPrepareSP { get; set; }
-		public int RowCountPreparedSP { get; set; }
-		
-		public void Connect(string server, string database)
+        public int RowCountForPrepareSP { get; set; }
+        public int RowCountPreparedSP { get; set; }
+
+        public void Connect(string server, string database)
         {
-            this.Server = server;
-            this.DataBase = database;
+            Server = server;
+            DataBase = database;
 
             var connectionBuilder = new SqlConnectionStringBuilder();
-            connectionBuilder.DataSource = this.Server;
-            connectionBuilder.InitialCatalog = this.DataBase;
+            connectionBuilder.DataSource = Server;
+            connectionBuilder.InitialCatalog = DataBase;
             connectionBuilder.IntegratedSecurity = true;
 
-            this.Connection = new SqlConnection(connectionBuilder.ConnectionString);
-            this.Connection.Open();
+            Connection = new SqlConnection(connectionBuilder.ConnectionString);
+            Connection.Open();
 
-            this.RowCountPrepared = 0;
+            RowCountPrepared = 0;
         }
 
         DateTime GetExpectedStopTime()
         {
-            var duration = DateTime.Now.Subtract(this.StartTime).TotalSeconds;
+            var duration = DateTime.Now.Subtract(StartTime).TotalSeconds;
             var expectedDuration = 0.0;
-            if(this.RowCountPrepared > 0)
-                expectedDuration = duration * this.RowCountForPrepare / this.RowCountPrepared;
+            if (RowCountPrepared > 0)
+                expectedDuration = duration * RowCountForPrepare / RowCountPrepared;
             else
-                expectedDuration = duration * this.RowCountForPrepare / 10;
+                expectedDuration = duration * RowCountForPrepare / 10;
 
-            return this.StartTime.AddSeconds(expectedDuration);
+            return StartTime.AddSeconds(expectedDuration);
         }
 
         /// <summary>
@@ -121,50 +119,50 @@
         /// this.RowCountForPrepareSP - количество строк таблицы, которые нужно обработать, изначально равно количеству вызовов хранимых процедур в таблице профайлинга.
         /// </remarks>
 		DateTime GetExpectedStopTimeSP()
-		{
+        {
             //Длительность обработки текущего количества строк (RowCountPreparedSP)
-			double duration = DateTime.Now.Subtract(this.StartTime).TotalSeconds;
+            double duration = DateTime.Now.Subtract(StartTime).TotalSeconds;
             double expectedDuration = 0.0;
 
             //Длительность обработки полного количества строк (RowCountForPrepareSP) расчитывается по пропорции
-			if (this.RowCountPreparedSP > 0)
-				expectedDuration = duration * this.RowCountForPrepareSP / this.RowCountPreparedSP;
-			else
+            if (RowCountPreparedSP > 0)
+                expectedDuration = duration * RowCountForPrepareSP / RowCountPreparedSP;
+            else
                 //Чтобы не было деления на 0, в качестве первого приближения расчитывается время завершения так,
                 //как будто, с момента начала операции уже обраборано 10 строк из полного количества.
-				expectedDuration = duration * this.RowCountForPrepareSP / 10;
+                expectedDuration = duration * RowCountForPrepareSP / 10;
 
-			return this.StartTime.AddSeconds(expectedDuration);
-		}
+            return StartTime.AddSeconds(expectedDuration);
+        }
 
-		public void DropIndexOnTextKeys()
-		{
+        public void DropIndexOnTextKeys()
+        {
             var command = new SqlCommand();
-            command.Connection = this.Connection;
+            command.Connection = Connection;
             command.CommandTimeout = 10000;
             command.CommandText = string.Format(@"
 DROP NONCLUSTERED INDEX [IX_TraceTable_TextKey_DatabaseName]
 ON [dbo].[{0}]
-", this.TableName);
-			command.ExecuteNonQuery();
-		}
+", TableName);
+            command.ExecuteNonQuery();
+        }
 
-		public void CreateIndexOnTextKeys()
-		{
-			var command = new SqlCommand();
-			command.Connection = this.Connection;
-			command.CommandTimeout = 10000;
-			command.CommandText = string.Format(@"
+        public void CreateIndexOnTextKeys()
+        {
+            var command = new SqlCommand();
+            command.Connection = Connection;
+            command.CommandTimeout = 10000;
+            command.CommandText = string.Format(@"
 CREATE NONCLUSTERED INDEX [IX_TraceTable_TextKey_DatabaseName]
 ON [dbo].[{0}] ([DatabaseName],[TextKey])
-", this.TableName);
-			command.ExecuteNonQuery();
-		}
+", TableName);
+            command.ExecuteNonQuery();
+        }
 
         public void PrepareTextKeys()
         {
             var command = new SqlCommand();
-            command.Connection = this.Connection;
+            command.Connection = Connection;
             command.CommandTimeout = 10000;
             command.CommandText = string.Format(@"
 update TOP (100)
@@ -173,16 +171,16 @@ set [TextKey] =	dbo.PrepareTextData4(CAST([TextData] as varchar(550)))
 where [TextKey] IS NULL
 and ([ObjectName] IS NULL OR [ObjectName] IN ('sp_executesql'))
 and [EventClass] IN (10, 12)
-", this.TableName);
-            this.RowCountPrepared += command.ExecuteNonQuery();
+", TableName);
+            RowCountPrepared += command.ExecuteNonQuery();
         }
 
-		public void PrepareTextKeysSP()
-		{
-			var command = new SqlCommand();
-			command.Connection = this.Connection;
-			command.CommandTimeout = 10000;
-			command.CommandText = string.Format(@"
+        public void PrepareTextKeysSP()
+        {
+            var command = new SqlCommand();
+            command.Connection = Connection;
+            command.CommandTimeout = 10000;
+            command.CommandText = string.Format(@"
 -- Обработка для хранимых процедур
 update TOP (100000) [dbo].[{0}]
 set [TextKey] =	[ObjectName]
@@ -190,23 +188,23 @@ where [ObjectName] IS NOT NULL
 and [TextKey] IS NULL
 and [ObjectName] NOT IN  ('sp_executesql')
 and EventClass in (10, 12)
-", this.TableName);
-			this.RowCountPreparedSP += command.ExecuteNonQuery();
-//			command.CommandText = string.Format(@"
-//-- Предварительная обработка для SQL-запросов
-//update TOP (2000) [dbo].[{0}]
-//set [TextKey] =	NULL
-//where
-//([ObjectName] IS NULL OR [ObjectName] IN ('sp_executesql'))
-//and EventClass in (10, 12)
-//", this.TableName);
-//			this.RowCountPreparedSP += command.ExecuteNonQuery();
-		}
+", TableName);
+            RowCountPreparedSP += command.ExecuteNonQuery();
+            //			command.CommandText = string.Format(@"
+            //-- Предварительная обработка для SQL-запросов
+            //update TOP (2000) [dbo].[{0}]
+            //set [TextKey] =	NULL
+            //where
+            //([ObjectName] IS NULL OR [ObjectName] IN ('sp_executesql'))
+            //and EventClass in (10, 12)
+            //", this.TableName);
+            //			this.RowCountPreparedSP += command.ExecuteNonQuery();
+        }
 
         public void CreateIndexes()
         {
             var command = new SqlCommand();
-            command.Connection = this.Connection;
+            command.Connection = Connection;
             command.CommandTimeout = 60 * 60;
 
             try
@@ -215,7 +213,7 @@ and EventClass in (10, 12)
 CREATE NONCLUSTERED INDEX [IX_TraceTable_DatabaseName_EventClass_CPU]
 ON [dbo].[{0}] ([DatabaseName],[EventClass])
 INCLUDE ([CPU])
-", this.TableName);
+", TableName);
                 command.ExecuteNonQuery();
             }
             catch (Exception) { }
@@ -227,7 +225,7 @@ INCLUDE ([CPU])
 CREATE NONCLUSTERED INDEX [IX_TraceTable_DatabaseName_EventClass_StartTime]
 ON [dbo].[{0}] ([DatabaseName],[EventClass])
 INCLUDE ([StartTime])
-", this.TableName);
+", TableName);
                 command.ExecuteNonQuery();
             }
             catch (Exception) { }
@@ -239,7 +237,7 @@ INCLUDE ([StartTime])
 CREATE NONCLUSTERED INDEX [IX_TraceTable_DatabaseName_EventClass_Reads]
 ON [dbo].[{0}] ([DatabaseName],[EventClass])
 INCLUDE ([Reads])
-", this.TableName);
+", TableName);
                 command.ExecuteNonQuery();
             }
             catch (Exception) { }
@@ -251,7 +249,7 @@ INCLUDE ([Reads])
 CREATE NONCLUSTERED INDEX [IX_TraceTable_DatabaseName_EventClass_Writes]
 ON [dbo].[{0}] ([DatabaseName],[EventClass])
 INCLUDE ([Writes])
-", this.TableName);
+", TableName);
                 command.ExecuteNonQuery();
             }
             catch (Exception) { }
@@ -263,7 +261,7 @@ INCLUDE ([Writes])
 CREATE NONCLUSTERED INDEX [IX_TraceTable_DatabaseName_EventClass_Duration]
 ON [dbo].[{0}] ([DatabaseName],[EventClass])
 INCLUDE ([Duration])
-", this.TableName);
+", TableName);
                 command.ExecuteNonQuery();
             }
             catch (Exception) { }
@@ -275,7 +273,7 @@ INCLUDE ([Duration])
 --CREATE NONCLUSTERED INDEX [IX_TraceTable_DatabaseName_EventClass_DurationReadsWritesCPUTextKey]
 --ON [dbo].[{0}] ([DatabaseName],[EventClass])
 --INCLUDE ([Duration],[Reads],[Writes],[CPU],[TextKey])
-", this.TableName);
+", TableName);
                 command.ExecuteNonQuery();
             }
             catch (Exception) { }
@@ -286,7 +284,7 @@ INCLUDE ([Duration])
                 command.CommandText = string.Format(@"
 CREATE NONCLUSTERED INDEX [IX_TraceTable_ObjectName]
 ON [dbo].[{0}] ([ObjectName])
-", this.TableName);
+", TableName);
                 command.ExecuteNonQuery();
             }
             catch (Exception) { }
@@ -298,7 +296,7 @@ ON [dbo].[{0}] ([ObjectName])
 CREATE NONCLUSTERED INDEX [IX_TraceTable_EventClassDurationReadsWritesCPU]
 ON [dbo].[{0}] ([EventClass])
 INCLUDE ([Duration],[Reads],[Writes],[CPU])
-", this.TableName);
+", TableName);
                 command.ExecuteNonQuery();
             }
             catch (Exception) { }
@@ -310,7 +308,7 @@ INCLUDE ([Duration],[Reads],[Writes],[CPU])
 CREATE NONCLUSTERED INDEX [IX_TraceTable_EventClassDurationReadsWritesCPUObjectNameDatabaseName]
 ON [dbo].[{0}] ([EventClass])
 INCLUDE ([Duration],[Reads],[Writes],[CPU],[ObjectName],[DatabaseName])
-", this.TableName);
+", TableName);
                 command.ExecuteNonQuery();
             }
             catch (Exception) { }
@@ -320,7 +318,7 @@ INCLUDE ([Duration],[Reads],[Writes],[CPU],[ObjectName],[DatabaseName])
         public void CreateTextKey()
         {
             var command = new SqlCommand();
-            command.Connection = this.Connection;
+            command.Connection = Connection;
             command.CommandTimeout = 60 * 60;
             command.CommandText = string.Format(@"
 BEGIN TRANSACTION
@@ -328,17 +326,17 @@ ALTER TABLE [dbo].[{0}] ADD
 	[TextKey] varchar(1000) NULL
 ALTER TABLE [dbo].[{0}] SET (LOCK_ESCALATION = TABLE)
 COMMIT
-", this.TableName);
+", TableName);
             command.ExecuteNonQuery();
         }
 
         string[] GetTables()
         {
-            string[] tables = {};
-            if (this.Connection.State == System.Data.ConnectionState.Open)
+            string[] tables = { };
+            if (Connection.State == System.Data.ConnectionState.Open)
             {
                 var command = new SqlCommand();
-                command.Connection = this.Connection;
+                command.Connection = Connection;
                 command.CommandText = @"select TABLE_NAME
 from INFORMATION_SCHEMA.COLUMNS
 where COLUMN_NAME = 'EventClass'
@@ -362,19 +360,19 @@ ORDER BY TABLE_NAME";
         {
             bool isExist = false;
 
-            if (this.Connection.State == System.Data.ConnectionState.Open)
+            if (Connection.State == System.Data.ConnectionState.Open)
             {
                 var command = new SqlCommand();
-                command.Connection = this.Connection;
-				command.CommandTimeout = 60;
+                command.Connection = Connection;
+                command.CommandTimeout = 60;
                 command.CommandText = @"select TABLE_NAME
 from INFORMATION_SCHEMA.COLUMNS
 where TABLE_NAME = @tableName
 ORDER BY TABLE_NAME";
                 command.Parameters.Add(new SqlParameter("@tableName", System.Data.SqlDbType.VarChar, 100)
-                    {
-                        Value = tableName
-                    }
+                {
+                    Value = tableName
+                }
                     );
                 command.Prepare();
                 var reader = command.ExecuteReader();
@@ -388,17 +386,17 @@ ORDER BY TABLE_NAME";
         {
             int rowCount = -1;
 
-            if (this.Connection.State == System.Data.ConnectionState.Open)
+            if (Connection.State == System.Data.ConnectionState.Open)
             {
                 var command = new SqlCommand();
-                command.Connection = this.Connection;
-				command.CommandTimeout = 60 * 60;
+                command.Connection = Connection;
+                command.CommandTimeout = 60 * 60;
                 command.CommandText = string.Format(@"
 select count(*)
 from [dbo].[{0}]
 where TextKey IS NULL
 and (ObjectName IS NULL OR ObjectName IN ('sp_executesql'))
-and EventClass in (10, 12)", this.TableName);
+and EventClass in (10, 12)", TableName);
                 var reader = command.ExecuteReader();
                 if (reader.HasRows)
                 {
@@ -409,44 +407,44 @@ and EventClass in (10, 12)", this.TableName);
                 }
                 reader.Close();
             }
-            return rowCount;            
+            return rowCount;
         }
 
-		public int GetRowCountForPrepareSP()
-		{
-			int rowCount = -1;
+        public int GetRowCountForPrepareSP()
+        {
+            int rowCount = -1;
 
-			if (this.Connection.State == System.Data.ConnectionState.Open)
-			{
-				var command = new SqlCommand();
-				command.Connection = this.Connection;
-				command.CommandTimeout = 60 * 60;
-				command.CommandText = string.Format(@"
+            if (Connection.State == System.Data.ConnectionState.Open)
+            {
+                var command = new SqlCommand();
+                command.Connection = Connection;
+                command.CommandTimeout = 60 * 60;
+                command.CommandText = string.Format(@"
 select count(*)
 from [dbo].[{0}]
 where [ObjectName] IS NOT NULL
 and [TextKey] IS NULL
 and [ObjectName] NOT IN  ('sp_executesql')
 and EventClass in (10, 12)
-", this.TableName);
-				var reader = command.ExecuteReader();
-				if (reader.HasRows)
-				{
-					if (reader.Read())
-					{
-						rowCount = reader.GetInt32(0);
-					}
-				}
-				reader.Close();
-			}
-			return rowCount;
-		}
+", TableName);
+                var reader = command.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    if (reader.Read())
+                    {
+                        rowCount = reader.GetInt32(0);
+                    }
+                }
+                reader.Close();
+            }
+            return rowCount;
+        }
 
         public void CreateDeadlockReport()
         {
             var command = new SqlCommand();
-            command.Connection = this.Connection;
-			command.CommandTimeout = 60 * 60;
+            command.Connection = Connection;
+            command.CommandTimeout = 60 * 60;
             command.CommandText = string.Format(@"
 CREATE TABLE [dbo].[{0}](
 	[RowNumber] [int] IDENTITY(0,1) NOT NULL,
@@ -512,8 +510,8 @@ SELECT [EventClass]
         public void CreateDetailReport()
         {
             var command = new SqlCommand();
-            command.Connection = this.Connection;
-			command.CommandTimeout = 160 * 60;
+            command.Connection = Connection;
+            command.CommandTimeout = 160 * 60;
             command.CommandText = string.Format(@"
 declare @CPUSumm int; 
 declare @DurationSumm float; 
@@ -592,13 +590,29 @@ from
 		, [max(Duration)raw]/1000 as [max(Duration)] 
 		, [sum(Duration)raw]/1000 as [sum(Duration)]
 
-		, round(cast([sum(Duration)raw] as float) / @DurationSumm * 100, 3) as [% Duration]
+		, case 
+            when @DurationSumm > 0 
+            then round(cast([sum(Duration)raw] as float) / @DurationSumm * 100, 3)
+            else 0 
+          end as [% Duration]
 
-		, round(cast([sum(Reads)] as float) / @ReadsSumm * 100, 3) as [% Reads]
+		, case
+            when @ReadsSumm > 0
+            then round(cast([sum(Reads)] as float) / @ReadsSumm * 100, 3)
+            else 0
+          end as [% Reads]
 
-		, round(cast([sum(Writes)] as float) / @WritesSumm * 100, 3) as [% Writes]
+		, case
+            when @WritesSumm > 0
+            then round(cast([sum(Writes)] as float) / @WritesSumm * 100, 3)
+            else 0
+          end as [% Writes]
 
-		, round([Count] / @CountSumm * 100, 3) as [% Count]
+		, case
+            when @CountSumm > 0
+            then round([Count] / @CountSumm * 100, 3)
+            else 0
+          end as [% Count]
 
 		, (select top 1 [TextData] from [{0}]) as [TextData-min(Duration)]
 		, (select top 1 [TextData] from [{0}]) as [TextData-max(Duration)]
@@ -647,76 +661,76 @@ from
 	) as [Statistic]
 ) as [Statistic2]
 order by [% Duration] desc
-    ", this.TableName, this.TableNameDetail);
+    ", TableName, TableNameDetail);
             command.ExecuteNonQuery();
 
-			try
-			{
-				CreateIndexOnTextKeys();
-			}
-			catch (Exception ex)
-			{
-			}
+            try
+            {
+                CreateIndexOnTextKeys();
+            }
+            catch (Exception ex)
+            {
+            }
 
-			command.CommandText = string.Format(@"
+            command.CommandText = string.Format(@"
 CREATE NONCLUSTERED INDEX [IX_TraceTableDetailStat_TextKey_DatabaseName]
 ON [dbo].[{0}] ([DatabaseName],[TextKey])
-", this.TableNameDetail);
-			command.ExecuteNonQuery();
+", TableNameDetail);
+            command.ExecuteNonQuery();
 
-			command.CommandText = string.Format(@"
+            command.CommandText = string.Format(@"
 UPDATE [dbo].[{1}] SET [TextData-min(Duration)] = 
 (select top 1 [TextData] from [{0}] where [TextKey] = [dbo].[{1}].[TextKey] and [DatabaseName] = [dbo].[{1}].[DatabaseName] and Duration = [dbo].[{1}].[min(Duration)raw])
-    ", this.TableName, this.TableNameDetail);
-			command.ExecuteNonQuery();
+    ", TableName, TableNameDetail);
+            command.ExecuteNonQuery();
 
-			command.CommandText = string.Format(@"
+            command.CommandText = string.Format(@"
 UPDATE [dbo].[{1}] SET [TextData-max(Duration)] = 
 (select top 1 [TextData] from [{0}] where [TextKey] = [dbo].[{1}].[TextKey] and [DatabaseName] = [dbo].[{1}].[DatabaseName] and Duration = [dbo].[{1}].[max(Duration)raw])
-    ", this.TableName, this.TableNameDetail);
-			command.ExecuteNonQuery();
+    ", TableName, TableNameDetail);
+            command.ExecuteNonQuery();
 
-			command.CommandText = string.Format(@"
+            command.CommandText = string.Format(@"
 UPDATE [dbo].[{1}] SET [TextData-min(CPU)] = 
 (select top 1 [TextData] from [{0}] where [TextKey] = [dbo].[{1}].[TextKey] and [DatabaseName] = [dbo].[{1}].[DatabaseName] and CPU = [dbo].[{1}].[min(CPU)])
-    ", this.TableName, this.TableNameDetail);
-			command.ExecuteNonQuery();
+    ", TableName, TableNameDetail);
+            command.ExecuteNonQuery();
 
-			command.CommandText = string.Format(@"
+            command.CommandText = string.Format(@"
 UPDATE [dbo].[{1}] SET [TextData-max(CPU)] = 
 (select top 1 [TextData] from [{0}] where [TextKey] = [dbo].[{1}].[TextKey] and [DatabaseName] = [dbo].[{1}].[DatabaseName] and CPU = [dbo].[{1}].[max(CPU)])
-    ", this.TableName, this.TableNameDetail);
-			command.ExecuteNonQuery();
+    ", TableName, TableNameDetail);
+            command.ExecuteNonQuery();
 
-			command.CommandText = string.Format(@"
+            command.CommandText = string.Format(@"
 UPDATE [dbo].[{1}] SET [TextData-min(Reads)] = 
 (select top 1 [TextData] from [{0}] where [TextKey] = [dbo].[{1}].[TextKey] and [DatabaseName] = [dbo].[{1}].[DatabaseName] and Reads = [dbo].[{1}].[min(Reads)])
-    ", this.TableName, this.TableNameDetail);
-			command.ExecuteNonQuery();
+    ", TableName, TableNameDetail);
+            command.ExecuteNonQuery();
 
-			command.CommandText = string.Format(@"
+            command.CommandText = string.Format(@"
 UPDATE [dbo].[{1}] SET [TextData-max(Reads)] = 
 (select top 1 [TextData] from [{0}] where [TextKey] = [dbo].[{1}].[TextKey] and [DatabaseName] = [dbo].[{1}].[DatabaseName] and Reads = [dbo].[{1}].[max(Reads)])
-    ", this.TableName, this.TableNameDetail);
-			command.ExecuteNonQuery();
+    ", TableName, TableNameDetail);
+            command.ExecuteNonQuery();
 
-			command.CommandText = string.Format(@"
+            command.CommandText = string.Format(@"
 UPDATE [dbo].[{1}] SET [TextData-min(Writes)] = 
 (select top 1 [TextData] from [{0}] where [TextKey] = [dbo].[{1}].[TextKey] and [DatabaseName] = [dbo].[{1}].[DatabaseName] and Writes = [dbo].[{1}].[min(Writes)])
-    ", this.TableName, this.TableNameDetail);
-			command.ExecuteNonQuery();
+    ", TableName, TableNameDetail);
+            command.ExecuteNonQuery();
 
-			command.CommandText = string.Format(@"
+            command.CommandText = string.Format(@"
 UPDATE [dbo].[{1}] SET [TextData-max(Writes)] = 
 (select top 1 [TextData] from [{0}] where [TextKey] = [dbo].[{1}].[TextKey] and [DatabaseName] = [dbo].[{1}].[DatabaseName] and Writes = [dbo].[{1}].[max(Writes)])
-    ", this.TableName, this.TableNameDetail);
-			command.ExecuteNonQuery();
-		}
+    ", TableName, TableNameDetail);
+            command.ExecuteNonQuery();
+        }
 
         public void CreateDraftReport()
         {
             var command = new SqlCommand();
-            command.Connection = this.Connection;
+            command.Connection = Connection;
             command.CommandTimeout = 60 * 60;
             command.CommandText = string.Format(@"
 declare @CPUSumm int; 
@@ -846,15 +860,15 @@ from
 	) as [Statistic]
 ) as [Statistic2]
 order by [% Duration] desc
-    ", this.TableName, this.TableNameDraft);
+    ", TableName, TableNameDraft);
             command.ExecuteNonQuery();
         }
 
         public void CreateErrorReport()
         {
             var command = new SqlCommand();
-            command.Connection = this.Connection;
-			command.CommandTimeout = 60 * 60;
+            command.Connection = Connection;
+            command.CommandTimeout = 60 * 60;
             command.CommandText = string.Format(@"
 SELECT [DatabaseName], [Error], [ApplicationName], [ErrorText], count(*) as [Count], Max([StartTime]) as [StartTime]
 INTO [dbo].[{1}]
@@ -866,14 +880,14 @@ FROM
 ) [Errors]
 GROUP BY [DatabaseName], [Error], [ApplicationName], [ErrorText]
 ORDER BY [DatabaseName], [Error], [ApplicationName], [ErrorText]
-            ", this.TableName, this.TableNameError);
+            ", TableName, TableNameError);
             command.ExecuteNonQuery();
         }
 
         public void CreateFunctionPrepareTextData()
         {
             var command = new SqlCommand();
-            command.Connection = this.Connection;
+            command.Connection = Connection;
             command.CommandTimeout = 60 * 60;
             command.CommandText = @"
 CREATE FUNCTION [dbo].[PrepareTextData4]
@@ -1136,8 +1150,8 @@ END
         public bool ColumnExistInTable(string tableName, string columnName = "TextKey")
         {
             var command = new SqlCommand();
-            command.Connection = this.Connection;
-			command.CommandTimeout = 60 * 60;
+            command.Connection = Connection;
+            command.CommandTimeout = 60 * 60;
 
             command.CommandText = @"
 select column_name, TABLE_CATALOG
@@ -1145,13 +1159,13 @@ from INFORMATION_SCHEMA.COLUMNS
 where TABLE_NAME = @tableName
 and COLUMN_NAME = @columnName";
             command.Parameters.Clear();
-            command.Parameters.Add( new SqlParameter("@tableName", System.Data.SqlDbType.VarChar, 100)
+            command.Parameters.Add(new SqlParameter("@tableName", System.Data.SqlDbType.VarChar, 100)
             {
                 Value = tableName
             });
             command.Parameters.Add(new SqlParameter("@database", System.Data.SqlDbType.VarChar, 100)
             {
-                Value = this.DataBase
+                Value = DataBase
             });
             command.Parameters.Add(new SqlParameter("@columnName", System.Data.SqlDbType.VarChar, 100)
             {
@@ -1165,12 +1179,12 @@ and COLUMN_NAME = @columnName";
             return isExist;
         }
 
-		public void CreateMinuteAndSecondColumn()
-		{
-			var command = new SqlCommand();
-			command.Connection = this.Connection;
-			command.CommandTimeout = 60 * 60;
-			command.CommandText = string.Format(@"
+        public void CreateMinuteAndSecondColumn()
+        {
+            var command = new SqlCommand();
+            command.Connection = Connection;
+            command.CommandTimeout = 60 * 60;
+            command.CommandText = string.Format(@"
 BEGIN TRANSACTION
 ALTER TABLE [dbo].[{0}] ADD
 	[Second01] int NULL,
@@ -1183,16 +1197,16 @@ ALTER TABLE [dbo].[{0}] ADD
 	[Munute05] int NULL
 ALTER TABLE [dbo].[{0}] SET (LOCK_ESCALATION = TABLE)
 COMMIT
-", this.TableName);
-			command.ExecuteNonQuery();
-		}
+", TableName);
+            command.ExecuteNonQuery();
+        }
 
-		public void FillMinuteAndSecondColumn()
-		{
-			var command = new SqlCommand();
-			command.Connection = this.Connection;
-			command.CommandTimeout = 60 * 60;
-			command.CommandText = string.Format(@"
+        public void FillMinuteAndSecondColumn()
+        {
+            var command = new SqlCommand();
+            command.Connection = Connection;
+            command.CommandTimeout = 60 * 60;
+            command.CommandText = string.Format(@"
 declare @minStartDate datetime
 select @minStartDate = min([StartTime])
 from [dbo].[{0}]
@@ -1211,96 +1225,96 @@ set [Second05] =  5 * ROUND([Second01] /  5, 0),
     [Munute04] =  4 * ROUND([Munute01] /  4, 0),
     [Munute05] =  5 * ROUND([Munute01] /  5, 0)
 where [EventClass] in (10, 12)
-", this.TableName);
-			command.ExecuteNonQuery();
-		}
+", TableName);
+            command.ExecuteNonQuery();
+        }
 
-		string GetTextData(string databaseName, string textKey, string fildName)
-		{
-			string result = null;
-			var command = new SqlCommand();
-			command.Connection = this.Connection;
-			command.CommandTimeout = 60 * 60;
-			command.CommandText = string.Format(@"
+        string GetTextData(string databaseName, string textKey, string fildName)
+        {
+            string result = null;
+            var command = new SqlCommand();
+            command.Connection = Connection;
+            command.CommandTimeout = 60 * 60;
+            command.CommandText = string.Format(@"
 SELECT [{0}]
   FROM [dbo].[{1}]
  WHERE [DatabaseName] = @databaseName AND [TextKey-key] = @textKey
-", fildName, this.TableNameDetail);
-			command.Parameters.Clear();
-			command.Parameters.Add(new SqlParameter("@databaseName", System.Data.SqlDbType.VarChar, 100)
-			{
-				Value = databaseName
-			});
-			command.Parameters.Add(new SqlParameter("@textKey", System.Data.SqlDbType.VarChar, 100)
-			{
-				Value = textKey
-			});
-			command.Prepare();
-			SqlDataReader reader = command.ExecuteReader();
-			if (reader.HasRows)
-			{
-				if (reader.Read())
-				{
-					result = reader.GetStringOrNull(0);
-				}
-			}
-			reader.Close();
-			TrySaveText(databaseName, textKey, fildName, result);
-			return result;
-		}
+", fildName, TableNameDetail);
+            command.Parameters.Clear();
+            command.Parameters.Add(new SqlParameter("@databaseName", System.Data.SqlDbType.VarChar, 100)
+            {
+                Value = databaseName
+            });
+            command.Parameters.Add(new SqlParameter("@textKey", System.Data.SqlDbType.VarChar, 100)
+            {
+                Value = textKey
+            });
+            command.Prepare();
+            SqlDataReader reader = command.ExecuteReader();
+            if (reader.HasRows)
+            {
+                if (reader.Read())
+                {
+                    result = reader.GetStringOrNull(0);
+                }
+            }
+            reader.Close();
+            TrySaveText(databaseName, textKey, fildName, result);
+            return result;
+        }
 
-		void TrySaveText(string databaseName, string textKey, string field, string text)
-		{
-			try
-			{
-				if (!System.IO.Directory.Exists(databaseName))
-				{
-					System.IO.Directory.CreateDirectory(databaseName);
-				}
-				string safeTextKey = textKey;
-				foreach (char ch in System.IO.Path.GetInvalidPathChars())
-				{
-					safeTextKey = safeTextKey.Replace(ch, '_');
-				}
-				char[] expectedChars = { '\\', '/', ':', '*', '?', '<', '>', '|' };
-				foreach (char ch in expectedChars)
-				{
-					safeTextKey = safeTextKey.Replace(ch, '_');
-				}
+        void TrySaveText(string databaseName, string textKey, string field, string text)
+        {
+            try
+            {
+                if (!System.IO.Directory.Exists(databaseName))
+                {
+                    System.IO.Directory.CreateDirectory(databaseName);
+                }
+                string safeTextKey = textKey;
+                foreach (char ch in System.IO.Path.GetInvalidPathChars())
+                {
+                    safeTextKey = safeTextKey.Replace(ch, '_');
+                }
+                char[] expectedChars = { '\\', '/', ':', '*', '?', '<', '>', '|' };
+                foreach (char ch in expectedChars)
+                {
+                    safeTextKey = safeTextKey.Replace(ch, '_');
+                }
 
-				string path = databaseName + "\\" + safeTextKey;
-				if (!System.IO.Directory.Exists(path))
-				{
-					System.IO.Directory.CreateDirectory(path);
-				}
-				System.IO.File.WriteAllText(databaseName + "\\" + safeTextKey + "\\" + field + ".sql", text);
-			}
-			catch
-			{
-			}
-		}
+                string path = databaseName + "\\" + safeTextKey;
+                if (!System.IO.Directory.Exists(path))
+                {
+                    System.IO.Directory.CreateDirectory(path);
+                }
+                System.IO.File.WriteAllText(databaseName + "\\" + safeTextKey + "\\" + field + ".sql", text);
+            }
+            catch
+            {
+            }
+        }
 
-		public Model.DetailStat FillDetailStat(Model.DetailStat node)
-		{
-			node.TextDataMinDuration = node.TextDataMinDuration ?? GetTextData(node.DatabaseName, node.TextKeyKey, "TextData-min(Duration)");
-			node.TextDataMaxDuration = node.TextDataMaxDuration ?? GetTextData(node.DatabaseName, node.TextKeyKey, "TextData-max(Duration)");
-			node.TextDataMinReads = node.TextDataMinReads ?? GetTextData(node.DatabaseName, node.TextKeyKey, "TextData-min(Reads)");
-			node.TextDataMaxReads = node.TextDataMaxReads ?? GetTextData(node.DatabaseName, node.TextKeyKey, "TextData-max(Reads)");
-			node.TextDataMinCPU = node.TextDataMinCPU ?? GetTextData(node.DatabaseName, node.TextKeyKey, "TextData-min(CPU)");
-			node.TextDataMaxCPU = node.TextDataMaxCPU ?? GetTextData(node.DatabaseName, node.TextKeyKey, "TextData-max(CPU)");
-			node.TextDataMinWrites = node.TextDataMinWrites ?? GetTextData(node.DatabaseName, node.TextKeyKey, "TextData-min(Writes)");
-			node.TextDataMaxWrites = node.TextDataMaxWrites ?? GetTextData(node.DatabaseName, node.TextKeyKey, "TextData-max(Writes)");
-			return node;
-		}
+        public Model.DetailStat FillDetailStat(Model.DetailStat node)
+        {
+            node.TextDataMinDuration = node.TextDataMinDuration ?? GetTextData(node.DatabaseName, node.TextKeyKey, "TextData-min(Duration)");
+            node.TextDataMaxDuration = node.TextDataMaxDuration ?? GetTextData(node.DatabaseName, node.TextKeyKey, "TextData-max(Duration)");
+            node.TextDataMinReads = node.TextDataMinReads ?? GetTextData(node.DatabaseName, node.TextKeyKey, "TextData-min(Reads)");
+            node.TextDataMaxReads = node.TextDataMaxReads ?? GetTextData(node.DatabaseName, node.TextKeyKey, "TextData-max(Reads)");
+            node.TextDataMinCPU = node.TextDataMinCPU ?? GetTextData(node.DatabaseName, node.TextKeyKey, "TextData-min(CPU)");
+            node.TextDataMaxCPU = node.TextDataMaxCPU ?? GetTextData(node.DatabaseName, node.TextKeyKey, "TextData-max(CPU)");
+            node.TextDataMinWrites = node.TextDataMinWrites ?? GetTextData(node.DatabaseName, node.TextKeyKey, "TextData-min(Writes)");
+            node.TextDataMaxWrites = node.TextDataMaxWrites ?? GetTextData(node.DatabaseName, node.TextKeyKey, "TextData-max(Writes)");
+            return node;
+        }
 
-		public ReadOnlyCollection<Model.DetailStat> GetDetailStat()
-		{
-			ReadOnlyCollection<Model.DetailStat> result = null;
+        public ReadOnlyCollection<Model.DetailStat> GetDetailStat()
+        {
+            ReadOnlyCollection<Model.DetailStat> result = null;
 
-			var command = new SqlCommand();
-			command.Connection = this.Connection;
-			command.CommandTimeout = 60 * 60;
-			command.CommandText = string.Format(@"
+            var command = new SqlCommand();
+            command.Connection = Connection;
+            command.CommandTimeout = 60 * 60;
+            command.CommandText = string.Format(@"
 SELECT [DatabaseName]
       ,[TextKey-key]
       ,[avg(CPU)-key]
@@ -1342,73 +1356,73 @@ SELECT [DatabaseName]
       ,[min(Duration)raw]
       ,[max(Duration)raw]
   FROM [dbo].[{0}]
-", this.TableNameDetail);
-			SqlDataReader reader = command.ExecuteReader();
-			if (reader.HasRows)
-			{
-				List<Model.DetailStat> listData = new List<Model.DetailStat>();
-				while (reader.Read())
-				{
-					Model.DetailStat data = new Model.DetailStat();
-					int index = 0;
-					data.DatabaseName = reader.GetStringOrNull(index); index++;
-					data.TextKeyKey = reader.GetStringOrNull(index); index++;
-					data.AvgCPUKey = reader.GetIntOrNull(index); index++;
-					data.AvgDurationKey = reader.GetLongOrNull(index); index++;
-					data.PercentDurationKey = reader.GetDoubleOrNull(index); index++;
-					data.AvgReadsKey = reader.GetLongOrNull(index); index++;
-					data.CountKey = reader.GetIntOrNull(index); index++;
-					data.TextKey = reader.GetStringOrNull(index); index++;
+", TableNameDetail);
+            SqlDataReader reader = command.ExecuteReader();
+            if (reader.HasRows)
+            {
+                List<Model.DetailStat> listData = new List<Model.DetailStat>();
+                while (reader.Read())
+                {
+                    Model.DetailStat data = new Model.DetailStat();
+                    int index = 0;
+                    data.DatabaseName = reader.GetStringOrNull(index); index++;
+                    data.TextKeyKey = reader.GetStringOrNull(index); index++;
+                    data.AvgCPUKey = reader.GetIntOrNull(index); index++;
+                    data.AvgDurationKey = reader.GetLongOrNull(index); index++;
+                    data.PercentDurationKey = reader.GetDoubleOrNull(index); index++;
+                    data.AvgReadsKey = reader.GetLongOrNull(index); index++;
+                    data.CountKey = reader.GetIntOrNull(index); index++;
+                    data.TextKey = reader.GetStringOrNull(index); index++;
 
-					data.MinCPU = reader.GetIntOrNull(index); index++;
-					data.AvgCPU = reader.GetIntOrNull(index); index++;
-					data.MaxCPU = reader.GetIntOrNull(index); index++;
-					data.SumCPU = reader.GetIntOrNull(index); index++;
-					data.PercentCPU = reader.GetDoubleOrNull(index); index++;
+                    data.MinCPU = reader.GetIntOrNull(index); index++;
+                    data.AvgCPU = reader.GetIntOrNull(index); index++;
+                    data.MaxCPU = reader.GetIntOrNull(index); index++;
+                    data.SumCPU = reader.GetIntOrNull(index); index++;
+                    data.PercentCPU = reader.GetDoubleOrNull(index); index++;
 
-					data.MinDuration = reader.GetLongOrNull(index); index++;
-					data.AvgDuration = reader.GetLongOrNull(index); index++;
-					data.MaxDuration = reader.GetLongOrNull(index); index++;
-					data.SumDuration = reader.GetLongOrNull(index); index++;
-					data.PercentDuration = reader.GetDoubleOrNull(index); index++;
+                    data.MinDuration = reader.GetLongOrNull(index); index++;
+                    data.AvgDuration = reader.GetLongOrNull(index); index++;
+                    data.MaxDuration = reader.GetLongOrNull(index); index++;
+                    data.SumDuration = reader.GetLongOrNull(index); index++;
+                    data.PercentDuration = reader.GetDoubleOrNull(index); index++;
 
-					data.MinReads = reader.GetLongOrNull(index); index++;
-					data.AvgReads = reader.GetLongOrNull(index); index++;
-					data.MaxReads = reader.GetLongOrNull(index); index++;
-					data.SumReads = reader.GetLongOrNull(index); index++;
-					data.PercentReads = reader.GetDoubleOrNull(index); index++;
+                    data.MinReads = reader.GetLongOrNull(index); index++;
+                    data.AvgReads = reader.GetLongOrNull(index); index++;
+                    data.MaxReads = reader.GetLongOrNull(index); index++;
+                    data.SumReads = reader.GetLongOrNull(index); index++;
+                    data.PercentReads = reader.GetDoubleOrNull(index); index++;
 
-					data.MinWrites = reader.GetLongOrNull(index); index++;
-					data.AvgWrites = reader.GetLongOrNull(index); index++;
-					data.MaxWrites = reader.GetLongOrNull(index); index++;
-					data.SumWrites = reader.GetLongOrNull(index); index++;
-					data.PercentWrites = reader.GetDoubleOrNull(index); index++;
+                    data.MinWrites = reader.GetLongOrNull(index); index++;
+                    data.AvgWrites = reader.GetLongOrNull(index); index++;
+                    data.MaxWrites = reader.GetLongOrNull(index); index++;
+                    data.SumWrites = reader.GetLongOrNull(index); index++;
+                    data.PercentWrites = reader.GetDoubleOrNull(index); index++;
 
-					data.Count = reader.GetIntOrNull(index); index++;
-					data.PercentCount = reader.GetDoubleOrNull(index); index++;
+                    data.Count = reader.GetIntOrNull(index); index++;
+                    data.PercentCount = reader.GetDoubleOrNull(index); index++;
 
-					data.TextDataMinDuration = null; // reader.GetStringOrNull(index); index++;
-					data.TextDataMaxDuration = null; // reader.GetStringOrNull(index); index++;
+                    data.TextDataMinDuration = null; // reader.GetStringOrNull(index); index++;
+                    data.TextDataMaxDuration = null; // reader.GetStringOrNull(index); index++;
 
-					data.TextDataMinReads = null; // reader.GetStringOrNull(index); index++;
-					data.TextDataMaxReads = null; // reader.GetStringOrNull(index); index++;
+                    data.TextDataMinReads = null; // reader.GetStringOrNull(index); index++;
+                    data.TextDataMaxReads = null; // reader.GetStringOrNull(index); index++;
 
-					data.TextDataMinCPU = null; // reader.GetStringOrNull(index); index++;
-					data.TextDataMaxCPU = null; // reader.GetStringOrNull(index); index++;
+                    data.TextDataMinCPU = null; // reader.GetStringOrNull(index); index++;
+                    data.TextDataMaxCPU = null; // reader.GetStringOrNull(index); index++;
 
-					data.TextDataMinWrites = null; // reader.GetStringOrNull(index); index++;
-					data.TextDataMaxWrites = null; // reader.GetStringOrNull(index); index++;
+                    data.TextDataMinWrites = null; // reader.GetStringOrNull(index); index++;
+                    data.TextDataMaxWrites = null; // reader.GetStringOrNull(index); index++;
 
-					data.MinDurationRaw = reader.GetLongOrNull(index); index++;
-					data.MaxDurationRaw = reader.GetLongOrNull(index); index++;
+                    data.MinDurationRaw = reader.GetLongOrNull(index); index++;
+                    data.MaxDurationRaw = reader.GetLongOrNull(index); index++;
 
-					listData.Add(data);
-				}
-				result = listData.AsReadOnly();
-			}
-			reader.Close();
-			return result;
-		}
+                    listData.Add(data);
+                }
+                result = listData.AsReadOnly();
+            }
+            reader.Close();
+            return result;
+        }
 
         /// <summary>
         /// Проверка наличия в базе данных функции с указанным именем.
@@ -1420,19 +1434,19 @@ SELECT [DatabaseName]
         {
             bool isExist = false;
 
-            if (this.Connection.State == System.Data.ConnectionState.Open)
+            if (Connection.State == System.Data.ConnectionState.Open)
             {
                 var command = new SqlCommand();
-                command.Connection = this.Connection;
+                command.Connection = Connection;
                 command.CommandTimeout = 60;
                 command.CommandText = @"select o.name, m.definition, o.type_desc
 FROM sys.sql_modules m 
 INNER JOIN sys.objects o ON m.object_id=o.object_id
 WHERE o.type = 'FN' and name=@functionName";
                 command.Parameters.Add(new SqlParameter("@functionName", System.Data.SqlDbType.NVarChar, 128)
-                    {
-                        Value = functionName
-                    }
+                {
+                    Value = functionName
+                }
                     );
                 command.Prepare();
                 var reader = command.ExecuteReader();

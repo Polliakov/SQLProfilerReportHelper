@@ -1,25 +1,25 @@
-﻿use "ProfilerResults"
-SELECT "EventClass"
-	, "TextData"
-	, "TransactionID"
-	, "ClientProcessID"
-	, "ApplicationName"
-	, "Login"
-	, "SPID"
-	, "Duration"
-	, "StartTime"
-	, "EndTime"
-	, "Reads"
-	, "Writes"
-	, "CPU"
-	, "Error"
-	, "ObjectName"
-	, "DatabaseName"
-	, "RowCounts"
-	, "RequestID"
-	, "XactSequence"
-INTO "TraceTable"
-FROM ::fn_trace_gettable(N'D:\Traces\Synerdocs\LoadTest.SOAP.Trace.StartOn 2013.08.07 17.58.43.trc', default)
+﻿SELECT
+	  [EventClass]
+	, [TextData]
+	, [Duration]
+	, [StartTime]
+	, [Reads]
+	, [Writes]
+	, [CPU]
+	, [Error]
+	, [ObjectName]
+	, [DatabaseName]
+	, [TransactionID]
+	, [ClientProcessID]
+	, [ApplicationName]
+	, [LoginName]
+	, [SPID]
+	, [EndTime]
+	, [RowCounts]
+	, [RequestID]
+	, [XactSequence]
+INTO [Trace]
+FROM ::fn_trace_gettable(N'D:\SqlProfiling\trace_2024-10-22 170634.trc.trc', default)
 
 /*
 Статистика показателей выполения запроса:

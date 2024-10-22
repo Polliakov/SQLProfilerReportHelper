@@ -1,9 +1,9 @@
 ﻿namespace Tools
 {
     using System;
-	using System.Data.SqlClient;
+    using System.Data.SqlClient;
 
-	public static class SqlDataReaderExtension
+    public static class SqlDataReaderExtension
     {
         public static bool? GetBooleanOrNull(this SqlDataReader reader, int index)
         {
@@ -19,49 +19,49 @@
             return result;
         }
 
-		public static long? GetLongOrNull(this SqlDataReader reader, int index)
-		{
-			long? result;
-			if (reader.IsDBNull(index))
-			{
-				result = null;
-			}
-			else
-			{
-				result = reader.GetInt64(index);
-			}
-			return result;
-		}
+        public static long? GetLongOrNull(this SqlDataReader reader, int index)
+        {
+            long? result;
+            if (reader.IsDBNull(index))
+            {
+                result = null;
+            }
+            else
+            {
+                result = reader.GetInt64(index);
+            }
+            return result;
+        }
 
-		public static float? GetFloatOrNull(this SqlDataReader reader, int index)
-		{
-			float? result;
-			if (reader.IsDBNull(index))
-			{
-				result = null;
-			}
-			else
-			{
-				result = reader.GetFloat(index);
-			}
-			return result;
-		}
+        public static float? GetFloatOrNull(this SqlDataReader reader, int index)
+        {
+            float? result;
+            if (reader.IsDBNull(index))
+            {
+                result = null;
+            }
+            else
+            {
+                result = reader.GetFloat(index);
+            }
+            return result;
+        }
 
-		public static double? GetDoubleOrNull(this SqlDataReader reader, int index)
-		{
-			double? result;
-			if (reader.IsDBNull(index))
-			{
-				result = null;
-			}
-			else
-			{
-				result = reader.GetDouble(index);
-			}
-			return result;
-		}
+        public static double? GetDoubleOrNull(this SqlDataReader reader, int index)
+        {
+            double? result;
+            if (reader.IsDBNull(index))
+            {
+                result = null;
+            }
+            else
+            {
+                result = reader.GetDouble(index);
+            }
+            return result;
+        }
 
-		public static int? GetIntOrNull(this SqlDataReader reader, int index)
+        public static int? GetIntOrNull(this SqlDataReader reader, int index)
         {
             int? result;
             if (reader.IsDBNull(index))
