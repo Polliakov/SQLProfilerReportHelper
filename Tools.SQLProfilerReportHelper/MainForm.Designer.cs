@@ -88,19 +88,19 @@
             this.checkBoxErrorReportStatus = new System.Windows.Forms.CheckBox();
             this.labelErrorReportStatus = new System.Windows.Forms.Label();
             this.panelConsole = new System.Windows.Forms.Panel();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this._panelLeft = new System.Windows.Forms.Panel();
             this._panelRight = new System.Windows.Forms.Panel();
+            this._groupBoxTrace = new System.Windows.Forms.GroupBox();
             this._buttonStartNewTrace = new System.Windows.Forms.Button();
+            this._panelLeft = new System.Windows.Forms.Panel();
             this.groupBoxConnect.SuspendLayout();
             this.groupBoxFunction.SuspendLayout();
             this.groupBoxTable.SuspendLayout();
             this.groupBoxPrepare.SuspendLayout();
             this.groupBoxReports.SuspendLayout();
             this.panelConsole.SuspendLayout();
-            this.groupBox1.SuspendLayout();
-            this._panelLeft.SuspendLayout();
             this._panelRight.SuspendLayout();
+            this._groupBoxTrace.SuspendLayout();
+            this._panelLeft.SuspendLayout();
             this.SuspendLayout();
             // 
             // backgroundWorkerPrepareTabele
@@ -199,7 +199,7 @@
             this.buttonCheckFunction.TabIndex = 28;
             this.buttonCheckFunction.Text = "Check";
             this.buttonCheckFunction.UseVisualStyleBackColor = true;
-            this.buttonCheckFunction.Click += new System.EventHandler(this.buttonCheckFunction_Click);
+            this.buttonCheckFunction.Click += new System.EventHandler(this.ButtonCheckFunction_Click);
             // 
             // groupBoxFunction
             // 
@@ -746,16 +746,34 @@
             this.panelConsole.Size = new System.Drawing.Size(845, 520);
             this.panelConsole.TabIndex = 2;
             // 
-            // groupBox1
+            // _panelRight
             // 
-            this.groupBox1.Controls.Add(this._buttonStartNewTrace);
-            this.groupBox1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.groupBox1.Location = new System.Drawing.Point(0, 0);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(324, 173);
-            this.groupBox1.TabIndex = 43;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Traces";
+            this._panelRight.Controls.Add(this._groupBoxTrace);
+            this._panelRight.Location = new System.Drawing.Point(518, 3);
+            this._panelRight.Name = "_panelRight";
+            this._panelRight.Size = new System.Drawing.Size(324, 509);
+            this._panelRight.TabIndex = 44;
+            // 
+            // _groupBoxTrace
+            // 
+            this._groupBoxTrace.Controls.Add(this._buttonStartNewTrace);
+            this._groupBoxTrace.Dock = System.Windows.Forms.DockStyle.Top;
+            this._groupBoxTrace.Location = new System.Drawing.Point(0, 0);
+            this._groupBoxTrace.Name = "_groupBoxTrace";
+            this._groupBoxTrace.Size = new System.Drawing.Size(324, 173);
+            this._groupBoxTrace.TabIndex = 43;
+            this._groupBoxTrace.TabStop = false;
+            this._groupBoxTrace.Text = "Traces";
+            // 
+            // _buttonStartNewTrace
+            // 
+            this._buttonStartNewTrace.Location = new System.Drawing.Point(6, 22);
+            this._buttonStartNewTrace.Name = "_buttonStartNewTrace";
+            this._buttonStartNewTrace.Size = new System.Drawing.Size(75, 23);
+            this._buttonStartNewTrace.TabIndex = 0;
+            this._buttonStartNewTrace.Text = "NewTrace";
+            this._buttonStartNewTrace.UseVisualStyleBackColor = true;
+            this._buttonStartNewTrace.Click += new System.EventHandler(this.ButtonStartNewTrace_Click);
             // 
             // _panelLeft
             // 
@@ -768,24 +786,6 @@
             this._panelLeft.Name = "_panelLeft";
             this._panelLeft.Size = new System.Drawing.Size(509, 509);
             this._panelLeft.TabIndex = 40;
-            // 
-            // _panelRight
-            // 
-            this._panelRight.Controls.Add(this.groupBox1);
-            this._panelRight.Location = new System.Drawing.Point(518, 3);
-            this._panelRight.Name = "_panelRight";
-            this._panelRight.Size = new System.Drawing.Size(324, 509);
-            this._panelRight.TabIndex = 44;
-            // 
-            // _buttonStartNewTrace
-            // 
-            this._buttonStartNewTrace.Location = new System.Drawing.Point(6, 22);
-            this._buttonStartNewTrace.Name = "_buttonStartNewTrace";
-            this._buttonStartNewTrace.Size = new System.Drawing.Size(75, 23);
-            this._buttonStartNewTrace.TabIndex = 0;
-            this._buttonStartNewTrace.Text = "NewTrace";
-            this._buttonStartNewTrace.UseVisualStyleBackColor = true;
-            this._buttonStartNewTrace.Click += new System.EventHandler(this.ButtonStartNewTrace_Click);
             // 
             // MainForm
             // 
@@ -807,9 +807,9 @@
             this.groupBoxReports.ResumeLayout(false);
             this.groupBoxReports.PerformLayout();
             this.panelConsole.ResumeLayout(false);
-            this.groupBox1.ResumeLayout(false);
-            this._panelLeft.ResumeLayout(false);
             this._panelRight.ResumeLayout(false);
+            this._groupBoxTrace.ResumeLayout(false);
+            this._panelLeft.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -877,7 +877,7 @@
         private System.Windows.Forms.Label labelSQLServer;
         private System.Windows.Forms.Label _connectedLabel;
         private System.Windows.Forms.Panel _panelLeft;
-        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.GroupBox _groupBoxTrace;
         private System.Windows.Forms.Panel _panelRight;
         private System.Windows.Forms.Button _buttonStartNewTrace;
     }

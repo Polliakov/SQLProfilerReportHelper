@@ -157,7 +157,7 @@ ON [dbo].[{0}] ([DatabaseName],[TextKey])
             command.CommandText = string.Format(@"
 update TOP (100)
 [dbo].[{0}]
-set [TextKey] =	dbo.PrepareTextData4(CAST([TextData] as varchar(550)))
+set [TextKey] =	dbo.NormalizeTextData0(CAST([TextData] as varchar(550)))
 where [TextKey] IS NULL
 and ([ObjectName] IS NULL OR [ObjectName] IN ('sp_executesql'))
 and [EventClass] IN (10, 12)
@@ -470,7 +470,6 @@ VALUES
 --     TransactionID
 --     GroupID
 --     BinaryData
-0xFFFE900209004D006900630072006F0073006F00660074002000530051004C00200053006500720076006500720000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000A324006000000004F0054004C004F0041004400530051004C0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000FAFBEDFB00FCFF0C94000B0004000C000E000100FCFF0652000C004200FCFB0E1B000B000C000E00010004004200
 )
 
 INSERT INTO [dbo].[{1}]
@@ -874,15 +873,14 @@ ORDER BY [DatabaseName], [Error], [ApplicationName], [ErrorText]
             command.ExecuteNonQuery();
         }
 
-        public void CreateFunctionPrepareTextData()
+        public void CreateFunctionNormalizeTextData()
         {
             var command = new SqlCommand();
             command.Connection = Connection;
             command.CommandTimeout = 60 * 60;
             command.CommandText = @"
-CREATE FUNCTION [dbo].[PrepareTextData4]
+CREATE FUNCTION [dbo].[NormalizeTextData0]
 (
-	-- Add the parameters for the function here
 	@textData varchar(2000)
 )
 RETURNS varchar(400)
@@ -1131,12 +1129,11 @@ BEGIN
 	END
 
 	RETURN @textKey
-END
-
-            ";
+END";
             command.ExecuteNonQuery();
         }
 
+        [Obsolete]
         public bool ColumnExistInTable(string tableName, string columnName = "TextKey")
         {
             var command = new SqlCommand();
@@ -1409,39 +1406,5 @@ SELECT [DatabaseName]
             reader.Close();
             return result;
         }
-
-        /// <summary>
-        /// Проверка наличия в базе данных функции с указанным именем.
-        /// </summary>
-        /// <param name="functionName">Имя функции</param>
-        /// <returns>В случае наличия соединения с базой данных и наличия в ней функции возвращается true. Иначе возвращается false.</returns>
-        /// <seealso cref="http://stackoverflow.com/questions/15420235/sql-list-of-all-the-user-defined-functions-in-a-database"/>
-        public bool FunctionExists(string functionName)
-        {
-            bool isExist = false;
-
-            if (Connection.State == System.Data.ConnectionState.Open)
-            {
-                var command = new SqlCommand();
-                command.Connection = Connection;
-                command.CommandTimeout = 60;
-                command.CommandText = @"select o.name, m.definition, o.type_desc
-FROM sys.sql_modules m 
-INNER JOIN sys.objects o ON m.object_id=o.object_id
-WHERE o.type = 'FN' and name=@functionName";
-                command.Parameters.Add(new SqlParameter("@functionName", System.Data.SqlDbType.NVarChar, 128)
-                {
-                    Value = functionName
-                }
-                    );
-                command.Prepare();
-                var reader = command.ExecuteReader();
-                isExist = reader.HasRows;
-                reader.Close();
-            }
-            return isExist;
-        }
-
-
     }
 }

@@ -3,12 +3,12 @@ using System.Threading.Tasks;
 
 namespace Tools.SQLProfilerReportHelper.Database.Common
 {
-    internal class TableManager
+    internal class DbObjectsManager
     {
         private readonly SqlConnectionFactory _connectionFactory;
         private readonly Sql _sql;
 
-        public TableManager(SqlConnectionFactory connectionFactory, Sql sql)
+        public DbObjectsManager(SqlConnectionFactory connectionFactory, Sql sql)
         {
             _connectionFactory = connectionFactory;
             _sql = sql;
@@ -25,7 +25,7 @@ order by TABLE_NAME",
             return count > 0;
         }
 
-        public async Task<bool> ColumnExistInTable(string tableName, string columnName = "TextKey")
+        public async Task<bool> IsColumnExistInTable(string tableName, string columnName = "TextKey")
         {
             var count = (int)await _sql.ExecuteScalarAsync(@"
 select count(*)
@@ -40,6 +40,21 @@ and COLUMN_NAME = @columnName",
             {
                 Value = columnName
             });
+
+            return count > 0;
+        }
+
+        public async Task<bool> IsFunctionExists(string functionName)
+        {
+            var count = (int)await _sql.ExecuteScalarAsync(@"
+select count(*)
+form sys.sql_modules m 
+inner join sys.objects o on m.object_id=o.object_id
+where o.type = 'FN' and name=@functionName",
+                new SqlParameter("@functionName", System.Data.SqlDbType.NVarChar, 128)
+                {
+                    Value = functionName
+                });
 
             return count > 0;
         }

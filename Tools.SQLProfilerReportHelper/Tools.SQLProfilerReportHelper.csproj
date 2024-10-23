@@ -98,7 +98,7 @@
     </Compile>
     <Compile Include="Database\Common\Sql.cs" />
     <Compile Include="Database\Common\SqlConnectionFactory.cs" />
-    <Compile Include="Database\Common\TableManager.cs" />
+    <Compile Include="Database\Common\DbObjectsManager.cs" />
     <Compile Include="Database\Profiling\DbProfiler.cs" />
     <Compile Include="Database\Profiling\TraceColumn.cs" />
     <Compile Include="MainForm.cs">

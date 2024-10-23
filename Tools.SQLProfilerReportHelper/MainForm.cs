@@ -8,9 +8,10 @@
 
     public partial class MainForm : Form
     {
-        Helper TableUtil { get; set; }
+        public Helper TableUtil { get; set; }
 
         private DbProfiler _profiler;
+        private DbObjectsManager _dbManager;
 
         public MainForm()
         {
@@ -18,6 +19,12 @@
             TableUtil = new Helper();
             backgroundWorkerPrepareTabele.WorkerReportsProgress = true;
             backgroundWorkerPrepareTabele.WorkerSupportsCancellation = true;
+
+            groupBoxFunction.Enabled = false;
+            groupBoxPrepare.Enabled = false;
+            groupBoxReports.Enabled = false;
+            groupBoxTable.Enabled = false;
+            _groupBoxTrace.Enabled = false;
 
             _connectedLabel.Visible = false;
             buttonStart.Enabled = true;
@@ -35,6 +42,13 @@
             var f = new SqlConnectionFactory(connData.ConnectionString);
             var s = new Sql(f, 60);
             _profiler = new DbProfiler(f, s);
+            _dbManager = new DbObjectsManager(f, s);
+
+            groupBoxFunction.Enabled = true;
+            groupBoxPrepare.Enabled = true;
+            groupBoxReports.Enabled = true;
+            groupBoxTable.Enabled = true;
+            _groupBoxTrace.Enabled = true;
 
             _connectedLabel.Visible = true;
             _serverTextBox.Text = connData.DataSource;
@@ -364,16 +378,16 @@
             reportView.Show();
         }
 
-        private void buttonCheckFunction_Click(object sender, EventArgs e)
+        private async void ButtonCheckFunction_Click(object sender, EventArgs e)
         {
-            bool functionExist = TableUtil.FunctionExists("PrepareTextData4");
+            bool functionExist = await _dbManager.IsFunctionExists("NormalizeTextData0");
             checkBoxFunctionExist.Checked = functionExist;
             buttonCreateFunction.Enabled = !functionExist;
         }
 
         private void buttonCreateFunction_Click(object sender, EventArgs e)
         {
-            TableUtil.CreateFunctionPrepareTextData();
+            TableUtil.CreateFunctionNormalizeTextData();
             checkBoxFunctionExist.Checked = true;
             buttonCreateFunction.Enabled = false;
         }
