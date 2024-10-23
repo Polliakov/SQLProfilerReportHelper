@@ -96,6 +96,7 @@
     <Compile Include="ConnectSqlForm.Designer.cs">
       <DependentUpon>ConnectSqlForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Database\Aggregation\TraceAggregator.cs" />
     <Compile Include="Database\Common\Sql.cs" />
     <Compile Include="Database\Common\SqlConnectionFactory.cs" />
     <Compile Include="Database\Common\DbObjectsManager.cs" />

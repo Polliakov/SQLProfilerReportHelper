@@ -277,7 +277,7 @@
             this.comboBoxTable.Name = "comboBoxTable";
             this.comboBoxTable.Size = new System.Drawing.Size(251, 21);
             this.comboBoxTable.TabIndex = 27;
-            this.comboBoxTable.TextChanged += new System.EventHandler(this.comboBoxTable_TextChanged);
+            this.comboBoxTable.Leave += new System.EventHandler(this.ComboBoxTable_Leave);
             // 
             // labelTable
             // 

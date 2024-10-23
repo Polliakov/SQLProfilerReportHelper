@@ -48,7 +48,7 @@ and COLUMN_NAME = @columnName",
         {
             var count = (int)await _sql.ExecuteScalarAsync(@"
 select count(*)
-form sys.sql_modules m 
+from sys.sql_modules m 
 inner join sys.objects o on m.object_id=o.object_id
 where o.type = 'FN' and name=@functionName",
                 new SqlParameter("@functionName", System.Data.SqlDbType.NVarChar, 128)

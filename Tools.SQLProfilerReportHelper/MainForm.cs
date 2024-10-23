@@ -55,10 +55,10 @@
             _dbTextBox.Text = connData.InitialCatalog;
         }
 
-        private void buttonTextKeyCheck_Click(object sender, EventArgs e)
+        private async void buttonTextKeyCheck_Click(object sender, EventArgs e)
         {
             var tableName = comboBoxTable.Text;
-            checkBoxTextKeyStatus.Checked = TableUtil.ColumnExistInTable(tableName, "TextKey");
+            checkBoxTextKeyStatus.Checked = await _dbManager.IsColumnExistInTable(tableName, "TextKey");
             buttonTextKeyCreate.Enabled = !checkBoxTextKeyStatus.Checked;
             buttonStartSP.Enabled = checkBoxTextKeyStatus.Checked;
             buttonDetailReportCheck.Enabled = checkBoxTextKeyStatus.Checked;
@@ -68,14 +68,6 @@
             textBoxRowCount.Text = TableUtil.RowCountForPrepare.ToString();
             textBoxPreparedRowCount.Text = TableUtil.RowCountPrepared.ToString();
 
-        }
-
-        private void comboBoxTable_TextChanged(object sender, EventArgs e)
-        {
-            TableUtil.TableName = comboBoxTable.Text;
-            buttonTextKeyCheck.Enabled = true;
-            buttonDeadlockReportCheck.Enabled = true;
-            buttonMinuteAndSecondCheck.Enabled = true;
         }
 
         private void buttonStart_Click(object sender, EventArgs e)
@@ -405,6 +397,14 @@
                 MessageBox.Show($"Error message:" +
                     $"\n {ex}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private void ComboBoxTable_Leave(object sender, EventArgs e)
+        {
+            TableUtil.TableName = comboBoxTable.Text;
+            buttonTextKeyCheck.Enabled = true;
+            buttonDeadlockReportCheck.Enabled = true;
+            buttonMinuteAndSecondCheck.Enabled = true;
         }
     }
 }
