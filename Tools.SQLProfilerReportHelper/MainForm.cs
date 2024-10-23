@@ -1,39 +1,12 @@
 ﻿namespace Tools.SQLProfilerReportHelper
 {
     using System;
-    using System.Collections.Generic;
     using System.ComponentModel;
-    using System.IO;
-    using System.Linq;
     using System.Windows.Forms;
 
     public partial class MainForm : Form
     {
-        class ConnectionParam
-        {
-            public string SqlServer { get; set; }
-            public string Database { get; set; }
-            public string ConnectionString { get { return string.Format("{0}\t{1}", SqlServer.Trim(), Database.Trim()); } }
-            public void Parse(string connectionString)
-            {
-                char[] splitters = { '\t', ' ' };
-                string[] connectionStringParts = connectionString.Split(splitters, 2, StringSplitOptions.RemoveEmptyEntries);
-                SqlServer = Database = string.Empty;
-                if (connectionStringParts.Length >= 1)
-                {
-                    SqlServer = connectionStringParts[0];
-                }
-                if (connectionStringParts.Length >= 2)
-                {
-                    Database = connectionStringParts[1];
-                }
-            }
-        }
-
         Helper TableUtil { get; set; }
-        string SettingsFolderName { get { return "SQLProfilerReportHelper"; } }
-        string SettingsFileName { get { return "resentConnectionParams.txt"; } }
-        List<ConnectionParam> ConnectionParameters { get; set; }
 
         public MainForm()
         {
@@ -41,90 +14,23 @@
             TableUtil = new Helper();
             backgroundWorkerPrepareTabele.WorkerReportsProgress = true;
             backgroundWorkerPrepareTabele.WorkerSupportsCancellation = true;
-            loadConnectionParamSettings();
-            comboBoxSQLServer.AutoCompleteCustomSource.Clear();
-            comboBoxSQLServer.Items.Clear();
-            comboBoxDB.AutoCompleteCustomSource.Clear();
-            comboBoxDB.Items.Clear();
 
-            foreach (ConnectionParam option in ConnectionParameters)
-            {
-                comboBoxSQLServer.AutoCompleteCustomSource.Add(option.SqlServer);
-                comboBoxSQLServer.Items.Add(option.SqlServer);
-
-                comboBoxDB.AutoCompleteCustomSource.Add(option.Database);
-                comboBoxDB.Items.Add(option.Database);
-            }
+            _connectedLabel.Visible = false;
             buttonStart.Enabled = true;
         }
 
-        private void saveConnectionParamSettings(ConnectionParam connection)
+        private void ButtonConnect_Click(object sender, EventArgs e)
         {
-            string appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            string settingsFolderPath = Path.Combine(appDataPath, SettingsFolderName);
-            if (!Directory.Exists(settingsFolderPath))
-            {
-                Directory.CreateDirectory(settingsFolderPath);
-            }
-            string settingsFilePath = Path.Combine(settingsFolderPath, SettingsFileName);
-            if (!File.Exists(settingsFilePath))
-            {
-                StreamWriter writer = File.CreateText(settingsFilePath);
-                writer.Close();
-            }
-            string[] settings = File.ReadAllLines(settingsFilePath);
-            if (!settings.Contains(connection.ConnectionString, StringComparer.InvariantCultureIgnoreCase))
-            {
-                File.AppendAllText(settingsFilePath, connection.ConnectionString);
-            }
-        }
+            var connectForm = new ConnectSqlForm();
+            if (connectForm.ShowDialog() != DialogResult.OK)
+                return;
 
-        private void loadConnectionParamSettings()
-        {
-            ConnectionParameters = new List<ConnectionParam>();
-            string appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            string settingsFolderPath = Path.Combine(appDataPath, SettingsFolderName);
-            string settingsFilePath = Path.Combine(settingsFolderPath, SettingsFileName);
-            if (File.Exists(settingsFilePath))
-            {
-                string[] settings = File.ReadAllLines(settingsFilePath);
-                foreach (string connectionParam in settings)
-                {
-                    ConnectionParam param = new ConnectionParam();
-                    param.Parse(connectionParam);
-                    ConnectionParameters.Add(param);
-                }
-            }
+            var connData = connectForm.ConnectionData;
+            TableUtil.Connect(connData.ConnectionString);
 
-        }
-
-        private void buttonConnect_Click(object sender, EventArgs e)
-        {
-            var sqlServer = comboBoxSQLServer.Text;
-            var dataBase = comboBoxDB.Text;
-
-            try
-            {
-                TableUtil.Connect(sqlServer, dataBase);
-                comboBoxTable.Items.Clear();
-                comboBoxTable.Items.AddRange(TableUtil.Tables);
-                ConnectionParam options = new ConnectionParam()
-                {
-                    SqlServer = sqlServer,
-                    Database = dataBase,
-                };
-                saveConnectionParamSettings(options);
-            }
-            catch (System.Data.SqlClient.SqlException ex)
-            {
-                MessageBox.Show(
-                    string.Format("Не удалось соединиться с базой данных {0} на сервере {1} и получить список таблиц.\n{2}"
-                        , dataBase
-                        , sqlServer
-                        , ex.Message
-                    )
-                    , "Ошибка соединения");
-            }
+            _connectedLabel.Visible = true;
+            _serverTextBox.Text = connData.DataSource;
+            _dbTextBox.Text = connData.InitialCatalog;
         }
 
         private void buttonTextKeyCheck_Click(object sender, EventArgs e)
@@ -226,7 +132,7 @@
 
         private void buttonDraftReportCheck_Click(object sender, EventArgs e)
         {
-            var isExist = TableUtil.TableExist(TableUtil.TableNameDraft);
+            var isExist = TableUtil.IsTableExist(TableUtil.TableNameDraft);
             checkBoxDraftReportStatus.Checked = isExist;
             buttonDraftReportCreate.Enabled = !isExist;
         }
@@ -240,7 +146,7 @@
 
         private void buttonDetailReportCheck_Click(object sender, EventArgs e)
         {
-            var tableExist = TableUtil.TableExist(TableUtil.TableNameDetail);
+            var tableExist = TableUtil.IsTableExist(TableUtil.TableNameDetail);
             checkBoxDetailReportStatus.Checked = tableExist;
             buttonDetailReportCreate.Enabled = !checkBoxDetailReportStatus.Checked;
         }
@@ -261,7 +167,7 @@
 
         private void buttonErrorStatCheck_Click(object sender, EventArgs e)
         {
-            var tableExist = TableUtil.TableExist(TableUtil.TableNameError);
+            var tableExist = TableUtil.IsTableExist(TableUtil.TableNameError);
             checkBoxErrorReportStatus.Checked = tableExist;
             buttonErrorReportCreate.Enabled = !tableExist;
         }
@@ -275,7 +181,7 @@
 
         private void buttonDeadlockReportCheck_Click(object sender, EventArgs e)
         {
-            var tableExist = TableUtil.TableExist(TableUtil.TableNameDeadlock);
+            var tableExist = TableUtil.IsTableExist(TableUtil.TableNameDeadlock);
             checkBoxDeadlockReportStatus.Checked = tableExist;
             buttonDeadlockReportCreate.Enabled = !tableExist;
         }

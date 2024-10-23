@@ -8,8 +8,6 @@
     public class Helper
     {
         private SqlConnection Connection { get; set; }
-        private string Server { get; set; }
-        private string DataBase { get; set; }
 
         string tableName;
         /// <summary>
@@ -20,7 +18,7 @@
             get { return tableName; }
             set
             {
-                if (TableExist(value))
+                if (IsTableExist(value))
                 {
                     tableName = value;
                 }
@@ -79,17 +77,9 @@
         public int RowCountForPrepareSP { get; set; }
         public int RowCountPreparedSP { get; set; }
 
-        public void Connect(string server, string database)
+        public void Connect(string connectionString)
         {
-            Server = server;
-            DataBase = database;
-
-            var connectionBuilder = new SqlConnectionStringBuilder();
-            connectionBuilder.DataSource = Server;
-            connectionBuilder.InitialCatalog = DataBase;
-            connectionBuilder.IntegratedSecurity = true;
-
-            Connection = new SqlConnection(connectionBuilder.ConnectionString);
+            Connection = new SqlConnection(connectionString);
             Connection.Open();
 
             RowCountPrepared = 0;
@@ -356,7 +346,7 @@ ORDER BY TABLE_NAME";
             return tables;
         }
 
-        public bool TableExist(string tableName)
+        public bool IsTableExist(string tableName)
         {
             bool isExist = false;
 
@@ -1162,10 +1152,6 @@ and COLUMN_NAME = @columnName";
             command.Parameters.Add(new SqlParameter("@tableName", System.Data.SqlDbType.VarChar, 100)
             {
                 Value = tableName
-            });
-            command.Parameters.Add(new SqlParameter("@database", System.Data.SqlDbType.VarChar, 100)
-            {
-                Value = DataBase
             });
             command.Parameters.Add(new SqlParameter("@columnName", System.Data.SqlDbType.VarChar, 100)
             {

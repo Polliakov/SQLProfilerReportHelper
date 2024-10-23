@@ -29,3 +29,4 @@ C:\Users\Администратор\Source\Repos\SQLProfilerReportHelper\Tools.S
 C:\Users\Администратор\Source\Repos\SQLProfilerReportHelper\Tools.SQLProfilerReportHelper\bin\Debug\Tools.dll
 C:\Users\Администратор\Source\Repos\SQLProfilerReportHelper\Tools.SQLProfilerReportHelper\bin\Debug\Tools.pdb
 C:\Users\Администратор\Source\Repos\SQLProfilerReportHelper\Tools.SQLProfilerReportHelper\obj\Debug\Tools.SQ.130BEECD.Up2Date
+C:\Users\Администратор\source\repos\SQLProfilerReportHelper\Tools.SQLProfilerReportHelper\obj\Debug\Tools.SQLProfilerReportHelper.ConnectSqlForm.resources

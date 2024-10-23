@@ -32,10 +32,6 @@
             this.backgroundWorkerPrepareTableSP = new System.ComponentModel.BackgroundWorker();
             this.groupBoxConnect = new System.Windows.Forms.GroupBox();
             this.buttonConnect = new System.Windows.Forms.Button();
-            this.comboBoxDB = new System.Windows.Forms.ComboBox();
-            this.comboBoxSQLServer = new System.Windows.Forms.ComboBox();
-            this.labelDB = new System.Windows.Forms.Label();
-            this.labelSQLServer = new System.Windows.Forms.Label();
             this.buttonCheckFunction = new System.Windows.Forms.Button();
             this.groupBoxFunction = new System.Windows.Forms.GroupBox();
             this.buttonCreateFunction = new System.Windows.Forms.Button();
@@ -87,6 +83,11 @@
             this.checkBoxErrorReportStatus = new System.Windows.Forms.CheckBox();
             this.labelErrorReportStatus = new System.Windows.Forms.Label();
             this.panelConsole = new System.Windows.Forms.Panel();
+            this.labelDB = new System.Windows.Forms.Label();
+            this.labelSQLServer = new System.Windows.Forms.Label();
+            this._dbTextBox = new System.Windows.Forms.TextBox();
+            this._serverTextBox = new System.Windows.Forms.TextBox();
+            this._connectedLabel = new System.Windows.Forms.Label();
             this.groupBoxConnect.SuspendLayout();
             this.groupBoxFunction.SuspendLayout();
             this.groupBoxTable.SuspendLayout();
@@ -113,9 +114,10 @@
             // 
             // groupBoxConnect
             // 
+            this.groupBoxConnect.Controls.Add(this._connectedLabel);
+            this.groupBoxConnect.Controls.Add(this._dbTextBox);
             this.groupBoxConnect.Controls.Add(this.buttonConnect);
-            this.groupBoxConnect.Controls.Add(this.comboBoxDB);
-            this.groupBoxConnect.Controls.Add(this.comboBoxSQLServer);
+            this.groupBoxConnect.Controls.Add(this._serverTextBox);
             this.groupBoxConnect.Controls.Add(this.labelDB);
             this.groupBoxConnect.Controls.Add(this.labelSQLServer);
             this.groupBoxConnect.Dock = System.Windows.Forms.DockStyle.Top;
@@ -129,53 +131,13 @@
             // buttonConnect
             // 
             this.buttonConnect.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.buttonConnect.Location = new System.Drawing.Point(393, 44);
+            this.buttonConnect.Location = new System.Drawing.Point(390, 17);
             this.buttonConnect.Name = "buttonConnect";
             this.buttonConnect.Size = new System.Drawing.Size(100, 23);
             this.buttonConnect.TabIndex = 27;
             this.buttonConnect.Text = "Connect";
             this.buttonConnect.UseVisualStyleBackColor = true;
-            this.buttonConnect.Click += new System.EventHandler(this.buttonConnect_Click);
-            // 
-            // comboBoxDB
-            // 
-            this.comboBoxDB.FormattingEnabled = true;
-            this.comboBoxDB.Location = new System.Drawing.Point(133, 46);
-            this.comboBoxDB.Name = "comboBoxDB";
-            this.comboBoxDB.Size = new System.Drawing.Size(253, 21);
-            this.comboBoxDB.TabIndex = 26;
-            // 
-            // comboBoxSQLServer
-            // 
-            this.comboBoxSQLServer.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
-            this.comboBoxSQLServer.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.ListItems;
-            this.comboBoxSQLServer.FormattingEnabled = true;
-            this.comboBoxSQLServer.Items.AddRange(new object[] {
-            "orpkasnpo\\sql2008",
-            "OTLOADSQL"});
-            this.comboBoxSQLServer.Location = new System.Drawing.Point(133, 19);
-            this.comboBoxSQLServer.Name = "comboBoxSQLServer";
-            this.comboBoxSQLServer.Size = new System.Drawing.Size(253, 21);
-            this.comboBoxSQLServer.Sorted = true;
-            this.comboBoxSQLServer.TabIndex = 25;
-            // 
-            // labelDB
-            // 
-            this.labelDB.AutoSize = true;
-            this.labelDB.Location = new System.Drawing.Point(7, 49);
-            this.labelDB.Name = "labelDB";
-            this.labelDB.Size = new System.Drawing.Size(56, 13);
-            this.labelDB.TabIndex = 24;
-            this.labelDB.Text = "Database:";
-            // 
-            // labelSQLServer
-            // 
-            this.labelSQLServer.AutoSize = true;
-            this.labelSQLServer.Location = new System.Drawing.Point(7, 22);
-            this.labelSQLServer.Name = "labelSQLServer";
-            this.labelSQLServer.Size = new System.Drawing.Size(65, 13);
-            this.labelSQLServer.TabIndex = 23;
-            this.labelSQLServer.Text = "SQL Server:";
+            this.buttonConnect.Click += new System.EventHandler(this.ButtonConnect_Click);
             // 
             // buttonCheckFunction
             // 
@@ -735,12 +697,58 @@
             this.panelConsole.Size = new System.Drawing.Size(502, 508);
             this.panelConsole.TabIndex = 2;
             // 
+            // labelDB
+            // 
+            this.labelDB.AutoSize = true;
+            this.labelDB.Location = new System.Drawing.Point(7, 49);
+            this.labelDB.Name = "labelDB";
+            this.labelDB.Size = new System.Drawing.Size(56, 13);
+            this.labelDB.TabIndex = 24;
+            this.labelDB.Text = "Database:";
+            // 
+            // labelSQLServer
+            // 
+            this.labelSQLServer.AutoSize = true;
+            this.labelSQLServer.Location = new System.Drawing.Point(7, 22);
+            this.labelSQLServer.Name = "labelSQLServer";
+            this.labelSQLServer.Size = new System.Drawing.Size(65, 13);
+            this.labelSQLServer.TabIndex = 23;
+            this.labelSQLServer.Text = "SQL Server:";
+            // 
+            // _dbTextBox
+            // 
+            this._dbTextBox.Location = new System.Drawing.Point(133, 45);
+            this._dbTextBox.Name = "_dbTextBox";
+            this._dbTextBox.ReadOnly = true;
+            this._dbTextBox.Size = new System.Drawing.Size(251, 20);
+            this._dbTextBox.TabIndex = 38;
+            // 
+            // _serverTextBox
+            // 
+            this._serverTextBox.Location = new System.Drawing.Point(133, 19);
+            this._serverTextBox.Name = "_serverTextBox";
+            this._serverTextBox.ReadOnly = true;
+            this._serverTextBox.Size = new System.Drawing.Size(251, 20);
+            this._serverTextBox.TabIndex = 37;
+            // 
+            // _connectedLabel
+            // 
+            this._connectedLabel.AutoSize = true;
+            this._connectedLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this._connectedLabel.ForeColor = System.Drawing.Color.Green;
+            this._connectedLabel.Location = new System.Drawing.Point(401, 47);
+            this._connectedLabel.Name = "_connectedLabel";
+            this._connectedLabel.Size = new System.Drawing.Size(79, 16);
+            this._connectedLabel.TabIndex = 39;
+            this._connectedLabel.Text = "connected";
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(502, 508);
             this.Controls.Add(this.panelConsole);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Name = "MainForm";
             this.Text = "Prepare for detail analyse";
             this.groupBoxConnect.ResumeLayout(false);
@@ -763,10 +771,6 @@
         private System.ComponentModel.BackgroundWorker backgroundWorkerPrepareTabele;
         private System.Windows.Forms.GroupBox groupBoxConnect;
         private System.Windows.Forms.Button buttonConnect;
-        private System.Windows.Forms.ComboBox comboBoxDB;
-        private System.Windows.Forms.ComboBox comboBoxSQLServer;
-        private System.Windows.Forms.Label labelDB;
-        private System.Windows.Forms.Label labelSQLServer;
         private System.Windows.Forms.GroupBox groupBoxTable;
         private System.Windows.Forms.ComboBox comboBoxTable;
         private System.Windows.Forms.Label labelTable;
@@ -819,6 +823,11 @@
         private System.Windows.Forms.CheckBox checkBoxFunctionExist;
         private System.Windows.Forms.Label labelFunctionStatus;
         private System.Windows.Forms.Button buttonCheckTable;
+        private System.Windows.Forms.TextBox _dbTextBox;
+        private System.Windows.Forms.TextBox _serverTextBox;
+        private System.Windows.Forms.Label labelDB;
+        private System.Windows.Forms.Label labelSQLServer;
+        private System.Windows.Forms.Label _connectedLabel;
     }
 }
 
