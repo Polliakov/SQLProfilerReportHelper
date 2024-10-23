@@ -266,7 +266,6 @@
             buttonStop.Enabled = false;
             buttonStopSP.Enabled = false;
 
-
             try
             {
                 TableUtil.CreateIndexOnTextKeys();
@@ -358,7 +357,6 @@
 
             buttonStop.Enabled = false;
             buttonStopSP.Enabled = false;
-
         }
 
         private void buttonDetailReportView_Click(object sender, EventArgs e)

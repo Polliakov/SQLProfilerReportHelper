@@ -1,4 +1,9 @@
-﻿SELECT
+﻿declare @traceTableName nvarchar(255) = 'Trace';
+declare @filePath nvarchar(255) = N'D:\SqlProfiling\trace_2024-10-23-115226.trc';
+
+declare @parmDefinition nvarchar(255) = N'@file varchar(255)';
+declare @query nvarchar(4000) = '
+select
 	  [EventClass]
 	, [TextData]
 	, [Duration]
@@ -18,30 +23,7 @@
 	, [RowCounts]
 	, [RequestID]
 	, [XactSequence]
-INTO [Trace]
-FROM ::fn_trace_gettable(N'D:\SqlProfiling\trace_2024-10-22 170634.trc.trc', default)
+into [' + @traceTableName + ']
+from ::fn_trace_gettable(@file, default)';
 
-/*
-Статистика показателей выполения запроса:
-11:00 10.12.2013.
-Количество загружаемых файлов: 760
-Объём загружаемых файлов: 7 598 МБайт
-Количество строк в результирующей таблице: 766 370
-(40 970 - количество SQL-запросов Batch Request, 725 400 - хранимые процедуры и прочие вызовы)
-Размер таблицы: 29 478,313 MB
-Длительность загрузки: 00:45:17
-
-Скорость загрузки: 169 МБайт/минуту
-Средний размер строки в таблице: 39,4 КБайт
-Коэффициент увеличения размера после загрузки: 3,9
-
-
-Размер: 65,4 ГБайт (70 319 603 712 байт)
-Количество файлов: 685
-Длительность: 5:46:32
-Размер таблицы 268 875,695 MB (TraceTable.v2.7.0.5334.Smoke.2014.10.31)
-Количество строк: 2 861 599
-Среднйи размер строки: 96,215 КБайт
-Коэффициент увеличения размера после загрузки: 4,009359920670424383406400047717
-
-*/
+EXECUTE sp_executesql @query, @parmDefinition, @file = @filePath;
