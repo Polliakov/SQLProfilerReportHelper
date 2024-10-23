@@ -3,10 +3,14 @@
     using System;
     using System.ComponentModel;
     using System.Windows.Forms;
+    using Tools.SQLProfilerReportHelper.Database.Common;
+    using Tools.SQLProfilerReportHelper.Database.Profiling;
 
     public partial class MainForm : Form
     {
         Helper TableUtil { get; set; }
+
+        private DbProfiler _profiler;
 
         public MainForm()
         {
@@ -27,6 +31,10 @@
 
             var connData = connectForm.ConnectionData;
             TableUtil.Connect(connData.ConnectionString);
+
+            var f = new SqlConnectionFactory(connData.ConnectionString);
+            var s = new Sql(f, 60);
+            _profiler = new DbProfiler(f, s);
 
             _connectedLabel.Visible = true;
             _serverTextBox.Text = connData.DataSource;
@@ -368,6 +376,21 @@
             TableUtil.CreateFunctionPrepareTextData();
             checkBoxFunctionExist.Checked = true;
             buttonCreateFunction.Enabled = false;
+        }
+
+        private async void ButtonStartNewTrace_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                var traceId = await _profiler.StartNewTrace(60, "D:\\SqlProfiling\\", 1);
+                MessageBox.Show($"TraceId: {traceId}", "Trace started", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error message:" +
+                    $"\n {ex}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }

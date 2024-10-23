@@ -1,16 +1,3 @@
--- Параметры скрипта:
---     @traceDuration, Int, "Длительность"
---         Значение берётся из профиля нагрузочного теста, при старте тестирования.
---     @fileName, nvarchar(256), "Сохранять трейс в файл"
---         Значение формируется на основе папки профайлинга, названия нагрузочного теста и текущего времени
---         C#: string.Format(@"{0}\{1}.Trace.StartOn ", profilingPath, loadTestName) + DateTime.Now.ToString("yyyy.MM.dd HH.mm.ss")
---     @db1, nvarchar(256), фильтровать по имени базы данных
---     @db2, nvarchar(256), фильтровать по имени базы данных
---     @db3, nvarchar(256), фильтровать по имени базы данных
---     @db4, nvarchar(256), фильтровать по имени базы данных
-
--- Create a Queue
-
 declare @traceDuration int = 60
 declare @fileName varchar(max) = CONCAT('D:\SqlProfiling\trace_', format(getdate(), 'yyyy-MM-dd-HHmmss'))
 

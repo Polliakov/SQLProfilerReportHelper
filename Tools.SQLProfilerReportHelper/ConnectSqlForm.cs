@@ -13,6 +13,8 @@ namespace Tools.SQLProfilerReportHelper
         public ConnectSqlForm()
         {
             InitializeComponent();
+            _serverComboBox.Text = "DESKTOP-SIBSN99\\SQLEXPRESS";
+            _dbComboBox.Text = "PerfomanceTests";
         }
 
         private void ButtonConnect_Click(object sender, EventArgs e)
@@ -42,7 +44,7 @@ namespace Tools.SQLProfilerReportHelper
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Connection to \"{connBuilder.ConnectionString}\" failedError message:" +
+                MessageBox.Show($"Connection to \"{connBuilder.ConnectionString}\" failed\nError message:" +
                     $"\n {ex}", "Connection error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }

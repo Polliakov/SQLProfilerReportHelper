@@ -31,7 +31,12 @@
             this.backgroundWorkerPrepareTabele = new System.ComponentModel.BackgroundWorker();
             this.backgroundWorkerPrepareTableSP = new System.ComponentModel.BackgroundWorker();
             this.groupBoxConnect = new System.Windows.Forms.GroupBox();
+            this._connectedLabel = new System.Windows.Forms.Label();
+            this._dbTextBox = new System.Windows.Forms.TextBox();
             this.buttonConnect = new System.Windows.Forms.Button();
+            this._serverTextBox = new System.Windows.Forms.TextBox();
+            this.labelDB = new System.Windows.Forms.Label();
+            this.labelSQLServer = new System.Windows.Forms.Label();
             this.buttonCheckFunction = new System.Windows.Forms.Button();
             this.groupBoxFunction = new System.Windows.Forms.GroupBox();
             this.buttonCreateFunction = new System.Windows.Forms.Button();
@@ -83,17 +88,19 @@
             this.checkBoxErrorReportStatus = new System.Windows.Forms.CheckBox();
             this.labelErrorReportStatus = new System.Windows.Forms.Label();
             this.panelConsole = new System.Windows.Forms.Panel();
-            this.labelDB = new System.Windows.Forms.Label();
-            this.labelSQLServer = new System.Windows.Forms.Label();
-            this._dbTextBox = new System.Windows.Forms.TextBox();
-            this._serverTextBox = new System.Windows.Forms.TextBox();
-            this._connectedLabel = new System.Windows.Forms.Label();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this._panelLeft = new System.Windows.Forms.Panel();
+            this._panelRight = new System.Windows.Forms.Panel();
+            this._buttonStartNewTrace = new System.Windows.Forms.Button();
             this.groupBoxConnect.SuspendLayout();
             this.groupBoxFunction.SuspendLayout();
             this.groupBoxTable.SuspendLayout();
             this.groupBoxPrepare.SuspendLayout();
             this.groupBoxReports.SuspendLayout();
             this.panelConsole.SuspendLayout();
+            this.groupBox1.SuspendLayout();
+            this._panelLeft.SuspendLayout();
+            this._panelRight.SuspendLayout();
             this.SuspendLayout();
             // 
             // backgroundWorkerPrepareTabele
@@ -121,12 +128,31 @@
             this.groupBoxConnect.Controls.Add(this.labelDB);
             this.groupBoxConnect.Controls.Add(this.labelSQLServer);
             this.groupBoxConnect.Dock = System.Windows.Forms.DockStyle.Top;
-            this.groupBoxConnect.Location = new System.Drawing.Point(0, 0);
+            this.groupBoxConnect.Location = new System.Drawing.Point(0, 432);
             this.groupBoxConnect.Name = "groupBoxConnect";
-            this.groupBoxConnect.Size = new System.Drawing.Size(502, 75);
+            this.groupBoxConnect.Size = new System.Drawing.Size(509, 75);
             this.groupBoxConnect.TabIndex = 1;
             this.groupBoxConnect.TabStop = false;
             this.groupBoxConnect.Text = "Connect";
+            // 
+            // _connectedLabel
+            // 
+            this._connectedLabel.AutoSize = true;
+            this._connectedLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this._connectedLabel.ForeColor = System.Drawing.Color.Green;
+            this._connectedLabel.Location = new System.Drawing.Point(401, 47);
+            this._connectedLabel.Name = "_connectedLabel";
+            this._connectedLabel.Size = new System.Drawing.Size(79, 16);
+            this._connectedLabel.TabIndex = 39;
+            this._connectedLabel.Text = "connected";
+            // 
+            // _dbTextBox
+            // 
+            this._dbTextBox.Location = new System.Drawing.Point(133, 45);
+            this._dbTextBox.Name = "_dbTextBox";
+            this._dbTextBox.ReadOnly = true;
+            this._dbTextBox.Size = new System.Drawing.Size(251, 20);
+            this._dbTextBox.TabIndex = 38;
             // 
             // buttonConnect
             // 
@@ -138,6 +164,32 @@
             this.buttonConnect.Text = "Connect";
             this.buttonConnect.UseVisualStyleBackColor = true;
             this.buttonConnect.Click += new System.EventHandler(this.ButtonConnect_Click);
+            // 
+            // _serverTextBox
+            // 
+            this._serverTextBox.Location = new System.Drawing.Point(133, 19);
+            this._serverTextBox.Name = "_serverTextBox";
+            this._serverTextBox.ReadOnly = true;
+            this._serverTextBox.Size = new System.Drawing.Size(251, 20);
+            this._serverTextBox.TabIndex = 37;
+            // 
+            // labelDB
+            // 
+            this.labelDB.AutoSize = true;
+            this.labelDB.Location = new System.Drawing.Point(7, 49);
+            this.labelDB.Name = "labelDB";
+            this.labelDB.Size = new System.Drawing.Size(56, 13);
+            this.labelDB.TabIndex = 24;
+            this.labelDB.Text = "Database:";
+            // 
+            // labelSQLServer
+            // 
+            this.labelSQLServer.AutoSize = true;
+            this.labelSQLServer.Location = new System.Drawing.Point(7, 22);
+            this.labelSQLServer.Name = "labelSQLServer";
+            this.labelSQLServer.Size = new System.Drawing.Size(65, 13);
+            this.labelSQLServer.TabIndex = 23;
+            this.labelSQLServer.Text = "SQL Server:";
             // 
             // buttonCheckFunction
             // 
@@ -156,10 +208,10 @@
             this.groupBoxFunction.Controls.Add(this.checkBoxFunctionExist);
             this.groupBoxFunction.Controls.Add(this.labelFunctionStatus);
             this.groupBoxFunction.Dock = System.Windows.Forms.DockStyle.Top;
-            this.groupBoxFunction.Location = new System.Drawing.Point(0, 75);
+            this.groupBoxFunction.Location = new System.Drawing.Point(0, 387);
             this.groupBoxFunction.Name = "groupBoxFunction";
-            this.groupBoxFunction.Size = new System.Drawing.Size(502, 45);
-            this.groupBoxFunction.TabIndex = 42;
+            this.groupBoxFunction.Size = new System.Drawing.Size(509, 45);
+            this.groupBoxFunction.TabIndex = 1;
             this.groupBoxFunction.TabStop = false;
             this.groupBoxFunction.Text = "Function PrepareTextData";
             // 
@@ -200,9 +252,9 @@
             this.groupBoxTable.Controls.Add(this.comboBoxTable);
             this.groupBoxTable.Controls.Add(this.labelTable);
             this.groupBoxTable.Dock = System.Windows.Forms.DockStyle.Top;
-            this.groupBoxTable.Location = new System.Drawing.Point(0, 120);
+            this.groupBoxTable.Location = new System.Drawing.Point(0, 182);
             this.groupBoxTable.Name = "groupBoxTable";
-            this.groupBoxTable.Size = new System.Drawing.Size(502, 45);
+            this.groupBoxTable.Size = new System.Drawing.Size(509, 45);
             this.groupBoxTable.TabIndex = 2;
             this.groupBoxTable.TabStop = false;
             this.groupBoxTable.Text = "Table";
@@ -257,9 +309,9 @@
             this.groupBoxPrepare.Controls.Add(this.buttonStart);
             this.groupBoxPrepare.Controls.Add(this.labelRowCount);
             this.groupBoxPrepare.Dock = System.Windows.Forms.DockStyle.Top;
-            this.groupBoxPrepare.Location = new System.Drawing.Point(0, 165);
+            this.groupBoxPrepare.Location = new System.Drawing.Point(0, 0);
             this.groupBoxPrepare.Name = "groupBoxPrepare";
-            this.groupBoxPrepare.Size = new System.Drawing.Size(502, 182);
+            this.groupBoxPrepare.Size = new System.Drawing.Size(509, 182);
             this.groupBoxPrepare.TabIndex = 27;
             this.groupBoxPrepare.TabStop = false;
             this.groupBoxPrepare.Text = "Prepare for detail sql profiler report";
@@ -456,9 +508,9 @@
             this.groupBoxReports.Controls.Add(this.checkBoxErrorReportStatus);
             this.groupBoxReports.Controls.Add(this.labelErrorReportStatus);
             this.groupBoxReports.Dock = System.Windows.Forms.DockStyle.Top;
-            this.groupBoxReports.Location = new System.Drawing.Point(0, 347);
+            this.groupBoxReports.Location = new System.Drawing.Point(0, 227);
             this.groupBoxReports.Name = "groupBoxReports";
-            this.groupBoxReports.Size = new System.Drawing.Size(502, 160);
+            this.groupBoxReports.Size = new System.Drawing.Size(509, 160);
             this.groupBoxReports.TabIndex = 4;
             this.groupBoxReports.TabStop = false;
             this.groupBoxReports.Text = "Reports";
@@ -686,67 +738,60 @@
             // 
             // panelConsole
             // 
-            this.panelConsole.Controls.Add(this.groupBoxReports);
-            this.panelConsole.Controls.Add(this.groupBoxPrepare);
-            this.panelConsole.Controls.Add(this.groupBoxTable);
-            this.panelConsole.Controls.Add(this.groupBoxFunction);
-            this.panelConsole.Controls.Add(this.groupBoxConnect);
+            this.panelConsole.Controls.Add(this._panelRight);
+            this.panelConsole.Controls.Add(this._panelLeft);
             this.panelConsole.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelConsole.Location = new System.Drawing.Point(0, 0);
             this.panelConsole.Name = "panelConsole";
-            this.panelConsole.Size = new System.Drawing.Size(502, 508);
+            this.panelConsole.Size = new System.Drawing.Size(845, 520);
             this.panelConsole.TabIndex = 2;
             // 
-            // labelDB
+            // groupBox1
             // 
-            this.labelDB.AutoSize = true;
-            this.labelDB.Location = new System.Drawing.Point(7, 49);
-            this.labelDB.Name = "labelDB";
-            this.labelDB.Size = new System.Drawing.Size(56, 13);
-            this.labelDB.TabIndex = 24;
-            this.labelDB.Text = "Database:";
+            this.groupBox1.Controls.Add(this._buttonStartNewTrace);
+            this.groupBox1.Dock = System.Windows.Forms.DockStyle.Top;
+            this.groupBox1.Location = new System.Drawing.Point(0, 0);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(324, 173);
+            this.groupBox1.TabIndex = 43;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "Traces";
             // 
-            // labelSQLServer
+            // _panelLeft
             // 
-            this.labelSQLServer.AutoSize = true;
-            this.labelSQLServer.Location = new System.Drawing.Point(7, 22);
-            this.labelSQLServer.Name = "labelSQLServer";
-            this.labelSQLServer.Size = new System.Drawing.Size(65, 13);
-            this.labelSQLServer.TabIndex = 23;
-            this.labelSQLServer.Text = "SQL Server:";
+            this._panelLeft.Controls.Add(this.groupBoxConnect);
+            this._panelLeft.Controls.Add(this.groupBoxFunction);
+            this._panelLeft.Controls.Add(this.groupBoxReports);
+            this._panelLeft.Controls.Add(this.groupBoxTable);
+            this._panelLeft.Controls.Add(this.groupBoxPrepare);
+            this._panelLeft.Location = new System.Drawing.Point(3, 3);
+            this._panelLeft.Name = "_panelLeft";
+            this._panelLeft.Size = new System.Drawing.Size(509, 509);
+            this._panelLeft.TabIndex = 40;
             // 
-            // _dbTextBox
+            // _panelRight
             // 
-            this._dbTextBox.Location = new System.Drawing.Point(133, 45);
-            this._dbTextBox.Name = "_dbTextBox";
-            this._dbTextBox.ReadOnly = true;
-            this._dbTextBox.Size = new System.Drawing.Size(251, 20);
-            this._dbTextBox.TabIndex = 38;
+            this._panelRight.Controls.Add(this.groupBox1);
+            this._panelRight.Location = new System.Drawing.Point(518, 3);
+            this._panelRight.Name = "_panelRight";
+            this._panelRight.Size = new System.Drawing.Size(324, 509);
+            this._panelRight.TabIndex = 44;
             // 
-            // _serverTextBox
+            // _buttonStartNewTrace
             // 
-            this._serverTextBox.Location = new System.Drawing.Point(133, 19);
-            this._serverTextBox.Name = "_serverTextBox";
-            this._serverTextBox.ReadOnly = true;
-            this._serverTextBox.Size = new System.Drawing.Size(251, 20);
-            this._serverTextBox.TabIndex = 37;
-            // 
-            // _connectedLabel
-            // 
-            this._connectedLabel.AutoSize = true;
-            this._connectedLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this._connectedLabel.ForeColor = System.Drawing.Color.Green;
-            this._connectedLabel.Location = new System.Drawing.Point(401, 47);
-            this._connectedLabel.Name = "_connectedLabel";
-            this._connectedLabel.Size = new System.Drawing.Size(79, 16);
-            this._connectedLabel.TabIndex = 39;
-            this._connectedLabel.Text = "connected";
+            this._buttonStartNewTrace.Location = new System.Drawing.Point(6, 22);
+            this._buttonStartNewTrace.Name = "_buttonStartNewTrace";
+            this._buttonStartNewTrace.Size = new System.Drawing.Size(75, 23);
+            this._buttonStartNewTrace.TabIndex = 0;
+            this._buttonStartNewTrace.Text = "NewTrace";
+            this._buttonStartNewTrace.UseVisualStyleBackColor = true;
+            this._buttonStartNewTrace.Click += new System.EventHandler(this.ButtonStartNewTrace_Click);
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(502, 508);
+            this.ClientSize = new System.Drawing.Size(845, 520);
             this.Controls.Add(this.panelConsole);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Name = "MainForm";
@@ -762,6 +807,9 @@
             this.groupBoxReports.ResumeLayout(false);
             this.groupBoxReports.PerformLayout();
             this.panelConsole.ResumeLayout(false);
+            this.groupBox1.ResumeLayout(false);
+            this._panelLeft.ResumeLayout(false);
+            this._panelRight.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -828,6 +876,10 @@
         private System.Windows.Forms.Label labelDB;
         private System.Windows.Forms.Label labelSQLServer;
         private System.Windows.Forms.Label _connectedLabel;
+        private System.Windows.Forms.Panel _panelLeft;
+        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.Panel _panelRight;
+        private System.Windows.Forms.Button _buttonStartNewTrace;
     }
 }
 

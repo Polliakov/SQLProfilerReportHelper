@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
 using System.Linq;
@@ -25,6 +26,7 @@ namespace Tools.SQLProfilerReportHelper.Database.Profiling
         {
             using (var connection = await _connectionFactory.Create())
             {
+                reportsFolder = reportsFolder.Trim().TrimEnd('/', '\\');
                 var command = new SqlCommand()
                 {
                     Connection = connection,
@@ -33,13 +35,17 @@ namespace Tools.SQLProfilerReportHelper.Database.Profiling
                 };
                 command.Parameters.AddWithValue("@traceDuration", duration);
                 command.Parameters.AddWithValue("@reportsFolder", reportsFolder);
-                command.Parameters.AddWithValue("@maxFileSizeMB", maxFileSizeMB);
+                command.Parameters.Add(new SqlParameter("@maxFileSizeMB", SqlDbType.BigInt)
+                {
+                    Value = maxFileSizeMB,
+                });
 
                 var reader = await command.ExecuteReaderAsync();
-                if (await reader.NextResultAsync())
+                if (reader.HasRows)
                 {
-                    var cols = reader.GetColumnSchema();
-                    var resultName = cols.FirstOrDefault()?.ColumnName;
+                    var columns = Enumerable.Range(0, reader.FieldCount).Select(reader.GetName).ToArray();
+                    var resultName = columns.FirstOrDefault();
+                    reader.Read();
                     if (resultName == "TraceId")
                         return (int)reader[resultName];
                     throw new Exception($"Failed to start trace. ErrorCode: {reader[resultName]}");
@@ -73,8 +79,7 @@ EXEC sp_trace_setstatus @traceId, @status = 2",
         private string CreateTraceScript()
         {
             return @"
-set @reportsFolder = rtrim(rtrim(@reportsFolder, '\'), '/')
-declare @fileName varchar(max) = CONCAT(@reportsFolder, \trace_', format(getdate(), 'yyyy-MM-dd-HHmmss'))
+declare @fileName varchar(max) = CONCAT(@reportsFolder, '\trace_', format(getdate(), 'yyyy-MM-dd-HHmmss'))
 
 declare @rc int
 declare @TraceId int
