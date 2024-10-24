@@ -5,12 +5,14 @@
     using System.Windows.Forms;
     using Tools.SQLProfilerReportHelper.Database.Common;
     using Tools.SQLProfilerReportHelper.Database.Profiling;
+    using Tools.SQLProfilerReportHelper.Database.TraceExports;
     using Tools.SQLProfilerReportHelper.Forms;
 
     public partial class MainForm : Form
     {
         public Helper TableUtil { get; set; }
 
+        private TraceLoader _traceLoader;
         private DbProfiler _profiler;
         private DbObjectsManager _dbManager;
 
@@ -21,14 +23,9 @@
             backgroundWorkerPrepareTabele.WorkerReportsProgress = true;
             backgroundWorkerPrepareTabele.WorkerSupportsCancellation = true;
 
-            groupBoxFunction.Enabled = false;
-            groupBoxPrepare.Enabled = false;
-            groupBoxReports.Enabled = false;
-            groupBoxTable.Enabled = false;
-            _groupBoxTrace.Enabled = false;
+            SetGroupBoxexEnabled(false);
 
             _connectedLabel.Visible = false;
-            buttonStart.Enabled = true;
         }
 
         private void ButtonConnect_Click(object sender, EventArgs e)
@@ -44,16 +41,25 @@
             var s = new Sql(f, 60);
             _profiler = new DbProfiler(f, s);
             _dbManager = new DbObjectsManager(f, s);
+            _traceLoader = new TraceLoader(s);
 
-            groupBoxFunction.Enabled = true;
-            groupBoxPrepare.Enabled = true;
-            groupBoxReports.Enabled = true;
-            groupBoxTable.Enabled = true;
-            _groupBoxTrace.Enabled = true;
+            SetGroupBoxexEnabled(true);
+
+            buttonStart.Enabled = true; // HotFix
 
             _connectedLabel.Visible = true;
             _serverTextBox.Text = connData.DataSource;
             _dbTextBox.Text = connData.InitialCatalog;
+        }
+
+        private void SetGroupBoxexEnabled(bool isEnabled)
+        {
+            _groupBoxFunction.Enabled = isEnabled;
+            _groupBoxPrepare.Enabled = isEnabled;
+            _groupBoxReports.Enabled = isEnabled;
+            _groupBoxTable.Enabled = isEnabled;
+            _groupBoxTrace.Enabled = isEnabled;
+            _groupBoxImportFile.Enabled = isEnabled;
         }
 
         private async void buttonTextKeyCheck_Click(object sender, EventArgs e)
@@ -315,7 +321,7 @@
 
                 textBoxRowCount.Text = TableUtil.RowCountForPrepareSP.ToString();
                 textBoxPreparedRowCount.Text = TableUtil.RowCountPreparedSP.ToString();
-                TableUtil.StartTime = System.DateTime.Now;
+                TableUtil.StartTime = DateTime.Now;
                 textBoxStartTime.Text = TableUtil.StartTime.ToString();
                 textBoxStopTime.Text = TableUtil.ExpectedStopTimeSP.ToString();
 
@@ -394,6 +400,37 @@
             buttonTextKeyCheck.Enabled = true;
             buttonDeadlockReportCheck.Enabled = true;
             buttonMinuteAndSecondCheck.Enabled = true;
+        }
+
+        private async void ButtonImport_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                var filePath = _trcFilePathTextBox.Text;
+                var tableName = _importTableComboBox.Text;
+                var forceOverride = _forceOverrideCheckBox.Checked;
+
+                if (string.IsNullOrEmpty(filePath) ||
+                    string.IsNullOrEmpty(tableName))
+                {
+                    MessageBox.Show("", "Invalid Input", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+                SetGroupBoxexEnabled(false);
+
+                await _traceLoader.LoadToDb(filePath, tableName, forceOverride);
+
+                MessageBox.Show("Trace file imported.", "Completed",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                SetGroupBoxexEnabled(true);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error message:" +
+                    $"\n {ex}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                SetGroupBoxexEnabled(true);
+            }
         }
     }
 }

@@ -1,10 +1,12 @@
-﻿using System.Data.SqlClient;
+﻿using System;
+using System.Data.SqlClient;
+using System.IO;
 using System.Threading.Tasks;
 using Tools.SQLProfilerReportHelper.Database.Common;
 
-namespace Tools.SQLProfilerReportHelper.Database
+namespace Tools.SQLProfilerReportHelper.Database.TraceExports
 {
-    internal class TraceLoader
+    public class TraceLoader
     {
         private readonly Sql _sql;
 
@@ -13,8 +15,11 @@ namespace Tools.SQLProfilerReportHelper.Database
             _sql = sql;
         }
 
-        public async Task Load(string filePath, string tableName, bool forceOverride = false)
+        public async Task LoadToDb(string filePath, string tableName, bool forceOverride = false)
         {
+			if (Path.GetExtension(filePath) != ".trc")
+				throw new ArgumentException("File extension must be .trc", nameof(filePath));
+
             if (forceOverride)
                 await _sql.ExecuteNonQueryAsync($@"
 if OBJECT_ID('dbo.[{tableName}]', 'U') is not null

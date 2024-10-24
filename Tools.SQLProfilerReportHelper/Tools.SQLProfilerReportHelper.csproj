@@ -105,7 +105,7 @@
     <Compile Include="Database\Common\DbObjectsManager.cs" />
     <Compile Include="Database\Profiling\DbProfiler.cs" />
     <Compile Include="Database\Profiling\TraceColumn.cs" />
-    <Compile Include="Database\TraceLoader.cs" />
+    <Compile Include="Database\TraceExports\TraceLoader.cs" />
     <Compile Include="Forms\CreateTraceForm.cs">
       <SubType>Form</SubType>
     </Compile>
