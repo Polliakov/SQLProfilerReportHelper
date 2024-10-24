@@ -93,6 +93,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Database\Aggregation\Normalizer.cs" />
     <Compile Include="Forms\ConnectSqlForm.cs">
       <SubType>Form</SubType>
     </Compile>

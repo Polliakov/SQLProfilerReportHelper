@@ -3,6 +3,7 @@
     using System;
     using System.ComponentModel;
     using System.Windows.Forms;
+    using Tools.SQLProfilerReportHelper.Database.Aggregation;
     using Tools.SQLProfilerReportHelper.Database.Common;
     using Tools.SQLProfilerReportHelper.Database.Profiling;
     using Tools.SQLProfilerReportHelper.Database.TraceExports;
@@ -15,6 +16,7 @@
         private TraceLoader _traceLoader;
         private DbProfiler _profiler;
         private DbObjectsManager _dbManager;
+        private Normalizer _normalizer;
 
         public MainForm()
         {
@@ -23,7 +25,7 @@
             backgroundWorkerPrepareTabele.WorkerReportsProgress = true;
             backgroundWorkerPrepareTabele.WorkerSupportsCancellation = true;
 
-            SetGroupBoxexEnabled(false);
+            SetGroupBoxesEnabled(false);
 
             _connectedLabel.Visible = false;
         }
@@ -42,40 +44,60 @@
             _profiler = new DbProfiler(f, s);
             _dbManager = new DbObjectsManager(f, s);
             _traceLoader = new TraceLoader(s);
+            _normalizer = new Normalizer(_dbManager, s);
 
-            SetGroupBoxexEnabled(true);
-
-            buttonStart.Enabled = true; // HotFix
+            SetGroupBoxesEnabled(true);
 
             _connectedLabel.Visible = true;
             _serverTextBox.Text = connData.DataSource;
             _dbTextBox.Text = connData.InitialCatalog;
         }
 
-        private void SetGroupBoxexEnabled(bool isEnabled)
+        private void SetGroupBoxesEnabled(bool isEnabled)
         {
-            _groupBoxFunction.Enabled = isEnabled;
-            _groupBoxPrepare.Enabled = isEnabled;
+            _groupBoxNormalization.Enabled = isEnabled;
             _groupBoxReports.Enabled = isEnabled;
             _groupBoxTable.Enabled = isEnabled;
             _groupBoxTrace.Enabled = isEnabled;
             _groupBoxImportFile.Enabled = isEnabled;
         }
 
-        private async void buttonTextKeyCheck_Click(object sender, EventArgs e)
+        private async void ButtonPrepare_Click(object sender, EventArgs e)
         {
             var tableName = comboBoxTable.Text;
-            checkBoxTextKeyStatus.Checked = await _dbManager.IsColumnExistInTable(tableName, "TextKey");
-            buttonTextKeyCreate.Enabled = !checkBoxTextKeyStatus.Checked;
-            buttonStartSP.Enabled = checkBoxTextKeyStatus.Checked;
-            buttonDetailReportCheck.Enabled = checkBoxTextKeyStatus.Checked;
-            buttonDraftReportCheck.Enabled = checkBoxTextKeyStatus.Checked;
-            buttonErrorStatCheck.Enabled = checkBoxTextKeyStatus.Checked;
 
-            textBoxRowCount.Text = TableUtil.RowCountForPrepare.ToString();
-            textBoxPreparedRowCount.Text = TableUtil.RowCountPrepared.ToString();
+            if (string.IsNullOrWhiteSpace(tableName))
+            {
+                MessageBox.Show("Table name is invalid", "Invalid Input", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
 
+            SetGroupBoxesEnabled(false);
+            try
+            {
+                await _normalizer.Prepare(tableName);
+
+                buttonStartSP.Enabled = true;
+                buttonStart.Enabled = true;
+                buttonDetailReportCheck.Enabled = true;
+                buttonDraftReportCheck.Enabled = true;
+                buttonErrorStatCheck.Enabled = true;
+                _labelInited.Visible = true;
+
+                textBoxRowCount.Text = TableUtil.RowCountForPrepare.ToString();
+                textBoxPreparedRowCount.Text = TableUtil.RowCountPrepared.ToString();
+
+                SetGroupBoxesEnabled(true);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error message:" +
+                    $"\n {ex}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                SetGroupBoxesEnabled(true);
+            }
         }
+
 
         private void buttonStart_Click(object sender, EventArgs e)
         {
@@ -162,7 +184,7 @@
         {
             //TableUtil.CreateIndexes();
             TableUtil.CreateTextKey();
-            buttonTextKeyCheck_Click(sender, e);
+            ButtonPrepare_Click(sender, e);
         }
 
         private void buttonDetailReportCheck_Click(object sender, EventArgs e)
@@ -214,16 +236,17 @@
             buttonDeadlockReportCreate.Enabled = false;
         }
 
-        private void buttonMinuteAndSecondCheck_Click(object sender, EventArgs e)
+        private async void buttonMinuteAndSecondCheck_Click(object sender, EventArgs e)
         {
-            var columnsExist = TableUtil.ColumnExistInTable(TableUtil.TableName, "Second01");
-            columnsExist = columnsExist && TableUtil.ColumnExistInTable(TableUtil.TableName, "Second05");
-            columnsExist = columnsExist && TableUtil.ColumnExistInTable(TableUtil.TableName, "Second10");
-            columnsExist = columnsExist && TableUtil.ColumnExistInTable(TableUtil.TableName, "Munute01");
-            columnsExist = columnsExist && TableUtil.ColumnExistInTable(TableUtil.TableName, "Munute02");
-            columnsExist = columnsExist && TableUtil.ColumnExistInTable(TableUtil.TableName, "Munute03");
-            columnsExist = columnsExist && TableUtil.ColumnExistInTable(TableUtil.TableName, "Munute04");
-            columnsExist = columnsExist && TableUtil.ColumnExistInTable(TableUtil.TableName, "Munute05");
+            var columnsExist =
+                   await _dbManager.IsColumnExistInTable(TableUtil.TableName, "Second01")
+                && await _dbManager.IsColumnExistInTable(TableUtil.TableName, "Second05")
+                && await _dbManager.IsColumnExistInTable(TableUtil.TableName, "Second10")
+                && await _dbManager.IsColumnExistInTable(TableUtil.TableName, "Munute01")
+                && await _dbManager.IsColumnExistInTable(TableUtil.TableName, "Munute02")
+                && await _dbManager.IsColumnExistInTable(TableUtil.TableName, "Munute03")
+                && await _dbManager.IsColumnExistInTable(TableUtil.TableName, "Munute04")
+                && await _dbManager.IsColumnExistInTable(TableUtil.TableName, "Munute05");
 
             checkBoxMinuteAndSecondStatus.Checked = columnsExist;
             buttonMinuteAndSecondCreate.Enabled = !columnsExist;
@@ -252,8 +275,7 @@
             buttonMinuteAndSecondCreate.Enabled = false;
             buttonStart.Enabled = false;
             buttonStop.Enabled = false;
-            buttonTextKeyCheck.Enabled = false;
-            buttonTextKeyCreate.Enabled = false;
+            _buttonPrepare.Enabled = false;
         }
 
         private void CheckEnableAllButtons(object sender, EventArgs e)
@@ -375,31 +397,9 @@
             reportView.Show();
         }
 
-        private async void ButtonCheckFunction_Click(object sender, EventArgs e)
-        {
-            bool functionExist = await _dbManager.IsFunctionExists("NormalizeTextData0");
-            checkBoxFunctionExist.Checked = functionExist;
-            buttonCreateFunction.Enabled = !functionExist;
-        }
-
-        private void buttonCreateFunction_Click(object sender, EventArgs e)
-        {
-            TableUtil.CreateFunctionNormalizeTextData();
-            checkBoxFunctionExist.Checked = true;
-            buttonCreateFunction.Enabled = false;
-        }
-
         private void ButtonStartNewTrace_Click(object sender, EventArgs e)
         {
             new CreateTraceForm(_profiler).ShowDialog();
-        }
-
-        private void ComboBoxTable_Leave(object sender, EventArgs e)
-        {
-            TableUtil.TableName = comboBoxTable.Text;
-            buttonTextKeyCheck.Enabled = true;
-            buttonDeadlockReportCheck.Enabled = true;
-            buttonMinuteAndSecondCheck.Enabled = true;
         }
 
         private async void ButtonImport_Click(object sender, EventArgs e)
@@ -416,20 +416,37 @@
                     MessageBox.Show("", "Invalid Input", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
-                SetGroupBoxexEnabled(false);
+                SetGroupBoxesEnabled(false);
 
                 await _traceLoader.LoadToDb(filePath, tableName, forceOverride);
 
                 MessageBox.Show("Trace file imported.", "Completed",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                SetGroupBoxexEnabled(true);
+                SetGroupBoxesEnabled(true);
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Error message:" +
                     $"\n {ex}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                SetGroupBoxexEnabled(true);
+                SetGroupBoxesEnabled(true);
+            }
+        }
+
+        private void ComboBoxTable_TextChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                TableUtil.TableName = comboBoxTable.Text;
+                _buttonPrepare.Enabled = true;
+                buttonDeadlockReportCheck.Enabled = true;
+                buttonMinuteAndSecondCheck.Enabled = true;
+            }
+            catch 
+            {
+                _buttonPrepare.Enabled = false;
+                buttonDeadlockReportCheck.Enabled = false;
+                buttonMinuteAndSecondCheck.Enabled = false;
             }
         }
     }

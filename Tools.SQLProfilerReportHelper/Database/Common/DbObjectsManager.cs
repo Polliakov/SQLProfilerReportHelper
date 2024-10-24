@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Tools.SQLProfilerReportHelper.Database.Common
 {
-    internal class DbObjectsManager
+    public class DbObjectsManager
     {
         private readonly SqlConnectionFactory _connectionFactory;
         private readonly Sql _sql;
@@ -19,8 +19,7 @@ namespace Tools.SQLProfilerReportHelper.Database.Common
             var count = (int)await _sql.ExecuteScalarAsync(@"
 select count(*)
 from INFORMATION_SCHEMA.COLUMNS
-where TABLE_NAME = @tableName
-order by TABLE_NAME",
+where TABLE_NAME = @tableName",
                 new SqlParameter("@tableName", tableName));
             return count > 0;
         }

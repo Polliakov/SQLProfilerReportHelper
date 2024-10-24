@@ -38,21 +38,15 @@
             this._serverTextBox = new System.Windows.Forms.TextBox();
             this.labelDB = new System.Windows.Forms.Label();
             this.labelSQLServer = new System.Windows.Forms.Label();
-            this.buttonCheckFunction = new System.Windows.Forms.Button();
-            this._groupBoxFunction = new System.Windows.Forms.GroupBox();
-            this.buttonCreateFunction = new System.Windows.Forms.Button();
-            this.checkBoxFunctionExist = new System.Windows.Forms.CheckBox();
-            this.labelFunctionStatus = new System.Windows.Forms.Label();
             this._groupBoxTable = new System.Windows.Forms.GroupBox();
             this.buttonCheckTable = new System.Windows.Forms.Button();
             this.comboBoxTable = new System.Windows.Forms.ComboBox();
             this.labelTable = new System.Windows.Forms.Label();
-            this._groupBoxPrepare = new System.Windows.Forms.GroupBox();
+            this._groupBoxNormalization = new System.Windows.Forms.GroupBox();
+            this._labelInited = new System.Windows.Forms.Label();
             this.buttonStopSP = new System.Windows.Forms.Button();
             this.buttonStartSP = new System.Windows.Forms.Button();
-            this.buttonTextKeyCreate = new System.Windows.Forms.Button();
-            this.buttonTextKeyCheck = new System.Windows.Forms.Button();
-            this.checkBoxTextKeyStatus = new System.Windows.Forms.CheckBox();
+            this._buttonPrepare = new System.Windows.Forms.Button();
             this.labelTextKeyStatus = new System.Windows.Forms.Label();
             this.textBoxStopTime = new System.Windows.Forms.TextBox();
             this.textBoxPreparedRowProgress = new System.Windows.Forms.TextBox();
@@ -101,9 +95,8 @@
             this._buttonStartNewTrace = new System.Windows.Forms.Button();
             this._panelLeft = new System.Windows.Forms.Panel();
             this.groupBoxConnect.SuspendLayout();
-            this._groupBoxFunction.SuspendLayout();
             this._groupBoxTable.SuspendLayout();
-            this._groupBoxPrepare.SuspendLayout();
+            this._groupBoxNormalization.SuspendLayout();
             this._groupBoxReports.SuspendLayout();
             this.panelConsole.SuspendLayout();
             this._panelRight.SuspendLayout();
@@ -137,7 +130,7 @@
             this.groupBoxConnect.Controls.Add(this.labelDB);
             this.groupBoxConnect.Controls.Add(this.labelSQLServer);
             this.groupBoxConnect.Dock = System.Windows.Forms.DockStyle.Top;
-            this.groupBoxConnect.Location = new System.Drawing.Point(0, 432);
+            this.groupBoxConnect.Location = new System.Drawing.Point(0, 387);
             this.groupBoxConnect.Name = "groupBoxConnect";
             this.groupBoxConnect.Size = new System.Drawing.Size(509, 77);
             this.groupBoxConnect.TabIndex = 1;
@@ -154,6 +147,7 @@
             this._connectedLabel.Size = new System.Drawing.Size(79, 16);
             this._connectedLabel.TabIndex = 39;
             this._connectedLabel.Text = "connected";
+            this._connectedLabel.Visible = false;
             // 
             // _dbTextBox
             // 
@@ -200,61 +194,6 @@
             this.labelSQLServer.TabIndex = 23;
             this.labelSQLServer.Text = "SQL Server:";
             // 
-            // buttonCheckFunction
-            // 
-            this.buttonCheckFunction.Location = new System.Drawing.Point(133, 16);
-            this.buttonCheckFunction.Name = "buttonCheckFunction";
-            this.buttonCheckFunction.Size = new System.Drawing.Size(74, 23);
-            this.buttonCheckFunction.TabIndex = 28;
-            this.buttonCheckFunction.Text = "Check";
-            this.buttonCheckFunction.UseVisualStyleBackColor = true;
-            this.buttonCheckFunction.Click += new System.EventHandler(this.ButtonCheckFunction_Click);
-            // 
-            // _groupBoxFunction
-            // 
-            this._groupBoxFunction.Controls.Add(this.buttonCheckFunction);
-            this._groupBoxFunction.Controls.Add(this.buttonCreateFunction);
-            this._groupBoxFunction.Controls.Add(this.checkBoxFunctionExist);
-            this._groupBoxFunction.Controls.Add(this.labelFunctionStatus);
-            this._groupBoxFunction.Dock = System.Windows.Forms.DockStyle.Top;
-            this._groupBoxFunction.Location = new System.Drawing.Point(0, 387);
-            this._groupBoxFunction.Name = "_groupBoxFunction";
-            this._groupBoxFunction.Size = new System.Drawing.Size(509, 45);
-            this._groupBoxFunction.TabIndex = 1;
-            this._groupBoxFunction.TabStop = false;
-            this._groupBoxFunction.Text = "Function PrepareTextData";
-            // 
-            // buttonCreateFunction
-            // 
-            this.buttonCreateFunction.Enabled = false;
-            this.buttonCreateFunction.Location = new System.Drawing.Point(312, 16);
-            this.buttonCreateFunction.Name = "buttonCreateFunction";
-            this.buttonCreateFunction.Size = new System.Drawing.Size(74, 23);
-            this.buttonCreateFunction.TabIndex = 41;
-            this.buttonCreateFunction.Text = "Create";
-            this.buttonCreateFunction.UseVisualStyleBackColor = true;
-            this.buttonCreateFunction.Click += new System.EventHandler(this.buttonCreateFunction_Click);
-            // 
-            // checkBoxFunctionExist
-            // 
-            this.checkBoxFunctionExist.AutoSize = true;
-            this.checkBoxFunctionExist.Enabled = false;
-            this.checkBoxFunctionExist.Location = new System.Drawing.Point(214, 20);
-            this.checkBoxFunctionExist.Name = "checkBoxFunctionExist";
-            this.checkBoxFunctionExist.Size = new System.Drawing.Size(91, 17);
-            this.checkBoxFunctionExist.TabIndex = 40;
-            this.checkBoxFunctionExist.Text = "Function exist";
-            this.checkBoxFunctionExist.UseVisualStyleBackColor = true;
-            // 
-            // labelFunctionStatus
-            // 
-            this.labelFunctionStatus.AutoSize = true;
-            this.labelFunctionStatus.Location = new System.Drawing.Point(6, 21);
-            this.labelFunctionStatus.Name = "labelFunctionStatus";
-            this.labelFunctionStatus.Size = new System.Drawing.Size(82, 13);
-            this.labelFunctionStatus.TabIndex = 39;
-            this.labelFunctionStatus.Text = "Function status:";
-            // 
             // _groupBoxTable
             // 
             this._groupBoxTable.Controls.Add(this.buttonCheckTable);
@@ -286,7 +225,7 @@
             this.comboBoxTable.Name = "comboBoxTable";
             this.comboBoxTable.Size = new System.Drawing.Size(251, 21);
             this.comboBoxTable.TabIndex = 27;
-            this.comboBoxTable.Leave += new System.EventHandler(this.ComboBoxTable_Leave);
+            this.comboBoxTable.TextChanged += new System.EventHandler(this.ComboBoxTable_TextChanged);
             // 
             // labelTable
             // 
@@ -297,33 +236,44 @@
             this.labelTable.TabIndex = 22;
             this.labelTable.Text = "Profiling Table:";
             // 
-            // _groupBoxPrepare
+            // _groupBoxNormalization
             // 
-            this._groupBoxPrepare.Controls.Add(this.buttonStopSP);
-            this._groupBoxPrepare.Controls.Add(this.buttonStartSP);
-            this._groupBoxPrepare.Controls.Add(this.buttonTextKeyCreate);
-            this._groupBoxPrepare.Controls.Add(this.buttonTextKeyCheck);
-            this._groupBoxPrepare.Controls.Add(this.checkBoxTextKeyStatus);
-            this._groupBoxPrepare.Controls.Add(this.labelTextKeyStatus);
-            this._groupBoxPrepare.Controls.Add(this.textBoxStopTime);
-            this._groupBoxPrepare.Controls.Add(this.textBoxPreparedRowProgress);
-            this._groupBoxPrepare.Controls.Add(this.textBoxPreparedRowCount);
-            this._groupBoxPrepare.Controls.Add(this.textBoxStartTime);
-            this._groupBoxPrepare.Controls.Add(this.textBoxRowCount);
-            this._groupBoxPrepare.Controls.Add(this.labelPreparedRowProgress);
-            this._groupBoxPrepare.Controls.Add(this.labelStopTime);
-            this._groupBoxPrepare.Controls.Add(this.labelPreparedRowCount);
-            this._groupBoxPrepare.Controls.Add(this.labelStartTime);
-            this._groupBoxPrepare.Controls.Add(this.buttonStop);
-            this._groupBoxPrepare.Controls.Add(this.buttonStart);
-            this._groupBoxPrepare.Controls.Add(this.labelRowCount);
-            this._groupBoxPrepare.Dock = System.Windows.Forms.DockStyle.Top;
-            this._groupBoxPrepare.Location = new System.Drawing.Point(0, 0);
-            this._groupBoxPrepare.Name = "_groupBoxPrepare";
-            this._groupBoxPrepare.Size = new System.Drawing.Size(509, 182);
-            this._groupBoxPrepare.TabIndex = 27;
-            this._groupBoxPrepare.TabStop = false;
-            this._groupBoxPrepare.Text = "Prepare for detail sql profiler report";
+            this._groupBoxNormalization.Controls.Add(this._labelInited);
+            this._groupBoxNormalization.Controls.Add(this.buttonStopSP);
+            this._groupBoxNormalization.Controls.Add(this.buttonStartSP);
+            this._groupBoxNormalization.Controls.Add(this._buttonPrepare);
+            this._groupBoxNormalization.Controls.Add(this.labelTextKeyStatus);
+            this._groupBoxNormalization.Controls.Add(this.textBoxStopTime);
+            this._groupBoxNormalization.Controls.Add(this.textBoxPreparedRowProgress);
+            this._groupBoxNormalization.Controls.Add(this.textBoxPreparedRowCount);
+            this._groupBoxNormalization.Controls.Add(this.textBoxStartTime);
+            this._groupBoxNormalization.Controls.Add(this.textBoxRowCount);
+            this._groupBoxNormalization.Controls.Add(this.labelPreparedRowProgress);
+            this._groupBoxNormalization.Controls.Add(this.labelStopTime);
+            this._groupBoxNormalization.Controls.Add(this.labelPreparedRowCount);
+            this._groupBoxNormalization.Controls.Add(this.labelStartTime);
+            this._groupBoxNormalization.Controls.Add(this.buttonStop);
+            this._groupBoxNormalization.Controls.Add(this.buttonStart);
+            this._groupBoxNormalization.Controls.Add(this.labelRowCount);
+            this._groupBoxNormalization.Dock = System.Windows.Forms.DockStyle.Top;
+            this._groupBoxNormalization.Location = new System.Drawing.Point(0, 0);
+            this._groupBoxNormalization.Name = "_groupBoxNormalization";
+            this._groupBoxNormalization.Size = new System.Drawing.Size(509, 182);
+            this._groupBoxNormalization.TabIndex = 27;
+            this._groupBoxNormalization.TabStop = false;
+            this._groupBoxNormalization.Text = "Normalization";
+            // 
+            // _labelInited
+            // 
+            this._labelInited.AutoSize = true;
+            this._labelInited.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this._labelInited.ForeColor = System.Drawing.Color.Green;
+            this._labelInited.Location = new System.Drawing.Point(213, 22);
+            this._labelInited.Name = "_labelInited";
+            this._labelInited.Size = new System.Drawing.Size(73, 16);
+            this._labelInited.TabIndex = 40;
+            this._labelInited.Text = "initialized";
+            this._labelInited.Visible = false;
             // 
             // buttonStopSP
             // 
@@ -348,52 +298,31 @@
             this.buttonStartSP.UseVisualStyleBackColor = true;
             this.buttonStartSP.Click += new System.EventHandler(this.buttonStartSP_Click);
             // 
-            // buttonTextKeyCreate
+            // _buttonPrepare
             // 
-            this.buttonTextKeyCreate.Enabled = false;
-            this.buttonTextKeyCreate.Location = new System.Drawing.Point(312, 18);
-            this.buttonTextKeyCreate.Name = "buttonTextKeyCreate";
-            this.buttonTextKeyCreate.Size = new System.Drawing.Size(74, 23);
-            this.buttonTextKeyCreate.TabIndex = 34;
-            this.buttonTextKeyCreate.Text = "Create";
-            this.buttonTextKeyCreate.UseVisualStyleBackColor = true;
-            this.buttonTextKeyCreate.Click += new System.EventHandler(this.buttonTextKeyCreate_Click);
-            // 
-            // buttonTextKeyCheck
-            // 
-            this.buttonTextKeyCheck.Enabled = false;
-            this.buttonTextKeyCheck.Location = new System.Drawing.Point(133, 18);
-            this.buttonTextKeyCheck.Name = "buttonTextKeyCheck";
-            this.buttonTextKeyCheck.Size = new System.Drawing.Size(74, 23);
-            this.buttonTextKeyCheck.TabIndex = 33;
-            this.buttonTextKeyCheck.Text = "Check";
-            this.buttonTextKeyCheck.UseVisualStyleBackColor = true;
-            this.buttonTextKeyCheck.Click += new System.EventHandler(this.buttonTextKeyCheck_Click);
-            // 
-            // checkBoxTextKeyStatus
-            // 
-            this.checkBoxTextKeyStatus.AutoSize = true;
-            this.checkBoxTextKeyStatus.Enabled = false;
-            this.checkBoxTextKeyStatus.Location = new System.Drawing.Point(214, 22);
-            this.checkBoxTextKeyStatus.Name = "checkBoxTextKeyStatus";
-            this.checkBoxTextKeyStatus.Size = new System.Drawing.Size(89, 17);
-            this.checkBoxTextKeyStatus.TabIndex = 32;
-            this.checkBoxTextKeyStatus.Text = "TextKey exist";
-            this.checkBoxTextKeyStatus.UseVisualStyleBackColor = true;
+            this._buttonPrepare.Enabled = false;
+            this._buttonPrepare.Location = new System.Drawing.Point(133, 18);
+            this._buttonPrepare.Name = "_buttonPrepare";
+            this._buttonPrepare.Size = new System.Drawing.Size(74, 23);
+            this._buttonPrepare.TabIndex = 33;
+            this._buttonPrepare.Text = "Initialize";
+            this._buttonPrepare.UseVisualStyleBackColor = true;
+            this._buttonPrepare.Click += new System.EventHandler(this.ButtonPrepare_Click);
             // 
             // labelTextKeyStatus
             // 
             this.labelTextKeyStatus.AutoSize = true;
-            this.labelTextKeyStatus.Location = new System.Drawing.Point(7, 23);
+            this.labelTextKeyStatus.Location = new System.Drawing.Point(15, 22);
             this.labelTextKeyStatus.Name = "labelTextKeyStatus";
-            this.labelTextKeyStatus.Size = new System.Drawing.Size(113, 13);
+            this.labelTextKeyStatus.Size = new System.Drawing.Size(111, 13);
             this.labelTextKeyStatus.TabIndex = 31;
-            this.labelTextKeyStatus.Text = "TextKey create status:";
+            this.labelTextKeyStatus.Text = "Prepare normalization:";
             // 
             // textBoxStopTime
             // 
             this.textBoxStopTime.Location = new System.Drawing.Point(135, 148);
             this.textBoxStopTime.Name = "textBoxStopTime";
+            this.textBoxStopTime.ReadOnly = true;
             this.textBoxStopTime.Size = new System.Drawing.Size(251, 20);
             this.textBoxStopTime.TabIndex = 30;
             // 
@@ -401,6 +330,7 @@
             // 
             this.textBoxPreparedRowProgress.Location = new System.Drawing.Point(135, 122);
             this.textBoxPreparedRowProgress.Name = "textBoxPreparedRowProgress";
+            this.textBoxPreparedRowProgress.ReadOnly = true;
             this.textBoxPreparedRowProgress.Size = new System.Drawing.Size(251, 20);
             this.textBoxPreparedRowProgress.TabIndex = 29;
             // 
@@ -408,6 +338,7 @@
             // 
             this.textBoxPreparedRowCount.Location = new System.Drawing.Point(135, 96);
             this.textBoxPreparedRowCount.Name = "textBoxPreparedRowCount";
+            this.textBoxPreparedRowCount.ReadOnly = true;
             this.textBoxPreparedRowCount.Size = new System.Drawing.Size(251, 20);
             this.textBoxPreparedRowCount.TabIndex = 28;
             // 
@@ -415,6 +346,7 @@
             // 
             this.textBoxStartTime.Location = new System.Drawing.Point(135, 70);
             this.textBoxStartTime.Name = "textBoxStartTime";
+            this.textBoxStartTime.ReadOnly = true;
             this.textBoxStartTime.Size = new System.Drawing.Size(251, 20);
             this.textBoxStartTime.TabIndex = 27;
             // 
@@ -422,6 +354,7 @@
             // 
             this.textBoxRowCount.Location = new System.Drawing.Point(135, 44);
             this.textBoxRowCount.Name = "textBoxRowCount";
+            this.textBoxRowCount.ReadOnly = true;
             this.textBoxRowCount.Size = new System.Drawing.Size(251, 20);
             this.textBoxRowCount.TabIndex = 26;
             // 
@@ -577,6 +510,7 @@
             this.buttonDetailReportView.TabIndex = 31;
             this.buttonDetailReportView.Text = "View";
             this.buttonDetailReportView.UseVisualStyleBackColor = true;
+            this.buttonDetailReportView.Visible = false;
             this.buttonDetailReportView.Click += new System.EventHandler(this.buttonDetailReportView_Click);
             // 
             // label2
@@ -752,16 +686,18 @@
             this.panelConsole.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelConsole.Location = new System.Drawing.Point(0, 0);
             this.panelConsole.Name = "panelConsole";
-            this.panelConsole.Size = new System.Drawing.Size(898, 520);
+            this.panelConsole.Size = new System.Drawing.Size(898, 476);
             this.panelConsole.TabIndex = 2;
             // 
             // _panelRight
             // 
+            this._panelRight.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this._panelRight.Controls.Add(this._groupBoxImportFile);
             this._panelRight.Controls.Add(this._groupBoxTrace);
             this._panelRight.Location = new System.Drawing.Point(518, 3);
             this._panelRight.Name = "_panelRight";
-            this._panelRight.Size = new System.Drawing.Size(368, 509);
+            this._panelRight.Size = new System.Drawing.Size(368, 465);
             this._panelRight.TabIndex = 44;
             // 
             // _groupBoxImportFile
@@ -773,29 +709,29 @@
             this._groupBoxImportFile.Controls.Add(this._importTableComboBox);
             this._groupBoxImportFile.Controls.Add(this._buttonImport);
             this._groupBoxImportFile.Dock = System.Windows.Forms.DockStyle.Top;
-            this._groupBoxImportFile.Location = new System.Drawing.Point(0, 366);
+            this._groupBoxImportFile.Location = new System.Drawing.Point(0, 332);
             this._groupBoxImportFile.Name = "_groupBoxImportFile";
-            this._groupBoxImportFile.Size = new System.Drawing.Size(368, 143);
+            this._groupBoxImportFile.Size = new System.Drawing.Size(368, 132);
             this._groupBoxImportFile.TabIndex = 44;
             this._groupBoxImportFile.TabStop = false;
             this._groupBoxImportFile.Text = "Import file Into DB";
             // 
-            // _forceOwerrideCheckBox
+            // _forceOverrideCheckBox
             // 
             this._forceOverrideCheckBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this._forceOverrideCheckBox.AutoSize = true;
             this._forceOverrideCheckBox.Location = new System.Drawing.Point(111, 77);
-            this._forceOverrideCheckBox.Name = "_forceOwerrideCheckBox";
+            this._forceOverrideCheckBox.Name = "_forceOverrideCheckBox";
             this._forceOverrideCheckBox.Size = new System.Drawing.Size(161, 17);
             this._forceOverrideCheckBox.TabIndex = 34;
             this._forceOverrideCheckBox.Text = "Force owerride profiling table";
             this._forceOverrideCheckBox.UseVisualStyleBackColor = true;
             // 
-            // _trcFilePathBox
+            // _trcFilePathTextBox
             // 
             this._trcFilePathTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this._trcFilePathTextBox.Location = new System.Drawing.Point(111, 51);
-            this._trcFilePathTextBox.Name = "_trcFilePathBox";
+            this._trcFilePathTextBox.Name = "_trcFilePathTextBox";
             this._trcFilePathTextBox.Size = new System.Drawing.Size(251, 20);
             this._trcFilePathTextBox.TabIndex = 33;
             // 
@@ -829,7 +765,7 @@
             // _buttonImport
             // 
             this._buttonImport.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this._buttonImport.Location = new System.Drawing.Point(262, 114);
+            this._buttonImport.Location = new System.Drawing.Point(262, 103);
             this._buttonImport.Name = "_buttonImport";
             this._buttonImport.Size = new System.Drawing.Size(100, 23);
             this._buttonImport.TabIndex = 1;
@@ -843,7 +779,7 @@
             this._groupBoxTrace.Dock = System.Windows.Forms.DockStyle.Top;
             this._groupBoxTrace.Location = new System.Drawing.Point(0, 0);
             this._groupBoxTrace.Name = "_groupBoxTrace";
-            this._groupBoxTrace.Size = new System.Drawing.Size(368, 366);
+            this._groupBoxTrace.Size = new System.Drawing.Size(368, 332);
             this._groupBoxTrace.TabIndex = 43;
             this._groupBoxTrace.TabStop = false;
             this._groupBoxTrace.Text = "Traces";
@@ -860,21 +796,22 @@
             // 
             // _panelLeft
             // 
+            this._panelLeft.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this._panelLeft.Controls.Add(this.groupBoxConnect);
-            this._panelLeft.Controls.Add(this._groupBoxFunction);
             this._panelLeft.Controls.Add(this._groupBoxReports);
             this._panelLeft.Controls.Add(this._groupBoxTable);
-            this._panelLeft.Controls.Add(this._groupBoxPrepare);
+            this._panelLeft.Controls.Add(this._groupBoxNormalization);
             this._panelLeft.Location = new System.Drawing.Point(3, 3);
             this._panelLeft.Name = "_panelLeft";
-            this._panelLeft.Size = new System.Drawing.Size(509, 509);
+            this._panelLeft.Size = new System.Drawing.Size(509, 465);
             this._panelLeft.TabIndex = 40;
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(898, 520);
+            this.ClientSize = new System.Drawing.Size(898, 476);
             this.Controls.Add(this.panelConsole);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -882,12 +819,10 @@
             this.Text = "MS SQL Profiling";
             this.groupBoxConnect.ResumeLayout(false);
             this.groupBoxConnect.PerformLayout();
-            this._groupBoxFunction.ResumeLayout(false);
-            this._groupBoxFunction.PerformLayout();
             this._groupBoxTable.ResumeLayout(false);
             this._groupBoxTable.PerformLayout();
-            this._groupBoxPrepare.ResumeLayout(false);
-            this._groupBoxPrepare.PerformLayout();
+            this._groupBoxNormalization.ResumeLayout(false);
+            this._groupBoxNormalization.PerformLayout();
             this._groupBoxReports.ResumeLayout(false);
             this._groupBoxReports.PerformLayout();
             this.panelConsole.ResumeLayout(false);
@@ -917,10 +852,8 @@
         private System.Windows.Forms.Button buttonErrorStatCheck;
         private System.Windows.Forms.CheckBox checkBoxErrorReportStatus;
         private System.Windows.Forms.Label labelErrorReportStatus;
-        private System.Windows.Forms.GroupBox _groupBoxPrepare;
-        private System.Windows.Forms.Button buttonTextKeyCreate;
-        private System.Windows.Forms.Button buttonTextKeyCheck;
-        private System.Windows.Forms.CheckBox checkBoxTextKeyStatus;
+        private System.Windows.Forms.GroupBox _groupBoxNormalization;
+        private System.Windows.Forms.Button _buttonPrepare;
         private System.Windows.Forms.Label labelTextKeyStatus;
         private System.Windows.Forms.TextBox textBoxStopTime;
         private System.Windows.Forms.TextBox textBoxPreparedRowProgress;
@@ -951,11 +884,6 @@
 		private System.Windows.Forms.Button buttonStartSP;
 		private System.ComponentModel.BackgroundWorker backgroundWorkerPrepareTableSP;
 		private System.Windows.Forms.Button buttonDetailReportView;
-        private System.Windows.Forms.Button buttonCheckFunction;
-        private System.Windows.Forms.GroupBox _groupBoxFunction;
-        private System.Windows.Forms.Button buttonCreateFunction;
-        private System.Windows.Forms.CheckBox checkBoxFunctionExist;
-        private System.Windows.Forms.Label labelFunctionStatus;
         private System.Windows.Forms.Button buttonCheckTable;
         private System.Windows.Forms.TextBox _dbTextBox;
         private System.Windows.Forms.TextBox _serverTextBox;
@@ -973,6 +901,7 @@
         private System.Windows.Forms.TextBox _trcFilePathTextBox;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.CheckBox _forceOverrideCheckBox;
+        private System.Windows.Forms.Label _labelInited;
     }
 }
 
