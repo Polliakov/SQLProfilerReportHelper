@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.backgroundWorkerPrepareTabele = new System.ComponentModel.BackgroundWorker();
             this.backgroundWorkerPrepareTableSP = new System.ComponentModel.BackgroundWorker();
             this.groupBoxConnect = new System.Windows.Forms.GroupBox();
@@ -769,9 +770,9 @@
             // 
             this._buttonStartNewTrace.Location = new System.Drawing.Point(6, 22);
             this._buttonStartNewTrace.Name = "_buttonStartNewTrace";
-            this._buttonStartNewTrace.Size = new System.Drawing.Size(75, 23);
+            this._buttonStartNewTrace.Size = new System.Drawing.Size(100, 23);
             this._buttonStartNewTrace.TabIndex = 0;
-            this._buttonStartNewTrace.Text = "NewTrace";
+            this._buttonStartNewTrace.Text = "Create Trace";
             this._buttonStartNewTrace.UseVisualStyleBackColor = true;
             this._buttonStartNewTrace.Click += new System.EventHandler(this.ButtonStartNewTrace_Click);
             // 
@@ -794,8 +795,9 @@
             this.ClientSize = new System.Drawing.Size(845, 520);
             this.Controls.Add(this.panelConsole);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "MainForm";
-            this.Text = "Prepare for detail analyse";
+            this.Text = "MS SQL Profiling";
             this.groupBoxConnect.ResumeLayout(false);
             this.groupBoxConnect.PerformLayout();
             this.groupBoxFunction.ResumeLayout(false);

@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ConnectSqlForm));
             this._groupBoxConnect = new System.Windows.Forms.GroupBox();
             this._passwordTextBox = new System.Windows.Forms.TextBox();
             this._loginTextBox = new System.Windows.Forms.TextBox();
@@ -161,6 +162,7 @@
             this.ClientSize = new System.Drawing.Size(414, 235);
             this.Controls.Add(this._groupBoxConnect);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "ConnectSqlForm";
             this.Text = "Connect Server";
             this._groupBoxConnect.ResumeLayout(false);

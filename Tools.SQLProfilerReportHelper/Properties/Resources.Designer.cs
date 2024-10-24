@@ -59,5 +59,15 @@ namespace Tools.SQLProfilerReportHelper.Properties {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.Drawing.Icon, аналогичного (Значок).
+        /// </summary>
+        internal static System.Drawing.Icon MsSqlProfilingMailIcon {
+            get {
+                object obj = ResourceManager.GetObject("MsSqlProfilingMailIcon", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
     }
 }

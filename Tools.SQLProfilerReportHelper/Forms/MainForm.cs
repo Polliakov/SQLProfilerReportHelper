@@ -5,6 +5,7 @@
     using System.Windows.Forms;
     using Tools.SQLProfilerReportHelper.Database.Common;
     using Tools.SQLProfilerReportHelper.Database.Profiling;
+    using Tools.SQLProfilerReportHelper.Forms;
 
     public partial class MainForm : Form
     {
@@ -382,19 +383,9 @@
             buttonCreateFunction.Enabled = false;
         }
 
-        private async void ButtonStartNewTrace_Click(object sender, EventArgs e)
+        private void ButtonStartNewTrace_Click(object sender, EventArgs e)
         {
-            try
-            {
-                var traceId = await _profiler.StartNewTrace(60, "D:\\SqlProfiling\\", 1);
-                MessageBox.Show($"TraceId: {traceId}", "Trace started", 
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error message:" +
-                    $"\n {ex}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            new CreateTraceForm(_profiler).ShowDialog();
         }
 
         private void ComboBoxTable_Leave(object sender, EventArgs e)

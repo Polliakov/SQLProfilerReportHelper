@@ -76,6 +76,9 @@
   <PropertyGroup>
     <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Resources\MsSqlProfilingMailIcon.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -90,10 +93,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConnectSqlForm.cs">
+    <Compile Include="Forms\ConnectSqlForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="ConnectSqlForm.Designer.cs">
+    <Compile Include="Forms\ConnectSqlForm.Designer.cs">
       <DependentUpon>ConnectSqlForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Database\Aggregation\TraceAggregator.cs" />
@@ -103,26 +106,35 @@
     <Compile Include="Database\Profiling\DbProfiler.cs" />
     <Compile Include="Database\Profiling\TraceColumn.cs" />
     <Compile Include="Database\TraceLoader.cs" />
-    <Compile Include="MainForm.cs">
+    <Compile Include="Forms\CreateTraceForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="MainForm.Designer.cs">
+    <Compile Include="Forms\CreateTraceForm.Designer.cs">
+      <DependentUpon>CreateTraceForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\MainForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Model\DetailStat.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Helper.cs" />
-    <Compile Include="ReportViewForm.cs">
+    <Compile Include="Forms\ReportViewForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="ReportViewForm.Designer.cs">
+    <Compile Include="Forms\ReportViewForm.Designer.cs">
       <DependentUpon>ReportViewForm.cs</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="ConnectSqlForm.resx">
+    <EmbeddedResource Include="Forms\ConnectSqlForm.resx">
       <DependentUpon>ConnectSqlForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="MainForm.resx">
+    <EmbeddedResource Include="Forms\CreateTraceForm.resx">
+      <DependentUpon>CreateTraceForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -135,7 +147,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <EmbeddedResource Include="ReportViewForm.resx">
+    <EmbeddedResource Include="Forms\ReportViewForm.resx">
       <DependentUpon>ReportViewForm.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="app.config" />
@@ -178,7 +190,9 @@
       <Name>Tools</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="Resources\MsSqlProfilingMailIcon.ico" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
