@@ -14,6 +14,26 @@ namespace Tools.SQLProfilerReportHelper.Database.Common
             _sql = sql;
         }
 
+        /// <summary>
+        /// get Имя таблицы с отчётом по производительности хранимых процедур (быстрый черновой отчёт)
+        /// </summary>
+        public string GetTableNameDraft(string traceTable) => traceTable + ".DraftStat";
+
+        /// <summary>
+        /// get Имя таблицы с отчётом по производительности всех SQL-запросов
+        /// </summary>
+        public string GetTableNameDetail(string traceTable) => traceTable + ".DetailStat";
+
+        /// <summary>
+        /// get Имя таблицы с отчётом по статистике ошибок
+        /// </summary>
+        public string GetTableNameError(string traceTable) => traceTable + ".ErrorStat";
+
+        /// <summary>
+        /// get Имя таблицы с взаимоблокировками
+        /// </summary>
+        public string GetTableNameDeadlock(string traceTable) => traceTable + ".DeadlockGraphs";
+
         public async Task<bool> IsTableExist(string tableName)
         {
             var count = (int)await _sql.ExecuteScalarAsync(@"

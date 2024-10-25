@@ -8,6 +8,7 @@
     using Tools.SQLProfilerReportHelper.Database.Profiling;
     using Tools.SQLProfilerReportHelper.Database.TraceExports;
     using Tools.SQLProfilerReportHelper.Forms;
+    using Tools.SQLProfilerReportHelper.UiKit;
 
     public partial class MainForm : Form
     {
@@ -18,12 +19,17 @@
         private DbObjectsManager _dbManager;
         private Normalizer _normalizer;
 
+        private Action<object> _tableInputHandler;
+
         public MainForm()
         {
             InitializeComponent();
             TableUtil = new Helper();
             backgroundWorkerPrepareTabele.WorkerReportsProgress = true;
             backgroundWorkerPrepareTabele.WorkerSupportsCancellation = true;
+
+            Action<object> table_TextChanged = Table_TextChanged;
+            _tableInputHandler = table_TextChanged.Debounce(300);
 
             SetGroupBoxesEnabled(false);
 
@@ -64,7 +70,7 @@
 
         private async void ButtonPrepare_Click(object sender, EventArgs e)
         {
-            var tableName = comboBoxTable.Text;
+            var tableName = _comboBoxTable.Text;
 
             if (string.IsNullOrWhiteSpace(tableName))
             {
@@ -80,9 +86,7 @@
 
                 buttonStartSP.Enabled = true;
                 buttonStart.Enabled = true;
-                buttonDetailReportCheck.Enabled = true;
-                buttonDraftReportCheck.Enabled = true;
-                buttonErrorStatCheck.Enabled = true;
+                EnableAggregationReports();
                 _labelInited.Visible = true;
 
                 textBoxRowCount.Text = TableUtil.RowCountForPrepare.ToString();
@@ -98,6 +102,21 @@
             }
         }
 
+        private async void EnableAggregationReports()
+        {
+            var tableName = _comboBoxTable.Text;
+
+            var detailExists = await _dbManager.IsTableExist(_dbManager.GetTableNameDetail(tableName));
+            var draftExists = await _dbManager.IsTableExist(_dbManager.GetTableNameDraft(tableName));
+            var errorExists = await _dbManager.IsTableExist(_dbManager.GetTableNameError(tableName));
+
+            _checkBoxDetailReportStatus.Checked = detailExists;
+            _buttonDetailReportCreate.Enabled = !detailExists;
+            _checkBoxDraftReportStatus.Checked = draftExists;
+            _buttonDraftReportCreate.Enabled = !draftExists;
+            _checkBoxErrorReportStatus.Checked = errorExists;
+            _buttonErrorReportCreate.Enabled = !errorExists;
+        }
 
         private void buttonStart_Click(object sender, EventArgs e)
         {
@@ -173,53 +192,25 @@
             textBoxStopTime.Text = TableUtil.ExpectedStopTime.ToString();
         }
 
-        private void buttonDraftReportCheck_Click(object sender, EventArgs e)
-        {
-            var isExist = TableUtil.IsTableExist(TableUtil.TableNameDraft);
-            checkBoxDraftReportStatus.Checked = isExist;
-            buttonDraftReportCreate.Enabled = !isExist;
-        }
-
-        private void buttonTextKeyCreate_Click(object sender, EventArgs e)
-        {
-            //TableUtil.CreateIndexes();
-            TableUtil.CreateTextKey();
-            ButtonPrepare_Click(sender, e);
-        }
-
-        private void buttonDetailReportCheck_Click(object sender, EventArgs e)
-        {
-            var tableExist = TableUtil.IsTableExist(TableUtil.TableNameDetail);
-            checkBoxDetailReportStatus.Checked = tableExist;
-            buttonDetailReportCreate.Enabled = !checkBoxDetailReportStatus.Checked;
-        }
-
         private void buttonDetailReportCreate_Click(object sender, EventArgs e)
         {
             TableUtil.CreateDetailReport();
-            checkBoxDetailReportStatus.Checked = true;
-            buttonDetailReportCreate.Enabled = false;
+            _checkBoxDetailReportStatus.Checked = true;
+            _buttonDetailReportCreate.Enabled = false;
         }
 
         private void buttonDraftReportCreate_Click(object sender, EventArgs e)
         {
             TableUtil.CreateDraftReport();
-            checkBoxDraftReportStatus.Checked = true;
-            buttonDraftReportCreate.Enabled = false;
-        }
-
-        private void buttonErrorStatCheck_Click(object sender, EventArgs e)
-        {
-            var tableExist = TableUtil.IsTableExist(TableUtil.TableNameError);
-            checkBoxErrorReportStatus.Checked = tableExist;
-            buttonErrorReportCreate.Enabled = !tableExist;
+            _checkBoxDraftReportStatus.Checked = true;
+            _buttonDraftReportCreate.Enabled = false;
         }
 
         private void buttonErrorReportCreate_Click(object sender, EventArgs e)
         {
             TableUtil.CreateErrorReport();
-            checkBoxErrorReportStatus.Checked = true;
-            buttonErrorReportCreate.Enabled = false;
+            _checkBoxErrorReportStatus.Checked = true;
+            _buttonErrorReportCreate.Enabled = false;
         }
 
         private void buttonDeadlockReportCheck_Click(object sender, EventArgs e)
@@ -234,57 +225,6 @@
             TableUtil.CreateDeadlockReport();
             checkBoxDeadlockReportStatus.Checked = true;
             buttonDeadlockReportCreate.Enabled = false;
-        }
-
-        private async void buttonMinuteAndSecondCheck_Click(object sender, EventArgs e)
-        {
-            var columnsExist =
-                   await _dbManager.IsColumnExistInTable(TableUtil.TableName, "Second01")
-                && await _dbManager.IsColumnExistInTable(TableUtil.TableName, "Second05")
-                && await _dbManager.IsColumnExistInTable(TableUtil.TableName, "Second10")
-                && await _dbManager.IsColumnExistInTable(TableUtil.TableName, "Munute01")
-                && await _dbManager.IsColumnExistInTable(TableUtil.TableName, "Munute02")
-                && await _dbManager.IsColumnExistInTable(TableUtil.TableName, "Munute03")
-                && await _dbManager.IsColumnExistInTable(TableUtil.TableName, "Munute04")
-                && await _dbManager.IsColumnExistInTable(TableUtil.TableName, "Munute05");
-
-            checkBoxMinuteAndSecondStatus.Checked = columnsExist;
-            buttonMinuteAndSecondCreate.Enabled = !columnsExist;
-        }
-
-        private void buttonMinuteAndSecondCreate_Click(object sender, EventArgs e)
-        {
-            TableUtil.CreateMinuteAndSecondColumn();
-            TableUtil.FillMinuteAndSecondColumn();
-            buttonMinuteAndSecondCheck_Click(sender, e);
-        }
-
-        private void DisableAllButtons()
-        {
-            buttonMinuteAndSecondCheck.Enabled = false;
-            buttonConnect.Enabled = false;
-            buttonDeadlockReportCheck.Enabled = false;
-            buttonDeadlockReportCreate.Enabled = false;
-            buttonDetailReportCheck.Enabled = false;
-            buttonDetailReportCreate.Enabled = false;
-            buttonDraftReportCheck.Enabled = false;
-            buttonDraftReportCreate.Enabled = false;
-            buttonErrorReportCreate.Enabled = false;
-            buttonErrorStatCheck.Enabled = false;
-            buttonMinuteAndSecondCheck.Enabled = false;
-            buttonMinuteAndSecondCreate.Enabled = false;
-            buttonStart.Enabled = false;
-            buttonStop.Enabled = false;
-            _buttonPrepare.Enabled = false;
-        }
-
-        private void CheckEnableAllButtons(object sender, EventArgs e)
-        {
-            buttonDeadlockReportCheck.Enabled = true;
-            buttonDeadlockReportCheck_Click(sender, e);
-
-            buttonMinuteAndSecondCheck.Enabled = true;
-            buttonMinuteAndSecondCheck_Click(sender, e);
         }
 
         private void backgroundWorkerPrepareTabele_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -437,17 +377,20 @@
         {
             try
             {
-                TableUtil.TableName = comboBoxTable.Text;
+                TableUtil.TableName = _comboBoxTable.Text;
                 _buttonPrepare.Enabled = true;
                 buttonDeadlockReportCheck.Enabled = true;
-                buttonMinuteAndSecondCheck.Enabled = true;
             }
-            catch 
+            catch
             {
                 _buttonPrepare.Enabled = false;
                 buttonDeadlockReportCheck.Enabled = false;
-                buttonMinuteAndSecondCheck.Enabled = false;
             }
+        }
+
+        private void Table_TextChanged(object sender)
+        {
+            // ...
         }
     }
 }

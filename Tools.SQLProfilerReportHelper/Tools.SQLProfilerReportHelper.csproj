@@ -129,6 +129,7 @@
     <Compile Include="Forms\ReportViewForm.Designer.cs">
       <DependentUpon>ReportViewForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="UiKit\DebounceExtensions.cs" />
     <EmbeddedResource Include="Forms\ConnectSqlForm.resx">
       <DependentUpon>ConnectSqlForm.cs</DependentUpon>
     </EmbeddedResource>
