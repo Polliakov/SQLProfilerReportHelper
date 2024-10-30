@@ -70,6 +70,16 @@
             // _durationNumeric
             // 
             this._durationNumeric.Location = new System.Drawing.Point(115, 40);
+            this._durationNumeric.Maximum = new decimal(new int[] {
+            4320000,
+            0,
+            0,
+            0});
+            this._durationNumeric.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
             this._durationNumeric.Name = "_durationNumeric";
             this._durationNumeric.Size = new System.Drawing.Size(300, 20);
             this._durationNumeric.TabIndex = 3;
@@ -91,6 +101,16 @@
             // _fileSizeNumeric
             // 
             this._fileSizeNumeric.Location = new System.Drawing.Point(115, 66);
+            this._fileSizeNumeric.Maximum = new decimal(new int[] {
+            10240,
+            0,
+            0,
+            0});
+            this._fileSizeNumeric.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
             this._fileSizeNumeric.Name = "_fileSizeNumeric";
             this._fileSizeNumeric.Size = new System.Drawing.Size(300, 20);
             this._fileSizeNumeric.TabIndex = 5;

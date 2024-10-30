@@ -9,7 +9,7 @@ namespace Tools.SQLProfilerReportHelper.Database.TraceExports
     public class TraceLoader
     {
         private readonly Sql _sql;
-
+		
         public TraceLoader(Sql sql)
         {
             _sql = sql;
@@ -25,7 +25,7 @@ namespace Tools.SQLProfilerReportHelper.Database.TraceExports
 if OBJECT_ID('dbo.[{tableName}]', 'U') is not null
 	drop table [{tableName}]");
 
-            await _sql.ExecuteNonQueryAsync(@"
+            await _sql.ExecuteNonQueryAsync(7200, @"
 declare @paramDefinition nvarchar(255) = N'@file varchar(255)';
 declare @query nvarchar(4000) = '
 select

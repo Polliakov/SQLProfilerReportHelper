@@ -24,6 +24,6 @@ select
 	, [RequestID]
 	, [XactSequence]
 into [' + @traceTableName + ']
-from ::fn_trace_gettable(@file, default)';
+from ::fn_trace_gettable(@file, 1)';
 
 EXECUTE sp_executesql @query, @parmDefinition, @file = @filePath;
