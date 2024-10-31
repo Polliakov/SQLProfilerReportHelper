@@ -9,22 +9,22 @@
     {
         private SqlConnection Connection { get; set; }
 
-        string tableName;
+        string _tableName;
         /// <summary>
         /// get/set Имя таблицы с данными профайлинга
         /// </summary>
         public string TableName
         {
-            get { return tableName; }
+            get { return _tableName; }
             set
             {
                 if (IsTableExist(value))
                 {
-                    tableName = value;
+                    _tableName = value;
                 }
                 else
                 {
-                    throw new Exception(string.Format("Table {0} not exist", tableName));
+                    throw new Exception(string.Format("Table {0} not exist", _tableName));
                 }
             }
         }
@@ -61,16 +61,7 @@
             get { return TableName + ".DeadlockGraphs"; }
         }
 
-        public DateTime StartTime { get; set; }
-
-        public bool PreparedIsCompleteSP { get { return (RowCountForPrepareSP < RowCountPreparedSP) || RowCountForPrepareSP == 0; } }
-
-        public string[] Tables { get { return GetTables(); } }
-
         public int RowCountPrepared { get; set; }
-
-        public int RowCountForPrepareSP { get; set; }
-        public int RowCountPreparedSP { get; set; }
 
         public void Connect(string connectionString)
         {
@@ -100,7 +91,7 @@ ON [dbo].[{0}]
             command.CommandTimeout = 10000;
             command.CommandText = string.Format(@"
 CREATE NONCLUSTERED INDEX [IX_TraceTable_TextKey_DatabaseName]
-ON [dbo].[{0}] ([DatabaseName],[TextKey])
+ON [dbo].[{0}] ([DatabaseName],[TextKey],[ObjectName])
 ", TableName);
             command.ExecuteNonQuery();
         }
@@ -122,121 +113,7 @@ and [EventClass] IN (10, 12)
             RowCountPrepared += command.ExecuteNonQuery();
         }
 
-        public void CreateIndexes()
-        {
-            var command = new SqlCommand();
-            command.Connection = Connection;
-            command.CommandTimeout = 60 * 60;
-
-            try
-            {
-                command.CommandText = string.Format(@"
-CREATE NONCLUSTERED INDEX [IX_TraceTable_DatabaseName_EventClass_CPU]
-ON [dbo].[{0}] ([DatabaseName],[EventClass])
-INCLUDE ([CPU])
-", TableName);
-                command.ExecuteNonQuery();
-            }
-            catch (Exception) { }
-
-
-            try
-            {
-                command.CommandText = string.Format(@"
-CREATE NONCLUSTERED INDEX [IX_TraceTable_DatabaseName_EventClass_StartTime]
-ON [dbo].[{0}] ([DatabaseName],[EventClass])
-INCLUDE ([StartTime])
-", TableName);
-                command.ExecuteNonQuery();
-            }
-            catch (Exception) { }
-
-
-            try
-            {
-                command.CommandText = string.Format(@"
-CREATE NONCLUSTERED INDEX [IX_TraceTable_DatabaseName_EventClass_Reads]
-ON [dbo].[{0}] ([DatabaseName],[EventClass])
-INCLUDE ([Reads])
-", TableName);
-                command.ExecuteNonQuery();
-            }
-            catch (Exception) { }
-
-
-            try
-            {
-                command.CommandText = string.Format(@"
-CREATE NONCLUSTERED INDEX [IX_TraceTable_DatabaseName_EventClass_Writes]
-ON [dbo].[{0}] ([DatabaseName],[EventClass])
-INCLUDE ([Writes])
-", TableName);
-                command.ExecuteNonQuery();
-            }
-            catch (Exception) { }
-
-
-            try
-            {
-                command.CommandText = string.Format(@"
-CREATE NONCLUSTERED INDEX [IX_TraceTable_DatabaseName_EventClass_Duration]
-ON [dbo].[{0}] ([DatabaseName],[EventClass])
-INCLUDE ([Duration])
-", TableName);
-                command.ExecuteNonQuery();
-            }
-            catch (Exception) { }
-
-
-            try
-            {
-                command.CommandText = string.Format(@"
---CREATE NONCLUSTERED INDEX [IX_TraceTable_DatabaseName_EventClass_DurationReadsWritesCPUTextKey]
---ON [dbo].[{0}] ([DatabaseName],[EventClass])
---INCLUDE ([Duration],[Reads],[Writes],[CPU],[TextKey])
-", TableName);
-                command.ExecuteNonQuery();
-            }
-            catch (Exception) { }
-
-
-            try
-            {
-                command.CommandText = string.Format(@"
-CREATE NONCLUSTERED INDEX [IX_TraceTable_ObjectName]
-ON [dbo].[{0}] ([ObjectName])
-", TableName);
-                command.ExecuteNonQuery();
-            }
-            catch (Exception) { }
-
-
-            try
-            {
-                command.CommandText = string.Format(@"
-CREATE NONCLUSTERED INDEX [IX_TraceTable_EventClassDurationReadsWritesCPU]
-ON [dbo].[{0}] ([EventClass])
-INCLUDE ([Duration],[Reads],[Writes],[CPU])
-", TableName);
-                command.ExecuteNonQuery();
-            }
-            catch (Exception) { }
-
-
-            try
-            {
-                command.CommandText = string.Format(@"
-CREATE NONCLUSTERED INDEX [IX_TraceTable_EventClassDurationReadsWritesCPUObjectNameDatabaseName]
-ON [dbo].[{0}] ([EventClass])
-INCLUDE ([Duration],[Reads],[Writes],[CPU],[ObjectName],[DatabaseName])
-", TableName);
-                command.ExecuteNonQuery();
-            }
-            catch (Exception) { }
-
-        }
-
-        string[] GetTables()
+        public string[] GetTables()
         {
             string[] tables = { };
             if (Connection.State == System.Data.ConnectionState.Open)
@@ -262,6 +139,7 @@ ORDER BY TABLE_NAME";
             return tables;
         }
 
+        [Obsolete]
         public bool IsTableExist(string tableName)
         {
             bool isExist = false;
@@ -338,6 +216,12 @@ ORDER BY [GroupID]
 
         public void CreateDetailReport()
         {
+            try
+            {
+                CreateIndexOnTextKeys();
+            }
+            catch { }
+
             var command = new SqlCommand();
             command.Connection = Connection;
             command.CommandTimeout = 160 * 60;
@@ -357,61 +241,55 @@ from [dbo].[{0}] where EventClass in (10, 12)
 
 
 select
-	[DatabaseName]
-	, LEFT([TextKey], 40) as [TextKey-key]
-	, [avg(CPU)] as [avg(CPU)-key]
-	, [avg(Duration)] as [avg(Duration)-key]
-	, [% Duration] as [% Duration-key]
-	, [avg(Reads)] as [avg(Reads)-key]
-	, [Count] as [Count-key]
-
+	  [DatabaseName]
 	, [TextKey]
+    , [ObjectName]
 
-	, [min(CPU)]
+	, [% CPU]
 	, [avg(CPU)]
+	, [min(CPU)]
 	, [max(CPU)]
 	, [sum(CPU)]
-	, [% CPU]
 
-	, [min(Duration)]
+	, [% Duration]
 	, [avg(Duration)]
+	, [min(Duration)]
 	, [max(Duration)]
 	, [sum(Duration)]
-	, [% Duration]
 
-	, [min(Reads)]
+	, [% Reads]
 	, [avg(Reads)]
+	, [min(Reads)]
 	, [max(Reads)]
 	, [sum(Reads)]
-	, [% Reads]
 
-	, [min(Writes)]
+	, [% Writes]
 	, [avg(Writes)]
+	, [min(Writes)]
 	, [max(Writes)]
 	, [sum(Writes)]
-	, [% Writes]
 
-	, [Count]
 	, [% Count]
+	, [Count]
 
-	, [TextData-min(Duration)]
-	, [TextData-max(Duration)]
-	, [TextData-min(Reads)]
-	, [TextData-max(Reads)]
-	, [TextData-min(CPU)]
-	, [TextData-max(CPU)]
-	, [TextData-min(Writes)]
-	, [TextData-max(Writes)]
+	--, [TextData-min(Duration)]
+	--, [TextData-max(Duration)]
+	--, [TextData-min(Reads)]
+	--, [TextData-max(Reads)]
+	--, [TextData-min(CPU)]
+	--, [TextData-max(CPU)]
+	--, [TextData-min(Writes)]
+	--, [TextData-max(Writes)]
 
 	, [min(Duration)raw]
 	, [max(Duration)raw]
+    , [avg(Duration)raw]
 
 INTO [dbo].[{1}]
 from
 (
-	select
-		--Быстрая статистика, для вставки в отчёт по тестированию
-		*
+	select 
+          *
 		, round(cast([sum(CPU)] as float) / @CPUSumm * 100, 3) as [% CPU]
 
 		, [min(Duration)raw]/1000 as [min(Duration)]
@@ -443,40 +321,39 @@ from
             else 0
           end as [% Count]
 
-		, (select top 1 [TextData] from [{0}]) as [TextData-min(Duration)]
-		, (select top 1 [TextData] from [{0}]) as [TextData-max(Duration)]
-		, (select top 1 [TextData] from [{0}]) as [TextData-min(CPU)]
-		, (select top 1 [TextData] from [{0}]) as [TextData-max(CPU)]
-		, (select top 1 [TextData] from [{0}]) as [TextData-min(Reads)]
-		, (select top 1 [TextData] from [{0}]) as [TextData-max(Reads)]
-		, (select top 1 [TextData] from [{0}]) as [TextData-min(Writes)]
-		, (select top 1 [TextData] from [{0}]) as [TextData-max(Writes)]
+		--, (select top 1 [TextData] from [{0}]) as [TextData-min(Duration)]
+		--, (select top 1 [TextData] from [{0}]) as [TextData-max(Duration)]
+		--, (select top 1 [TextData] from [{0}]) as [TextData-min(CPU)]
+		--, (select top 1 [TextData] from [{0}]) as [TextData-max(CPU)]
+		--, (select top 1 [TextData] from [{0}]) as [TextData-min(Reads)]
+		--, (select top 1 [TextData] from [{0}]) as [TextData-max(Reads)]
+		--, (select top 1 [TextData] from [{0}]) as [TextData-min(Writes)]
+		--, (select top 1 [TextData] from [{0}]) as [TextData-max(Writes)]
 
 	from
 	(
 		select
-			--Быстрая статистика, для вставки в отчёт по тестированию
 			[DatabaseName],
 			[TextKey],
+            [ObjectName],
   
-			--Детальная статистика
-			min(CPU) as [min(CPU)], 
 			avg(CPU) as [avg(CPU)], 
+			min(CPU) as [min(CPU)], 
 			max(CPU) as [max(CPU)], 
 			sum(CPU) as [sum(CPU)], 
 
-			min(Duration) as [min(Duration)raw], 
 			avg(Duration) as [avg(Duration)raw], 
+			min(Duration) as [min(Duration)raw], 
 			max(Duration) as [max(Duration)raw], 
 			sum(Duration) as [sum(Duration)raw],
 
-			min(Reads) as [min(Reads)], 
 			avg(Reads) as [avg(Reads)],
+			min(Reads) as [min(Reads)], 
 			max(Reads) as [max(Reads)], 
 			sum(Reads) as [sum(Reads)], 
 
-			min(Writes) as [min(Writes)], 
 			avg(Writes) as [avg(Writes)],
+			min(Writes) as [min(Writes)], 
 			max(Writes) as [max(Writes)], 
 			sum(Writes) as [sum(Writes)], 
 
@@ -486,211 +363,65 @@ from
 		where
 			EventClass in (10, 12)
 		group by
-			[DatabaseName], [TextKey]
+			[DatabaseName], [TextKey], [ObjectName]
 	) as [Statistic]
-) as [Statistic2]
-order by [% Duration] desc
-    ", TableName, TableNameDetail);
+) as [Statistic2]",
+            TableName, TableNameDetail);
             command.ExecuteNonQuery();
-
-            try
-            {
-                CreateIndexOnTextKeys();
-            }
-            catch (Exception ex)
-            {
-            }
 
             command.CommandText = string.Format(@"
 CREATE NONCLUSTERED INDEX [IX_TraceTableDetailStat_TextKey_DatabaseName]
-ON [dbo].[{0}] ([DatabaseName],[TextKey])
+ON [dbo].[{0}] ([DatabaseName],[TextKey], [ObjectName])
 ", TableNameDetail);
             command.ExecuteNonQuery();
 
-            command.CommandText = string.Format(@"
-UPDATE [dbo].[{1}] SET [TextData-min(Duration)] = 
-(select top 1 [TextData] from [{0}] where [TextKey] = [dbo].[{1}].[TextKey] and [DatabaseName] = [dbo].[{1}].[DatabaseName] and Duration = [dbo].[{1}].[min(Duration)raw])
-    ", TableName, TableNameDetail);
-            command.ExecuteNonQuery();
+//            command.CommandText = string.Format(@"
+//UPDATE [dbo].[{1}] SET [TextData-min(Duration)] = 
+//(select top 1 [TextData] from [{0}] where [TextKey] = [dbo].[{1}].[TextKey] and [DatabaseName] = [dbo].[{1}].[DatabaseName] and Duration = [dbo].[{1}].[min(Duration)raw])
+//    ", TableName, TableNameDetail);
+//            command.ExecuteNonQuery();
 
-            command.CommandText = string.Format(@"
-UPDATE [dbo].[{1}] SET [TextData-max(Duration)] = 
-(select top 1 [TextData] from [{0}] where [TextKey] = [dbo].[{1}].[TextKey] and [DatabaseName] = [dbo].[{1}].[DatabaseName] and Duration = [dbo].[{1}].[max(Duration)raw])
-    ", TableName, TableNameDetail);
-            command.ExecuteNonQuery();
+//            command.CommandText = string.Format(@"
+//UPDATE [dbo].[{1}] SET [TextData-max(Duration)] = 
+//(select top 1 [TextData] from [{0}] where [TextKey] = [dbo].[{1}].[TextKey] and [DatabaseName] = [dbo].[{1}].[DatabaseName] and Duration = [dbo].[{1}].[max(Duration)raw])
+//    ", TableName, TableNameDetail);
+//            command.ExecuteNonQuery();
 
-            command.CommandText = string.Format(@"
-UPDATE [dbo].[{1}] SET [TextData-min(CPU)] = 
-(select top 1 [TextData] from [{0}] where [TextKey] = [dbo].[{1}].[TextKey] and [DatabaseName] = [dbo].[{1}].[DatabaseName] and CPU = [dbo].[{1}].[min(CPU)])
-    ", TableName, TableNameDetail);
-            command.ExecuteNonQuery();
+//            command.CommandText = string.Format(@"
+//UPDATE [dbo].[{1}] SET [TextData-min(CPU)] = 
+//(select top 1 [TextData] from [{0}] where [TextKey] = [dbo].[{1}].[TextKey] and [DatabaseName] = [dbo].[{1}].[DatabaseName] and CPU = [dbo].[{1}].[min(CPU)])
+//    ", TableName, TableNameDetail);
+//            command.ExecuteNonQuery();
 
-            command.CommandText = string.Format(@"
-UPDATE [dbo].[{1}] SET [TextData-max(CPU)] = 
-(select top 1 [TextData] from [{0}] where [TextKey] = [dbo].[{1}].[TextKey] and [DatabaseName] = [dbo].[{1}].[DatabaseName] and CPU = [dbo].[{1}].[max(CPU)])
-    ", TableName, TableNameDetail);
-            command.ExecuteNonQuery();
+//            command.CommandText = string.Format(@"
+//UPDATE [dbo].[{1}] SET [TextData-max(CPU)] = 
+//(select top 1 [TextData] from [{0}] where [TextKey] = [dbo].[{1}].[TextKey] and [DatabaseName] = [dbo].[{1}].[DatabaseName] and CPU = [dbo].[{1}].[max(CPU)])
+//    ", TableName, TableNameDetail);
+//            command.ExecuteNonQuery();
 
-            command.CommandText = string.Format(@"
-UPDATE [dbo].[{1}] SET [TextData-min(Reads)] = 
-(select top 1 [TextData] from [{0}] where [TextKey] = [dbo].[{1}].[TextKey] and [DatabaseName] = [dbo].[{1}].[DatabaseName] and Reads = [dbo].[{1}].[min(Reads)])
-    ", TableName, TableNameDetail);
-            command.ExecuteNonQuery();
+//            command.CommandText = string.Format(@"
+//UPDATE [dbo].[{1}] SET [TextData-min(Reads)] = 
+//(select top 1 [TextData] from [{0}] where [TextKey] = [dbo].[{1}].[TextKey] and [DatabaseName] = [dbo].[{1}].[DatabaseName] and Reads = [dbo].[{1}].[min(Reads)])
+//    ", TableName, TableNameDetail);
+//            command.ExecuteNonQuery();
 
-            command.CommandText = string.Format(@"
-UPDATE [dbo].[{1}] SET [TextData-max(Reads)] = 
-(select top 1 [TextData] from [{0}] where [TextKey] = [dbo].[{1}].[TextKey] and [DatabaseName] = [dbo].[{1}].[DatabaseName] and Reads = [dbo].[{1}].[max(Reads)])
-    ", TableName, TableNameDetail);
-            command.ExecuteNonQuery();
+//            command.CommandText = string.Format(@"
+//UPDATE [dbo].[{1}] SET [TextData-max(Reads)] = 
+//(select top 1 [TextData] from [{0}] where [TextKey] = [dbo].[{1}].[TextKey] and [DatabaseName] = [dbo].[{1}].[DatabaseName] and Reads = [dbo].[{1}].[max(Reads)])
+//    ", TableName, TableNameDetail);
+//            command.ExecuteNonQuery();
 
-            command.CommandText = string.Format(@"
-UPDATE [dbo].[{1}] SET [TextData-min(Writes)] = 
-(select top 1 [TextData] from [{0}] where [TextKey] = [dbo].[{1}].[TextKey] and [DatabaseName] = [dbo].[{1}].[DatabaseName] and Writes = [dbo].[{1}].[min(Writes)])
-    ", TableName, TableNameDetail);
-            command.ExecuteNonQuery();
+//            command.CommandText = string.Format(@"
+//UPDATE [dbo].[{1}] SET [TextData-min(Writes)] = 
+//(select top 1 [TextData] from [{0}] where [TextKey] = [dbo].[{1}].[TextKey] and [DatabaseName] = [dbo].[{1}].[DatabaseName] and Writes = [dbo].[{1}].[min(Writes)])
+//    ", TableName, TableNameDetail);
+//            command.ExecuteNonQuery();
 
-            command.CommandText = string.Format(@"
-UPDATE [dbo].[{1}] SET [TextData-max(Writes)] = 
-(select top 1 [TextData] from [{0}] where [TextKey] = [dbo].[{1}].[TextKey] and [DatabaseName] = [dbo].[{1}].[DatabaseName] and Writes = [dbo].[{1}].[max(Writes)])
-    ", TableName, TableNameDetail);
-            command.ExecuteNonQuery();
-        }
-
-        public void CreateDraftReport()
-        {
-            var command = new SqlCommand();
-            command.Connection = Connection;
-            command.CommandTimeout = 60 * 60;
-            command.CommandText = string.Format(@"
-declare @CPUSumm int; 
-declare @DurationSumm float; 
-declare @ReadsSumm float;
-declare @WritesSumm float;
-declare @CountSumm float;
-
-select @CPUSumm = SUM(CPU)
-     , @DurationSumm = SUM(Duration)
-     , @ReadsSumm = SUM(Reads)
-     , @WritesSumm = SUM(Writes)
-     , @CountSumm = count(*)
-from [dbo].[{0}] where EventClass in (10, 12)
-
-
-select
-	[DatabaseName]
-	, [ObjectName] as [ObjectName-key]
-	, [avg(CPU)] as [avg(CPU)-key]
-	, [avg(Duration)] as [avg(Duration)-key]
-	, [% Duration] as [% Duration-key]
-	, [avg(Reads)] as [avg(Reads)-key]
-	, [Count] as [Count-key]
-
-	, [ObjectName]
-
-	, [min(CPU)]
-	, [avg(CPU)]
-	, [max(CPU)]
-	, [sum(CPU)]
-	, [% CPU]
-
-	, [min(Duration)]
-	, [avg(Duration)]
-	, [max(Duration)]
-	, [sum(Duration)]
-	, [% Duration]
-
-	, [min(Reads)]
-	, [avg(Reads)]
-	, [max(Reads)]
-	, [sum(Reads)]
-	, [% Reads]
-
-	, [min(Writes)]
-	, [avg(Writes)]
-	, [max(Writes)]
-	, [sum(Writes)]
-	, [% Writes]
-
-	, [Count]
-	, [% Count]
-
-	, [TextData-min(Duration)]
-	, [TextData-max(Duration)]
-	, [TextData-min(Reads)]
-	, [TextData-max(Reads)]
-	, [TextData-min(CPU)]
-	, [TextData-max(CPU)]
-	, [TextData-min(Writes)]
-	, [TextData-max(Writes)]
-INTO [dbo].[{1}]
-from
-(
-	select
-		--Быстрая статистика, для вставки в отчёт по тестированию
-		*
-		, round(cast([sum(CPU)] as float) / @CPUSumm * 100, 3) as [% CPU]
-
-		, [min(Duration)raw]/1000 as [min(Duration)]
-		, [avg(Duration)raw]/1000 as [avg(Duration)]
-		, [max(Duration)raw]/1000 as [max(Duration)] 
-		, [sum(Duration)raw]/1000 as [sum(Duration)]
-		, round(cast([sum(Duration)raw] as float) / @DurationSumm * 100, 3) as [% Duration]
-
-		, round(cast([sum(Reads)] as float) / @ReadsSumm * 100, 3) as [% Reads]
-
-		, round(cast([sum(Writes)] as float) / @WritesSumm * 100, 3) as [% Writes]
-
-		, round([Count] / @CountSumm * 100, 3) as [% Count]
-
-		,(select top 1 [TextData] from [{0}] where [ObjectName] = [Statistic].[ObjectName] and [DatabaseName] = [Statistic].[DatabaseName] and Duration = [Statistic].[min(Duration)raw]) as [TextData-min(Duration)]
-		,(select top 1 [TextData] from [{0}] where [ObjectName] = [Statistic].[ObjectName] and [DatabaseName] = [Statistic].[DatabaseName] and Duration = [Statistic].[max(Duration)raw]) as [TextData-max(Duration)]
-		,(select top 1 [TextData] from [{0}] where [ObjectName] = [Statistic].[ObjectName] and [DatabaseName] = [Statistic].[DatabaseName] and CPU = [Statistic].[min(CPU)]) as [TextData-min(CPU)]
-		,(select top 1 [TextData] from [{0}] where [ObjectName] = [Statistic].[ObjectName] and [DatabaseName] = [Statistic].[DatabaseName] and CPU = [Statistic].[max(CPU)]) as [TextData-max(CPU)]
-		,(select top 1 [TextData] from [{0}] where [ObjectName] = [Statistic].[ObjectName] and [DatabaseName] = [Statistic].[DatabaseName] and Reads = [Statistic].[min(Reads)]) as [TextData-min(Reads)]
-		,(select top 1 [TextData] from [{0}] where [ObjectName] = [Statistic].[ObjectName] and [DatabaseName] = [Statistic].[DatabaseName] and Reads = [Statistic].[max(Reads)]) as [TextData-max(Reads)]
-		,(select top 1 [TextData] from [{0}] where [ObjectName] = [Statistic].[ObjectName] and [DatabaseName] = [Statistic].[DatabaseName] and Writes = [Statistic].[min(Writes)]) as [TextData-min(Writes)]
-		,(select top 1 [TextData] from [{0}] where [ObjectName] = [Statistic].[ObjectName] and [DatabaseName] = [Statistic].[DatabaseName] and Writes = [Statistic].[max(Writes)]) as [TextData-max(Writes)]
-
-	from
-	(
-		select
-			--Быстрая статистика, для вставки в отчёт по тестированию
-			[DatabaseName],
-			[ObjectName],
-  
-			--Детальная статистика
-			min(CPU) as [min(CPU)], 
-			avg(CPU) as [avg(CPU)], 
-			max(CPU) as [max(CPU)], 
-			sum(CPU) as [sum(CPU)], 
-
-			min(Duration) as [min(Duration)raw], 
-			avg(Duration) as [avg(Duration)raw], 
-			max(Duration) as [max(Duration)raw], 
-			sum(Duration) as [sum(Duration)raw],
-
-			min(Reads) as [min(Reads)], 
-			avg(Reads) as [avg(Reads)],
-			max(Reads) as [max(Reads)], 
-			sum(Reads) as [sum(Reads)], 
-
-			min(Writes) as [min(Writes)], 
-			avg(Writes) as [avg(Writes)],
-			max(Writes) as [max(Writes)], 
-			sum(Writes) as [sum(Writes)], 
-
-			count(*) as [Count]
-		from
-			[dbo].[{0}] as TTT -- Таблица, в которую сохранили трейс. 
-		where
-			EventClass in (10, 12)
-		group by
-			[DatabaseName], [ObjectName]
-	) as [Statistic]
-) as [Statistic2]
-order by [% Duration] desc
-    ", TableName, TableNameDraft);
-            command.ExecuteNonQuery();
+//            command.CommandText = string.Format(@"
+//UPDATE [dbo].[{1}] SET [TextData-max(Writes)] = 
+//(select top 1 [TextData] from [{0}] where [TextKey] = [dbo].[{1}].[TextKey] and [DatabaseName] = [dbo].[{1}].[DatabaseName] and Writes = [dbo].[{1}].[max(Writes)])
+//    ", TableName, TableNameDetail);
+//            command.ExecuteNonQuery();
         }
 
         public void CreateErrorReport()

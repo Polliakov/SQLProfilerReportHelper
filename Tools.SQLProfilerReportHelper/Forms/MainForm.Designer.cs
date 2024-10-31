@@ -58,12 +58,9 @@
             this._checkBoxDeadlockReportStatus = new System.Windows.Forms.CheckBox();
             this._buttonDetailReportCreate = new System.Windows.Forms.Button();
             this.labelDeadlockReportStatus = new System.Windows.Forms.Label();
-            this._buttonDraftReportCreate = new System.Windows.Forms.Button();
             this._buttonErrorReportCreate = new System.Windows.Forms.Button();
             this._checkBoxDetailReportStatus = new System.Windows.Forms.CheckBox();
             this.labelDetailReportStatus = new System.Windows.Forms.Label();
-            this._checkBoxDraftReportStatus = new System.Windows.Forms.CheckBox();
-            this.labelDraftReportStatus = new System.Windows.Forms.Label();
             this._checkBoxErrorReportStatus = new System.Windows.Forms.CheckBox();
             this.labelErrorReportStatus = new System.Windows.Forms.Label();
             this.panelConsole = new System.Windows.Forms.Panel();
@@ -327,12 +324,9 @@
             this._groupBoxReports.Controls.Add(this._checkBoxDeadlockReportStatus);
             this._groupBoxReports.Controls.Add(this._buttonDetailReportCreate);
             this._groupBoxReports.Controls.Add(this.labelDeadlockReportStatus);
-            this._groupBoxReports.Controls.Add(this._buttonDraftReportCreate);
             this._groupBoxReports.Controls.Add(this._buttonErrorReportCreate);
             this._groupBoxReports.Controls.Add(this._checkBoxDetailReportStatus);
             this._groupBoxReports.Controls.Add(this.labelDetailReportStatus);
-            this._groupBoxReports.Controls.Add(this._checkBoxDraftReportStatus);
-            this._groupBoxReports.Controls.Add(this.labelDraftReportStatus);
             this._groupBoxReports.Controls.Add(this._checkBoxErrorReportStatus);
             this._groupBoxReports.Controls.Add(this.labelErrorReportStatus);
             this._groupBoxReports.Dock = System.Windows.Forms.DockStyle.Top;
@@ -357,7 +351,7 @@
             // buttonDetailReportView
             // 
             this.buttonDetailReportView.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.buttonDetailReportView.Location = new System.Drawing.Point(366, 66);
+            this.buttonDetailReportView.Location = new System.Drawing.Point(390, 17);
             this.buttonDetailReportView.Name = "buttonDetailReportView";
             this.buttonDetailReportView.Size = new System.Drawing.Size(100, 23);
             this.buttonDetailReportView.TabIndex = 31;
@@ -379,7 +373,7 @@
             // _buttonDetailReportCreate
             // 
             this._buttonDetailReportCreate.Enabled = false;
-            this._buttonDetailReportCreate.Location = new System.Drawing.Point(233, 72);
+            this._buttonDetailReportCreate.Location = new System.Drawing.Point(233, 19);
             this._buttonDetailReportCreate.Name = "_buttonDetailReportCreate";
             this._buttonDetailReportCreate.Size = new System.Drawing.Size(74, 23);
             this._buttonDetailReportCreate.TabIndex = 30;
@@ -396,21 +390,10 @@
             this.labelDeadlockReportStatus.TabIndex = 35;
             this.labelDeadlockReportStatus.Text = "Deadlock report status:";
             // 
-            // _buttonDraftReportCreate
-            // 
-            this._buttonDraftReportCreate.Enabled = false;
-            this._buttonDraftReportCreate.Location = new System.Drawing.Point(233, 43);
-            this._buttonDraftReportCreate.Name = "_buttonDraftReportCreate";
-            this._buttonDraftReportCreate.Size = new System.Drawing.Size(74, 23);
-            this._buttonDraftReportCreate.TabIndex = 34;
-            this._buttonDraftReportCreate.Text = "Create";
-            this._buttonDraftReportCreate.UseVisualStyleBackColor = true;
-            this._buttonDraftReportCreate.Click += new System.EventHandler(this.ButtonDraftReportCreate_Click);
-            // 
             // _buttonErrorReportCreate
             // 
             this._buttonErrorReportCreate.Enabled = false;
-            this._buttonErrorReportCreate.Location = new System.Drawing.Point(233, 14);
+            this._buttonErrorReportCreate.Location = new System.Drawing.Point(233, 66);
             this._buttonErrorReportCreate.Name = "_buttonErrorReportCreate";
             this._buttonErrorReportCreate.Size = new System.Drawing.Size(74, 23);
             this._buttonErrorReportCreate.TabIndex = 38;
@@ -422,7 +405,7 @@
             // 
             this._checkBoxDetailReportStatus.AutoSize = true;
             this._checkBoxDetailReportStatus.Enabled = false;
-            this._checkBoxDetailReportStatus.Location = new System.Drawing.Point(135, 76);
+            this._checkBoxDetailReportStatus.Location = new System.Drawing.Point(135, 23);
             this._checkBoxDetailReportStatus.Name = "_checkBoxDetailReportStatus";
             this._checkBoxDetailReportStatus.Size = new System.Drawing.Size(82, 17);
             this._checkBoxDetailReportStatus.TabIndex = 28;
@@ -432,37 +415,17 @@
             // labelDetailReportStatus
             // 
             this.labelDetailReportStatus.AutoSize = true;
-            this.labelDetailReportStatus.Location = new System.Drawing.Point(6, 76);
+            this.labelDetailReportStatus.Location = new System.Drawing.Point(7, 24);
             this.labelDetailReportStatus.Name = "labelDetailReportStatus";
             this.labelDetailReportStatus.Size = new System.Drawing.Size(98, 13);
             this.labelDetailReportStatus.TabIndex = 7;
             this.labelDetailReportStatus.Text = "Detail report status:";
             // 
-            // _checkBoxDraftReportStatus
-            // 
-            this._checkBoxDraftReportStatus.AutoSize = true;
-            this._checkBoxDraftReportStatus.Enabled = false;
-            this._checkBoxDraftReportStatus.Location = new System.Drawing.Point(135, 48);
-            this._checkBoxDraftReportStatus.Name = "_checkBoxDraftReportStatus";
-            this._checkBoxDraftReportStatus.Size = new System.Drawing.Size(82, 17);
-            this._checkBoxDraftReportStatus.TabIndex = 32;
-            this._checkBoxDraftReportStatus.Text = "Report exist";
-            this._checkBoxDraftReportStatus.UseVisualStyleBackColor = true;
-            // 
-            // labelDraftReportStatus
-            // 
-            this.labelDraftReportStatus.AutoSize = true;
-            this.labelDraftReportStatus.Location = new System.Drawing.Point(7, 47);
-            this.labelDraftReportStatus.Name = "labelDraftReportStatus";
-            this.labelDraftReportStatus.Size = new System.Drawing.Size(94, 13);
-            this.labelDraftReportStatus.TabIndex = 31;
-            this.labelDraftReportStatus.Text = "Draft report status:";
-            // 
             // _checkBoxErrorReportStatus
             // 
             this._checkBoxErrorReportStatus.AutoSize = true;
             this._checkBoxErrorReportStatus.Enabled = false;
-            this._checkBoxErrorReportStatus.Location = new System.Drawing.Point(135, 18);
+            this._checkBoxErrorReportStatus.Location = new System.Drawing.Point(135, 70);
             this._checkBoxErrorReportStatus.Name = "_checkBoxErrorReportStatus";
             this._checkBoxErrorReportStatus.Size = new System.Drawing.Size(82, 17);
             this._checkBoxErrorReportStatus.TabIndex = 36;
@@ -472,7 +435,7 @@
             // labelErrorReportStatus
             // 
             this.labelErrorReportStatus.AutoSize = true;
-            this.labelErrorReportStatus.Location = new System.Drawing.Point(6, 18);
+            this.labelErrorReportStatus.Location = new System.Drawing.Point(6, 70);
             this.labelErrorReportStatus.Name = "labelErrorReportStatus";
             this.labelErrorReportStatus.Size = new System.Drawing.Size(93, 13);
             this.labelErrorReportStatus.TabIndex = 35;
@@ -640,9 +603,6 @@
         private System.Windows.Forms.GroupBox groupBoxConnect;
         private System.Windows.Forms.ComboBox _comboBoxTable;
         private System.Windows.Forms.Label labelTable;
-        private System.Windows.Forms.Button _buttonDraftReportCreate;
-        private System.Windows.Forms.CheckBox _checkBoxDraftReportStatus;
-        private System.Windows.Forms.Label labelDraftReportStatus;
         private System.Windows.Forms.GroupBox _groupBoxReports;
         private System.Windows.Forms.Button _buttonErrorReportCreate;
         private System.Windows.Forms.CheckBox _checkBoxErrorReportStatus;

@@ -45,7 +45,7 @@
             TableUtil.Connect(connData.ConnectionString);
 
             var f = new SqlConnectionFactory(connData.ConnectionString);
-            var s = new Sql(f, 60);
+            var s = new Sql(f, 120);
             _profiler = new DbProfiler(f, s);
             _dbManager = new DbObjectsManager(s);
             _traceLoader = new TraceLoader(s);
@@ -85,7 +85,7 @@
                 var pipeline = new DataPipeline(new DataPipelineContext
                 {
                     ProcessingTable = tableName,
-                    PreferredParallelism = 3
+                    PreferredParallelism = 10
                 });
 
                 var done = 0;
@@ -130,13 +130,6 @@
             TableUtil.CreateDetailReport();
             _checkBoxDetailReportStatus.Checked = true;
             _buttonDetailReportCreate.Enabled = false;
-        }
-
-        private void ButtonDraftReportCreate_Click(object sender, EventArgs e)
-        {
-            TableUtil.CreateDraftReport();
-            _checkBoxDraftReportStatus.Checked = true;
-            _buttonDraftReportCreate.Enabled = false;
         }
 
         private void ButtonErrorReportCreate_Click(object sender, EventArgs e)
@@ -228,8 +221,6 @@
         {
             _checkBoxDetailReportStatus.Checked = detailExists;
             _buttonDetailReportCreate.Enabled = !detailExists;
-            _checkBoxDraftReportStatus.Checked = draftExists;
-            _buttonDraftReportCreate.Enabled = !draftExists;
             _checkBoxErrorReportStatus.Checked = errorExists;
             _buttonErrorReportCreate.Enabled = !errorExists;
         }

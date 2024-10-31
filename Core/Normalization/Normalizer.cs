@@ -48,12 +48,13 @@ namespace TraceKnife.Core.Normalization
             var processedCounter = 0L;
             while (processedCounter < count)
             {
-                if (count - processedCounter < take)
-                    take = processedCounter - count;
+                var last = count - processedCounter;
+                if (last < take)
+                    take = last;
                 if (take <= 0)
                     return;
 
-                await _sql.ExecuteNonQueryAsync($@"
+                await _sql.ExecuteNonQueryAsync(720, $@"
 update [dbo].[{context.ProcessingTable}]
 set [TextKey] =	dbo.{_options.NormalizationFunctionName}(CAST([TextData] as varchar(2000)))
 where [Id] in (select [Id] from [dbo].[{context.ProcessingTable}] order by [Id]

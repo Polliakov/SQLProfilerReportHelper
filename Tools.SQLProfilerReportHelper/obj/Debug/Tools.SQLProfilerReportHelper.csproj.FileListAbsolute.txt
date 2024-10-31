@@ -49,3 +49,5 @@ C:\Users\Anton_Polyakov_ADM\source\repos\SQLProfilerReportHelper\Tools.SQLProfil
 C:\Users\Anton_Polyakov_ADM\source\repos\SQLProfilerReportHelper\Tools.SQLProfilerReportHelper\obj\Debug\Tools.SQLProfilerReportHelper.pdb
 C:\Users\Администратор\source\repos\SQLProfilerReportHelper\Tools.SQLProfilerReportHelper\bin\Debug\TraceKnife.Core.dll
 C:\Users\Администратор\source\repos\SQLProfilerReportHelper\Tools.SQLProfilerReportHelper\bin\Debug\TraceKnife.Core.pdb
+C:\Users\Anton_Polyakov_ADM\source\repos\SQLProfilerReportHelper\Tools.SQLProfilerReportHelper\bin\Debug\TraceKnife.Core.dll
+C:\Users\Anton_Polyakov_ADM\source\repos\SQLProfilerReportHelper\Tools.SQLProfilerReportHelper\bin\Debug\TraceKnife.Core.pdb
