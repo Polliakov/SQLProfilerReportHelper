@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using TraceKnife.Core.DbUtils;
 
-namespace Tools.SQLProfilerReportHelper.Database.Common
+namespace TraceKnife.Common
 {
     public class Sql
     {
@@ -24,18 +21,18 @@ namespace Tools.SQLProfilerReportHelper.Database.Common
                query, parameters);
 
         public async Task<int> ExecuteNonQueryAsync(int timeout, string query, params SqlParameter[] parameters)
-            => (int)await ExecuteAsync(timeout, 
+            => (int)await ExecuteAsync(timeout,
                async c => await c.ExecuteNonQueryAsync(),
                query, parameters);
 
-        public async Task<object> ExecuteScalarAsync(string query, params SqlParameter[] parameters)
-            => await ExecuteAsync(async c => await c.ExecuteScalarAsync(),
+        public async Task<T> ExecuteScalarAsync<T>(string query, params SqlParameter[] parameters)
+            => (T)await ExecuteAsync(async c => await c.ExecuteScalarAsync(),
                query, parameters);
 
-        public async Task<object> ExecuteScalarAsync(int timeout, string query, params SqlParameter[] parameters)
-            => await ExecuteAsync(timeout,
-               async c => await c.ExecuteScalarAsync(),
-               query, parameters);
+        public async Task<T> ExecuteScalarAsync<T>(int timeout, string query, params SqlParameter[] parameters)
+            => (T)await ExecuteAsync(timeout,
+                   async c => await c.ExecuteScalarAsync(),
+                   query, parameters);
 
         private Task<object> ExecuteAsync(
             Func<SqlCommand, Task<object>> execute,

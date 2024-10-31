@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Data.SqlClient;
 using System.Windows.Forms;
-using Tools.SQLProfilerReportHelper.Database.Common;
+using TraceKnife.Core.DbUtils;
 
 namespace Tools.SQLProfilerReportHelper
 {

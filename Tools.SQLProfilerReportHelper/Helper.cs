@@ -62,16 +62,11 @@
         }
 
         public DateTime StartTime { get; set; }
-        public DateTime ExpectedStopTime { get { return GetExpectedStopTime(); } }
-        public DateTime ExpectedStopTimeSP { get { return GetExpectedStopTimeSP(); } }
-
-        public bool PreparedIsComplete { get { return (RowCountForPrepare < RowCountPrepared) || RowCountForPrepare == 0; } }
 
         public bool PreparedIsCompleteSP { get { return (RowCountForPrepareSP < RowCountPreparedSP) || RowCountForPrepareSP == 0; } }
 
         public string[] Tables { get { return GetTables(); } }
 
-        public int RowCountForPrepare { get; set; }
         public int RowCountPrepared { get; set; }
 
         public int RowCountForPrepareSP { get; set; }
@@ -85,46 +80,7 @@
             RowCountPrepared = 0;
         }
 
-        DateTime GetExpectedStopTime()
-        {
-            var duration = DateTime.Now.Subtract(StartTime).TotalSeconds;
-            var expectedDuration = 0.0;
-            if (RowCountPrepared > 0)
-                expectedDuration = duration * RowCountForPrepare / RowCountPrepared;
-            else
-                expectedDuration = duration * RowCountForPrepare / 10;
-
-            return StartTime.AddSeconds(expectedDuration);
-        }
-
-        /// <summary>
-        /// Расчёт времени, необходимого для завершения операции обработки хранимых процедур.
-        /// </summary>
-        /// <returns>Момент времени, в который, предположительно операция завершится (время в текущем часовом поясе)</returns>
-        /// <remarks>
-        /// Метод зависит от внешних переменных.
-        /// Предполагается, что:
-        /// this.StartTime - момент времени начала операции (время в текущем часовом поясе), изначально DateTime.Now.
-        /// this.RowCountPreparedSP - количество уже обработанных строк таблицы, с хранимыми процедурами, изначально 0.
-        /// this.RowCountForPrepareSP - количество строк таблицы, которые нужно обработать, изначально равно количеству вызовов хранимых процедур в таблице профайлинга.
-        /// </remarks>
-		DateTime GetExpectedStopTimeSP()
-        {
-            //Длительность обработки текущего количества строк (RowCountPreparedSP)
-            double duration = DateTime.Now.Subtract(StartTime).TotalSeconds;
-            double expectedDuration = 0.0;
-
-            //Длительность обработки полного количества строк (RowCountForPrepareSP) расчитывается по пропорции
-            if (RowCountPreparedSP > 0)
-                expectedDuration = duration * RowCountForPrepareSP / RowCountPreparedSP;
-            else
-                //Чтобы не было деления на 0, в качестве первого приближения расчитывается время завершения так,
-                //как будто, с момента начала операции уже обраборано 10 строк из полного количества.
-                expectedDuration = duration * RowCountForPrepareSP / 10;
-
-            return StartTime.AddSeconds(expectedDuration);
-        }
-
+        [Obsolete]
         public void DropIndexOnTextKeys()
         {
             var command = new SqlCommand();
@@ -149,6 +105,7 @@ ON [dbo].[{0}] ([DatabaseName],[TextKey])
             command.ExecuteNonQuery();
         }
 
+        [Obsolete]
         public void PrepareTextKeys()
         {
             var command = new SqlCommand();
@@ -163,32 +120,6 @@ and ([ObjectName] IS NULL OR [ObjectName] IN ('sp_executesql'))
 and [EventClass] IN (10, 12)
 ", TableName);
             RowCountPrepared += command.ExecuteNonQuery();
-        }
-
-        public void PrepareTextKeysSP()
-        {
-            var command = new SqlCommand();
-            command.Connection = Connection;
-            command.CommandTimeout = 10000;
-            command.CommandText = string.Format(@"
--- Обработка для хранимых процедур
-update TOP (100000) [dbo].[{0}]
-set [TextKey] =	[ObjectName]
-where [ObjectName] IS NOT NULL
-and [TextKey] IS NULL
-and [ObjectName] NOT IN  ('sp_executesql')
-and EventClass in (10, 12)
-", TableName);
-            RowCountPreparedSP += command.ExecuteNonQuery();
-            //			command.CommandText = string.Format(@"
-            //-- Предварительная обработка для SQL-запросов
-            //update TOP (2000) [dbo].[{0}]
-            //set [TextKey] =	NULL
-            //where
-            //([ObjectName] IS NULL OR [ObjectName] IN ('sp_executesql'))
-            //and EventClass in (10, 12)
-            //", this.TableName);
-            //			this.RowCountPreparedSP += command.ExecuteNonQuery();
         }
 
         public void CreateIndexes()
@@ -305,21 +236,6 @@ INCLUDE ([Duration],[Reads],[Writes],[CPU],[ObjectName],[DatabaseName])
 
         }
 
-        public void CreateTextKey()
-        {
-            var command = new SqlCommand();
-            command.Connection = Connection;
-            command.CommandTimeout = 60 * 60;
-            command.CommandText = string.Format(@"
-BEGIN TRANSACTION
-ALTER TABLE [dbo].[{0}] ADD
-	[TextKey] varchar(1000) NULL
-ALTER TABLE [dbo].[{0}] SET (LOCK_ESCALATION = TABLE)
-COMMIT
-", TableName);
-            command.ExecuteNonQuery();
-        }
-
         string[] GetTables()
         {
             string[] tables = { };
@@ -372,64 +288,6 @@ ORDER BY TABLE_NAME";
             return isExist;
         }
 
-        public int GetRowCountForPrepare()
-        {
-            int rowCount = -1;
-
-            if (Connection.State == System.Data.ConnectionState.Open)
-            {
-                var command = new SqlCommand();
-                command.Connection = Connection;
-                command.CommandTimeout = 60 * 60;
-                command.CommandText = string.Format(@"
-select count(*)
-from [dbo].[{0}]
-where TextKey IS NULL
-and (ObjectName IS NULL OR ObjectName IN ('sp_executesql'))
-and EventClass in (10, 12)", TableName);
-                var reader = command.ExecuteReader();
-                if (reader.HasRows)
-                {
-                    if (reader.Read())
-                    {
-                        rowCount = reader.GetInt32(0);
-                    }
-                }
-                reader.Close();
-            }
-            return rowCount;
-        }
-
-        public int GetRowCountForPrepareSP()
-        {
-            int rowCount = -1;
-
-            if (Connection.State == System.Data.ConnectionState.Open)
-            {
-                var command = new SqlCommand();
-                command.Connection = Connection;
-                command.CommandTimeout = 60 * 60;
-                command.CommandText = string.Format(@"
-select count(*)
-from [dbo].[{0}]
-where [ObjectName] IS NOT NULL
-and [TextKey] IS NULL
-and [ObjectName] NOT IN  ('sp_executesql')
-and EventClass in (10, 12)
-", TableName);
-                var reader = command.ExecuteReader();
-                if (reader.HasRows)
-                {
-                    if (reader.Read())
-                    {
-                        rowCount = reader.GetInt32(0);
-                    }
-                }
-                reader.Close();
-            }
-            return rowCount;
-        }
-
         public void CreateDeadlockReport()
         {
             var command = new SqlCommand();
@@ -463,8 +321,7 @@ INSERT INTO [dbo].[{1}]
     ,[StartTime]
     ,[TextData]
     ,[TransactionID]
-    ,[GroupID]
-    ,[BinaryData])
+    ,[GroupID])
 SELECT [EventClass]
       ,[LoginName]
       ,[SPID]
@@ -472,14 +329,12 @@ SELECT [EventClass]
       ,[TextData]
       ,[TransactionID]
       ,DATALENGTH ( [TextData] ) as [GroupID]
-      ,[BinaryData]
 FROM [dbo].[{0}]
 WHERE [EventClass] = 148
 ORDER BY [GroupID]
 ", TableName, TableNameDeadlock);
             command.ExecuteNonQuery();
         }
-
 
         public void CreateDetailReport()
         {
@@ -858,6 +713,9 @@ ORDER BY [DatabaseName], [Error], [ApplicationName], [ErrorText]
             command.ExecuteNonQuery();
         }
 
+        /// <summary>
+        /// Do not have usage
+        /// </summary>
         public void CreateMinuteAndSecondColumn()
         {
             var command = new SqlCommand();
@@ -880,6 +738,9 @@ COMMIT
             command.ExecuteNonQuery();
         }
 
+        /// <summary>
+        /// Do not have usage
+        /// </summary>
         public void FillMinuteAndSecondColumn()
         {
             var command = new SqlCommand();
@@ -984,123 +845,6 @@ SELECT [{0}]
             node.TextDataMinWrites = node.TextDataMinWrites ?? GetTextData(node.DatabaseName, node.TextKeyKey, "TextData-min(Writes)");
             node.TextDataMaxWrites = node.TextDataMaxWrites ?? GetTextData(node.DatabaseName, node.TextKeyKey, "TextData-max(Writes)");
             return node;
-        }
-
-        public ReadOnlyCollection<Model.DetailStat> GetDetailStat()
-        {
-            ReadOnlyCollection<Model.DetailStat> result = null;
-
-            var command = new SqlCommand();
-            command.Connection = Connection;
-            command.CommandTimeout = 60 * 60;
-            command.CommandText = string.Format(@"
-SELECT [DatabaseName]
-      ,[TextKey-key]
-      ,[avg(CPU)-key]
-      ,[avg(Duration)-key]
-      ,[% Duration-key]
-      ,[avg(Reads)-key]
-      ,[Count-key]
-      ,[TextKey]
-      ,[min(CPU)]
-      ,[avg(CPU)]
-      ,[max(CPU)]
-      ,[sum(CPU)]
-      ,[% CPU]
-      ,[min(Duration)]
-      ,[avg(Duration)]
-      ,[max(Duration)]
-      ,[sum(Duration)]
-      ,[% Duration]
-      ,[min(Reads)]
-      ,[avg(Reads)]
-      ,[max(Reads)]
-      ,[sum(Reads)]
-      ,[% Reads]
-      ,[min(Writes)]
-      ,[avg(Writes)]
-      ,[max(Writes)]
-      ,[sum(Writes)]
-      ,[% Writes]
-      ,[Count]
-      ,[% Count]
-      --,[TextData-min(Duration)]
-      --,[TextData-max(Duration)]
-      --,[TextData-min(Reads)]
-      --,[TextData-max(Reads)]
-      --,[TextData-min(CPU)]
-      --,[TextData-max(CPU)]
-      --,[TextData-min(Writes)]
-      --,[TextData-max(Writes)]
-      ,[min(Duration)raw]
-      ,[max(Duration)raw]
-  FROM [dbo].[{0}]
-", TableNameDetail);
-            SqlDataReader reader = command.ExecuteReader();
-            if (reader.HasRows)
-            {
-                List<Model.DetailStat> listData = new List<Model.DetailStat>();
-                while (reader.Read())
-                {
-                    Model.DetailStat data = new Model.DetailStat();
-                    int index = 0;
-                    data.DatabaseName = reader.GetStringOrNull(index); index++;
-                    data.TextKeyKey = reader.GetStringOrNull(index); index++;
-                    data.AvgCPUKey = reader.GetIntOrNull(index); index++;
-                    data.AvgDurationKey = reader.GetLongOrNull(index); index++;
-                    data.PercentDurationKey = reader.GetDoubleOrNull(index); index++;
-                    data.AvgReadsKey = reader.GetLongOrNull(index); index++;
-                    data.CountKey = reader.GetIntOrNull(index); index++;
-                    data.TextKey = reader.GetStringOrNull(index); index++;
-
-                    data.MinCPU = reader.GetIntOrNull(index); index++;
-                    data.AvgCPU = reader.GetIntOrNull(index); index++;
-                    data.MaxCPU = reader.GetIntOrNull(index); index++;
-                    data.SumCPU = reader.GetIntOrNull(index); index++;
-                    data.PercentCPU = reader.GetDoubleOrNull(index); index++;
-
-                    data.MinDuration = reader.GetLongOrNull(index); index++;
-                    data.AvgDuration = reader.GetLongOrNull(index); index++;
-                    data.MaxDuration = reader.GetLongOrNull(index); index++;
-                    data.SumDuration = reader.GetLongOrNull(index); index++;
-                    data.PercentDuration = reader.GetDoubleOrNull(index); index++;
-
-                    data.MinReads = reader.GetLongOrNull(index); index++;
-                    data.AvgReads = reader.GetLongOrNull(index); index++;
-                    data.MaxReads = reader.GetLongOrNull(index); index++;
-                    data.SumReads = reader.GetLongOrNull(index); index++;
-                    data.PercentReads = reader.GetDoubleOrNull(index); index++;
-
-                    data.MinWrites = reader.GetLongOrNull(index); index++;
-                    data.AvgWrites = reader.GetLongOrNull(index); index++;
-                    data.MaxWrites = reader.GetLongOrNull(index); index++;
-                    data.SumWrites = reader.GetLongOrNull(index); index++;
-                    data.PercentWrites = reader.GetDoubleOrNull(index); index++;
-
-                    data.Count = reader.GetIntOrNull(index); index++;
-                    data.PercentCount = reader.GetDoubleOrNull(index); index++;
-
-                    data.TextDataMinDuration = null; // reader.GetStringOrNull(index); index++;
-                    data.TextDataMaxDuration = null; // reader.GetStringOrNull(index); index++;
-
-                    data.TextDataMinReads = null; // reader.GetStringOrNull(index); index++;
-                    data.TextDataMaxReads = null; // reader.GetStringOrNull(index); index++;
-
-                    data.TextDataMinCPU = null; // reader.GetStringOrNull(index); index++;
-                    data.TextDataMaxCPU = null; // reader.GetStringOrNull(index); index++;
-
-                    data.TextDataMinWrites = null; // reader.GetStringOrNull(index); index++;
-                    data.TextDataMaxWrites = null; // reader.GetStringOrNull(index); index++;
-
-                    data.MinDurationRaw = reader.GetLongOrNull(index); index++;
-                    data.MaxDurationRaw = reader.GetLongOrNull(index); index++;
-
-                    listData.Add(data);
-                }
-                result = listData.AsReadOnly();
-            }
-            reader.Close();
-            return result;
         }
     }
 }

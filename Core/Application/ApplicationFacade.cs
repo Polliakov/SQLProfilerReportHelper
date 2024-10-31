@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Tools.SQLProfilerReportHelper.Database.Aggregation
+namespace TraceKnife.Core.Application
 {
-    internal class TraceAggregator
+    internal class ApplicationFaçade
     {
     }
 }

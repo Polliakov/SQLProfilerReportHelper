@@ -29,8 +29,6 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
-            this.backgroundWorkerPrepareTabele = new System.ComponentModel.BackgroundWorker();
-            this.backgroundWorkerPrepareTableSP = new System.ComponentModel.BackgroundWorker();
             this.groupBoxConnect = new System.Windows.Forms.GroupBox();
             this._connectedLabel = new System.Windows.Forms.Label();
             this._dbTextBox = new System.Windows.Forms.TextBox();
@@ -42,28 +40,22 @@
             this._comboBoxTable = new System.Windows.Forms.ComboBox();
             this.labelTable = new System.Windows.Forms.Label();
             this._groupBoxNormalization = new System.Windows.Forms.GroupBox();
-            this._labelInited = new System.Windows.Forms.Label();
-            this.buttonStopSP = new System.Windows.Forms.Button();
-            this.buttonStartSP = new System.Windows.Forms.Button();
-            this._buttonPrepare = new System.Windows.Forms.Button();
             this.labelTextKeyStatus = new System.Windows.Forms.Label();
-            this.textBoxStopTime = new System.Windows.Forms.TextBox();
+            this._textBoxStartTime = new System.Windows.Forms.TextBox();
+            this._textBoxExpectedEndTime = new System.Windows.Forms.TextBox();
             this.textBoxPreparedRowProgress = new System.Windows.Forms.TextBox();
-            this.textBoxPreparedRowCount = new System.Windows.Forms.TextBox();
-            this.textBoxStartTime = new System.Windows.Forms.TextBox();
-            this.textBoxRowCount = new System.Windows.Forms.TextBox();
+            this._textBoxPreparedRowCount = new System.Windows.Forms.TextBox();
+            this._textBoxRowCount = new System.Windows.Forms.TextBox();
             this.labelPreparedRowProgress = new System.Windows.Forms.Label();
             this.labelStopTime = new System.Windows.Forms.Label();
             this.labelPreparedRowCount = new System.Windows.Forms.Label();
             this.labelStartTime = new System.Windows.Forms.Label();
-            this.buttonStop = new System.Windows.Forms.Button();
-            this.buttonStart = new System.Windows.Forms.Button();
+            this._buttonStartNormalization = new System.Windows.Forms.Button();
             this.labelRowCount = new System.Windows.Forms.Label();
             this._groupBoxReports = new System.Windows.Forms.GroupBox();
             this.buttonDeadlockReportCreate = new System.Windows.Forms.Button();
             this.buttonDetailReportView = new System.Windows.Forms.Button();
-            this.buttonDeadlockReportCheck = new System.Windows.Forms.Button();
-            this.checkBoxDeadlockReportStatus = new System.Windows.Forms.CheckBox();
+            this._checkBoxDeadlockReportStatus = new System.Windows.Forms.CheckBox();
             this._buttonDetailReportCreate = new System.Windows.Forms.Button();
             this.labelDeadlockReportStatus = new System.Windows.Forms.Label();
             this._buttonDraftReportCreate = new System.Windows.Forms.Button();
@@ -96,22 +88,6 @@
             this._groupBoxTrace.SuspendLayout();
             this._panelLeft.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // backgroundWorkerPrepareTabele
-            // 
-            this.backgroundWorkerPrepareTabele.WorkerReportsProgress = true;
-            this.backgroundWorkerPrepareTabele.WorkerSupportsCancellation = true;
-            this.backgroundWorkerPrepareTabele.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorkerPrepareTabele_DoWork);
-            this.backgroundWorkerPrepareTabele.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.backgroundWorkerPrepareTabele_ProgressChanged);
-            this.backgroundWorkerPrepareTabele.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorkerPrepareTabele_RunWorkerCompleted);
-            // 
-            // backgroundWorkerPrepareTableSP
-            // 
-            this.backgroundWorkerPrepareTableSP.WorkerReportsProgress = true;
-            this.backgroundWorkerPrepareTableSP.WorkerSupportsCancellation = true;
-            this.backgroundWorkerPrepareTableSP.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorkerPrepareTableSP_DoWork);
-            this.backgroundWorkerPrepareTableSP.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.backgroundWorkerPrepareTableSP_ProgressChanged);
-            this.backgroundWorkerPrepareTableSP.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorkerPrepareTableSP_RunWorkerCompleted);
             // 
             // groupBoxConnect
             // 
@@ -218,22 +194,17 @@
             // 
             // _groupBoxNormalization
             // 
-            this._groupBoxNormalization.Controls.Add(this._labelInited);
-            this._groupBoxNormalization.Controls.Add(this.buttonStopSP);
-            this._groupBoxNormalization.Controls.Add(this.buttonStartSP);
-            this._groupBoxNormalization.Controls.Add(this._buttonPrepare);
             this._groupBoxNormalization.Controls.Add(this.labelTextKeyStatus);
-            this._groupBoxNormalization.Controls.Add(this.textBoxStopTime);
+            this._groupBoxNormalization.Controls.Add(this._textBoxStartTime);
+            this._groupBoxNormalization.Controls.Add(this._textBoxExpectedEndTime);
             this._groupBoxNormalization.Controls.Add(this.textBoxPreparedRowProgress);
-            this._groupBoxNormalization.Controls.Add(this.textBoxPreparedRowCount);
-            this._groupBoxNormalization.Controls.Add(this.textBoxStartTime);
-            this._groupBoxNormalization.Controls.Add(this.textBoxRowCount);
+            this._groupBoxNormalization.Controls.Add(this._textBoxPreparedRowCount);
+            this._groupBoxNormalization.Controls.Add(this._textBoxRowCount);
             this._groupBoxNormalization.Controls.Add(this.labelPreparedRowProgress);
             this._groupBoxNormalization.Controls.Add(this.labelStopTime);
             this._groupBoxNormalization.Controls.Add(this.labelPreparedRowCount);
             this._groupBoxNormalization.Controls.Add(this.labelStartTime);
-            this._groupBoxNormalization.Controls.Add(this.buttonStop);
-            this._groupBoxNormalization.Controls.Add(this.buttonStart);
+            this._groupBoxNormalization.Controls.Add(this._buttonStartNormalization);
             this._groupBoxNormalization.Controls.Add(this.labelRowCount);
             this._groupBoxNormalization.Dock = System.Windows.Forms.DockStyle.Top;
             this._groupBoxNormalization.Location = new System.Drawing.Point(0, 122);
@@ -243,68 +214,30 @@
             this._groupBoxNormalization.TabStop = false;
             this._groupBoxNormalization.Text = "Normalization";
             // 
-            // _labelInited
-            // 
-            this._labelInited.AutoSize = true;
-            this._labelInited.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this._labelInited.ForeColor = System.Drawing.Color.Green;
-            this._labelInited.Location = new System.Drawing.Point(213, 22);
-            this._labelInited.Name = "_labelInited";
-            this._labelInited.Size = new System.Drawing.Size(73, 16);
-            this._labelInited.TabIndex = 40;
-            this._labelInited.Text = "initialized";
-            this._labelInited.Visible = false;
-            // 
-            // buttonStopSP
-            // 
-            this.buttonStopSP.Enabled = false;
-            this.buttonStopSP.Location = new System.Drawing.Point(393, 70);
-            this.buttonStopSP.Name = "buttonStopSP";
-            this.buttonStopSP.Size = new System.Drawing.Size(100, 23);
-            this.buttonStopSP.TabIndex = 36;
-            this.buttonStopSP.Text = "Stop (SP)";
-            this.buttonStopSP.UseVisualStyleBackColor = true;
-            this.buttonStopSP.Click += new System.EventHandler(this.buttonStopSP_Click);
-            // 
-            // buttonStartSP
-            // 
-            this.buttonStartSP.Enabled = false;
-            this.buttonStartSP.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.buttonStartSP.Location = new System.Drawing.Point(392, 44);
-            this.buttonStartSP.Name = "buttonStartSP";
-            this.buttonStartSP.Size = new System.Drawing.Size(100, 23);
-            this.buttonStartSP.TabIndex = 35;
-            this.buttonStartSP.Text = "Start:SP";
-            this.buttonStartSP.UseVisualStyleBackColor = true;
-            this.buttonStartSP.Click += new System.EventHandler(this.buttonStartSP_Click);
-            // 
-            // _buttonPrepare
-            // 
-            this._buttonPrepare.Enabled = false;
-            this._buttonPrepare.Location = new System.Drawing.Point(133, 18);
-            this._buttonPrepare.Name = "_buttonPrepare";
-            this._buttonPrepare.Size = new System.Drawing.Size(74, 23);
-            this._buttonPrepare.TabIndex = 33;
-            this._buttonPrepare.Text = "Initialize";
-            this._buttonPrepare.UseVisualStyleBackColor = true;
-            this._buttonPrepare.Click += new System.EventHandler(this.ButtonPrepare_Click);
-            // 
             // labelTextKeyStatus
             // 
             this.labelTextKeyStatus.AutoSize = true;
             this.labelTextKeyStatus.Location = new System.Drawing.Point(15, 22);
             this.labelTextKeyStatus.Name = "labelTextKeyStatus";
-            this.labelTextKeyStatus.Size = new System.Drawing.Size(111, 13);
+            this.labelTextKeyStatus.Size = new System.Drawing.Size(103, 13);
             this.labelTextKeyStatus.TabIndex = 31;
-            this.labelTextKeyStatus.Text = "Prepare normalization:";
+            this.labelTextKeyStatus.Text = "Normalize TextData:";
             // 
-            // textBoxStopTime
+            // _textBoxStartTime
             // 
-            this.textBoxStopTime.Location = new System.Drawing.Point(135, 148);
-            this.textBoxStopTime.Name = "textBoxStopTime";
-            this.textBoxStopTime.ReadOnly = true;
-            this.textBoxStopTime.Size = new System.Drawing.Size(251, 20);
-            this.textBoxStopTime.TabIndex = 30;
+            this._textBoxStartTime.Location = new System.Drawing.Point(135, 44);
+            this._textBoxStartTime.Name = "_textBoxStartTime";
+            this._textBoxStartTime.ReadOnly = true;
+            this._textBoxStartTime.Size = new System.Drawing.Size(251, 20);
+            this._textBoxStartTime.TabIndex = 27;
+            // 
+            // _textBoxExpectedEndTime
+            // 
+            this._textBoxExpectedEndTime.Location = new System.Drawing.Point(135, 148);
+            this._textBoxExpectedEndTime.Name = "_textBoxExpectedEndTime";
+            this._textBoxExpectedEndTime.ReadOnly = true;
+            this._textBoxExpectedEndTime.Size = new System.Drawing.Size(251, 20);
+            this._textBoxExpectedEndTime.TabIndex = 30;
             // 
             // textBoxPreparedRowProgress
             // 
@@ -314,29 +247,21 @@
             this.textBoxPreparedRowProgress.Size = new System.Drawing.Size(251, 20);
             this.textBoxPreparedRowProgress.TabIndex = 29;
             // 
-            // textBoxPreparedRowCount
+            // _textBoxPreparedRowCount
             // 
-            this.textBoxPreparedRowCount.Location = new System.Drawing.Point(135, 96);
-            this.textBoxPreparedRowCount.Name = "textBoxPreparedRowCount";
-            this.textBoxPreparedRowCount.ReadOnly = true;
-            this.textBoxPreparedRowCount.Size = new System.Drawing.Size(251, 20);
-            this.textBoxPreparedRowCount.TabIndex = 28;
+            this._textBoxPreparedRowCount.Location = new System.Drawing.Point(135, 96);
+            this._textBoxPreparedRowCount.Name = "_textBoxPreparedRowCount";
+            this._textBoxPreparedRowCount.ReadOnly = true;
+            this._textBoxPreparedRowCount.Size = new System.Drawing.Size(251, 20);
+            this._textBoxPreparedRowCount.TabIndex = 28;
             // 
-            // textBoxStartTime
+            // _textBoxRowCount
             // 
-            this.textBoxStartTime.Location = new System.Drawing.Point(135, 70);
-            this.textBoxStartTime.Name = "textBoxStartTime";
-            this.textBoxStartTime.ReadOnly = true;
-            this.textBoxStartTime.Size = new System.Drawing.Size(251, 20);
-            this.textBoxStartTime.TabIndex = 27;
-            // 
-            // textBoxRowCount
-            // 
-            this.textBoxRowCount.Location = new System.Drawing.Point(135, 44);
-            this.textBoxRowCount.Name = "textBoxRowCount";
-            this.textBoxRowCount.ReadOnly = true;
-            this.textBoxRowCount.Size = new System.Drawing.Size(251, 20);
-            this.textBoxRowCount.TabIndex = 26;
+            this._textBoxRowCount.Location = new System.Drawing.Point(135, 70);
+            this._textBoxRowCount.Name = "_textBoxRowCount";
+            this._textBoxRowCount.ReadOnly = true;
+            this._textBoxRowCount.Size = new System.Drawing.Size(251, 20);
+            this._textBoxRowCount.TabIndex = 26;
             // 
             // labelPreparedRowProgress
             // 
@@ -368,39 +293,28 @@
             // labelStartTime
             // 
             this.labelStartTime.AutoSize = true;
-            this.labelStartTime.Location = new System.Drawing.Point(15, 73);
+            this.labelStartTime.Location = new System.Drawing.Point(15, 47);
             this.labelStartTime.Name = "labelStartTime";
             this.labelStartTime.Size = new System.Drawing.Size(54, 13);
             this.labelStartTime.TabIndex = 22;
             this.labelStartTime.Text = "Start time:";
             // 
-            // buttonStop
+            // _buttonStartNormalization
             // 
-            this.buttonStop.Enabled = false;
-            this.buttonStop.Location = new System.Drawing.Point(392, 148);
-            this.buttonStop.Name = "buttonStop";
-            this.buttonStop.Size = new System.Drawing.Size(100, 23);
-            this.buttonStop.TabIndex = 21;
-            this.buttonStop.Text = "Stop (SQL)";
-            this.buttonStop.UseVisualStyleBackColor = true;
-            this.buttonStop.Click += new System.EventHandler(this.buttonStop_Click);
-            // 
-            // buttonStart
-            // 
-            this.buttonStart.Enabled = false;
-            this.buttonStart.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.buttonStart.Location = new System.Drawing.Point(392, 122);
-            this.buttonStart.Name = "buttonStart";
-            this.buttonStart.Size = new System.Drawing.Size(100, 23);
-            this.buttonStart.TabIndex = 20;
-            this.buttonStart.Text = "Start:SQL";
-            this.buttonStart.UseVisualStyleBackColor = true;
-            this.buttonStart.Click += new System.EventHandler(this.buttonStart_Click);
+            this._buttonStartNormalization.Enabled = false;
+            this._buttonStartNormalization.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this._buttonStartNormalization.Location = new System.Drawing.Point(135, 17);
+            this._buttonStartNormalization.Name = "_buttonStartNormalization";
+            this._buttonStartNormalization.Size = new System.Drawing.Size(100, 23);
+            this._buttonStartNormalization.TabIndex = 20;
+            this._buttonStartNormalization.Text = "Normalize";
+            this._buttonStartNormalization.UseVisualStyleBackColor = true;
+            this._buttonStartNormalization.Click += new System.EventHandler(this.ButtonStartNormalization_Click);
             // 
             // labelRowCount
             // 
             this.labelRowCount.AutoSize = true;
-            this.labelRowCount.Location = new System.Drawing.Point(15, 47);
+            this.labelRowCount.Location = new System.Drawing.Point(15, 73);
             this.labelRowCount.Name = "labelRowCount";
             this.labelRowCount.Size = new System.Drawing.Size(62, 13);
             this.labelRowCount.TabIndex = 19;
@@ -410,8 +324,7 @@
             // 
             this._groupBoxReports.Controls.Add(this.buttonDeadlockReportCreate);
             this._groupBoxReports.Controls.Add(this.buttonDetailReportView);
-            this._groupBoxReports.Controls.Add(this.buttonDeadlockReportCheck);
-            this._groupBoxReports.Controls.Add(this.checkBoxDeadlockReportStatus);
+            this._groupBoxReports.Controls.Add(this._checkBoxDeadlockReportStatus);
             this._groupBoxReports.Controls.Add(this._buttonDetailReportCreate);
             this._groupBoxReports.Controls.Add(this.labelDeadlockReportStatus);
             this._groupBoxReports.Controls.Add(this._buttonDraftReportCreate);
@@ -433,58 +346,46 @@
             // buttonDeadlockReportCreate
             // 
             this.buttonDeadlockReportCreate.Enabled = false;
-            this.buttonDeadlockReportCreate.Location = new System.Drawing.Point(312, 100);
+            this.buttonDeadlockReportCreate.Location = new System.Drawing.Point(233, 101);
             this.buttonDeadlockReportCreate.Name = "buttonDeadlockReportCreate";
             this.buttonDeadlockReportCreate.Size = new System.Drawing.Size(74, 23);
             this.buttonDeadlockReportCreate.TabIndex = 38;
             this.buttonDeadlockReportCreate.Text = "Create";
             this.buttonDeadlockReportCreate.UseVisualStyleBackColor = true;
-            this.buttonDeadlockReportCreate.Click += new System.EventHandler(this.buttonDeadlockReportCreate_Click);
+            this.buttonDeadlockReportCreate.Click += new System.EventHandler(this.ButtonDeadlockReportCreate_Click);
             // 
             // buttonDetailReportView
             // 
             this.buttonDetailReportView.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.buttonDetailReportView.Location = new System.Drawing.Point(404, 11);
+            this.buttonDetailReportView.Location = new System.Drawing.Point(366, 66);
             this.buttonDetailReportView.Name = "buttonDetailReportView";
             this.buttonDetailReportView.Size = new System.Drawing.Size(100, 23);
             this.buttonDetailReportView.TabIndex = 31;
             this.buttonDetailReportView.Text = "View";
             this.buttonDetailReportView.UseVisualStyleBackColor = true;
-            this.buttonDetailReportView.Visible = false;
-            this.buttonDetailReportView.Click += new System.EventHandler(this.buttonDetailReportView_Click);
+            this.buttonDetailReportView.Click += new System.EventHandler(this.ButtonDetailReportView_Click);
             // 
-            // buttonDeadlockReportCheck
+            // _checkBoxDeadlockReportStatus
             // 
-            this.buttonDeadlockReportCheck.Enabled = false;
-            this.buttonDeadlockReportCheck.Location = new System.Drawing.Point(133, 100);
-            this.buttonDeadlockReportCheck.Name = "buttonDeadlockReportCheck";
-            this.buttonDeadlockReportCheck.Size = new System.Drawing.Size(74, 23);
-            this.buttonDeadlockReportCheck.TabIndex = 37;
-            this.buttonDeadlockReportCheck.Text = "Check";
-            this.buttonDeadlockReportCheck.UseVisualStyleBackColor = true;
-            this.buttonDeadlockReportCheck.Click += new System.EventHandler(this.buttonDeadlockReportCheck_Click);
-            // 
-            // checkBoxDeadlockReportStatus
-            // 
-            this.checkBoxDeadlockReportStatus.AutoSize = true;
-            this.checkBoxDeadlockReportStatus.Enabled = false;
-            this.checkBoxDeadlockReportStatus.Location = new System.Drawing.Point(214, 104);
-            this.checkBoxDeadlockReportStatus.Name = "checkBoxDeadlockReportStatus";
-            this.checkBoxDeadlockReportStatus.Size = new System.Drawing.Size(82, 17);
-            this.checkBoxDeadlockReportStatus.TabIndex = 36;
-            this.checkBoxDeadlockReportStatus.Text = "Report exist";
-            this.checkBoxDeadlockReportStatus.UseVisualStyleBackColor = true;
+            this._checkBoxDeadlockReportStatus.AutoSize = true;
+            this._checkBoxDeadlockReportStatus.Enabled = false;
+            this._checkBoxDeadlockReportStatus.Location = new System.Drawing.Point(135, 105);
+            this._checkBoxDeadlockReportStatus.Name = "_checkBoxDeadlockReportStatus";
+            this._checkBoxDeadlockReportStatus.Size = new System.Drawing.Size(82, 17);
+            this._checkBoxDeadlockReportStatus.TabIndex = 36;
+            this._checkBoxDeadlockReportStatus.Text = "Report exist";
+            this._checkBoxDeadlockReportStatus.UseVisualStyleBackColor = true;
             // 
             // _buttonDetailReportCreate
             // 
             this._buttonDetailReportCreate.Enabled = false;
-            this._buttonDetailReportCreate.Location = new System.Drawing.Point(312, 71);
+            this._buttonDetailReportCreate.Location = new System.Drawing.Point(233, 72);
             this._buttonDetailReportCreate.Name = "_buttonDetailReportCreate";
             this._buttonDetailReportCreate.Size = new System.Drawing.Size(74, 23);
             this._buttonDetailReportCreate.TabIndex = 30;
             this._buttonDetailReportCreate.Text = "Create";
             this._buttonDetailReportCreate.UseVisualStyleBackColor = true;
-            this._buttonDetailReportCreate.Click += new System.EventHandler(this.buttonDetailReportCreate_Click);
+            this._buttonDetailReportCreate.Click += new System.EventHandler(this.ButtonDetailReportCreate_Click);
             // 
             // labelDeadlockReportStatus
             // 
@@ -498,30 +399,30 @@
             // _buttonDraftReportCreate
             // 
             this._buttonDraftReportCreate.Enabled = false;
-            this._buttonDraftReportCreate.Location = new System.Drawing.Point(312, 42);
+            this._buttonDraftReportCreate.Location = new System.Drawing.Point(233, 43);
             this._buttonDraftReportCreate.Name = "_buttonDraftReportCreate";
             this._buttonDraftReportCreate.Size = new System.Drawing.Size(74, 23);
             this._buttonDraftReportCreate.TabIndex = 34;
             this._buttonDraftReportCreate.Text = "Create";
             this._buttonDraftReportCreate.UseVisualStyleBackColor = true;
-            this._buttonDraftReportCreate.Click += new System.EventHandler(this.buttonDraftReportCreate_Click);
+            this._buttonDraftReportCreate.Click += new System.EventHandler(this.ButtonDraftReportCreate_Click);
             // 
             // _buttonErrorReportCreate
             // 
             this._buttonErrorReportCreate.Enabled = false;
-            this._buttonErrorReportCreate.Location = new System.Drawing.Point(312, 13);
+            this._buttonErrorReportCreate.Location = new System.Drawing.Point(233, 14);
             this._buttonErrorReportCreate.Name = "_buttonErrorReportCreate";
             this._buttonErrorReportCreate.Size = new System.Drawing.Size(74, 23);
             this._buttonErrorReportCreate.TabIndex = 38;
             this._buttonErrorReportCreate.Text = "Create";
             this._buttonErrorReportCreate.UseVisualStyleBackColor = true;
-            this._buttonErrorReportCreate.Click += new System.EventHandler(this.buttonErrorReportCreate_Click);
+            this._buttonErrorReportCreate.Click += new System.EventHandler(this.ButtonErrorReportCreate_Click);
             // 
             // _checkBoxDetailReportStatus
             // 
             this._checkBoxDetailReportStatus.AutoSize = true;
             this._checkBoxDetailReportStatus.Enabled = false;
-            this._checkBoxDetailReportStatus.Location = new System.Drawing.Point(214, 75);
+            this._checkBoxDetailReportStatus.Location = new System.Drawing.Point(135, 76);
             this._checkBoxDetailReportStatus.Name = "_checkBoxDetailReportStatus";
             this._checkBoxDetailReportStatus.Size = new System.Drawing.Size(82, 17);
             this._checkBoxDetailReportStatus.TabIndex = 28;
@@ -541,7 +442,7 @@
             // 
             this._checkBoxDraftReportStatus.AutoSize = true;
             this._checkBoxDraftReportStatus.Enabled = false;
-            this._checkBoxDraftReportStatus.Location = new System.Drawing.Point(214, 47);
+            this._checkBoxDraftReportStatus.Location = new System.Drawing.Point(135, 48);
             this._checkBoxDraftReportStatus.Name = "_checkBoxDraftReportStatus";
             this._checkBoxDraftReportStatus.Size = new System.Drawing.Size(82, 17);
             this._checkBoxDraftReportStatus.TabIndex = 32;
@@ -561,7 +462,7 @@
             // 
             this._checkBoxErrorReportStatus.AutoSize = true;
             this._checkBoxErrorReportStatus.Enabled = false;
-            this._checkBoxErrorReportStatus.Location = new System.Drawing.Point(214, 17);
+            this._checkBoxErrorReportStatus.Location = new System.Drawing.Point(135, 18);
             this._checkBoxErrorReportStatus.Name = "_checkBoxErrorReportStatus";
             this._checkBoxErrorReportStatus.Size = new System.Drawing.Size(82, 17);
             this._checkBoxErrorReportStatus.TabIndex = 36;
@@ -734,8 +635,6 @@
         }
 
         #endregion
-
-        private System.ComponentModel.BackgroundWorker backgroundWorkerPrepareTabele;
         private System.Windows.Forms.Button buttonConnect;
         private System.Windows.Forms.GroupBox _groupBoxTable;
         private System.Windows.Forms.GroupBox groupBoxConnect;
@@ -749,31 +648,25 @@
         private System.Windows.Forms.CheckBox _checkBoxErrorReportStatus;
         private System.Windows.Forms.Label labelErrorReportStatus;
         private System.Windows.Forms.GroupBox _groupBoxNormalization;
-        private System.Windows.Forms.Button _buttonPrepare;
         private System.Windows.Forms.Label labelTextKeyStatus;
-        private System.Windows.Forms.TextBox textBoxStopTime;
+        private System.Windows.Forms.TextBox _textBoxExpectedEndTime;
         private System.Windows.Forms.TextBox textBoxPreparedRowProgress;
-        private System.Windows.Forms.TextBox textBoxPreparedRowCount;
-        private System.Windows.Forms.TextBox textBoxStartTime;
-        private System.Windows.Forms.TextBox textBoxRowCount;
+        private System.Windows.Forms.TextBox _textBoxPreparedRowCount;
+        private System.Windows.Forms.TextBox _textBoxStartTime;
+        private System.Windows.Forms.TextBox _textBoxRowCount;
         private System.Windows.Forms.Label labelPreparedRowProgress;
         private System.Windows.Forms.Label labelStopTime;
         private System.Windows.Forms.Label labelPreparedRowCount;
         private System.Windows.Forms.Label labelStartTime;
-        private System.Windows.Forms.Button buttonStop;
-        private System.Windows.Forms.Button buttonStart;
+        private System.Windows.Forms.Button _buttonStartNormalization;
         private System.Windows.Forms.Label labelRowCount;
         private System.Windows.Forms.Button _buttonDetailReportCreate;
         private System.Windows.Forms.CheckBox _checkBoxDetailReportStatus;
         private System.Windows.Forms.Label labelDetailReportStatus;
         private System.Windows.Forms.Button buttonDeadlockReportCreate;
-        private System.Windows.Forms.Button buttonDeadlockReportCheck;
-        private System.Windows.Forms.CheckBox checkBoxDeadlockReportStatus;
+        private System.Windows.Forms.CheckBox _checkBoxDeadlockReportStatus;
         private System.Windows.Forms.Label labelDeadlockReportStatus;
         private System.Windows.Forms.Panel panelConsole;
-		private System.Windows.Forms.Button buttonStopSP;
-		private System.Windows.Forms.Button buttonStartSP;
-		private System.ComponentModel.BackgroundWorker backgroundWorkerPrepareTableSP;
 		private System.Windows.Forms.Button buttonDetailReportView;
         private System.Windows.Forms.TextBox _dbTextBox;
         private System.Windows.Forms.TextBox _serverTextBox;
@@ -791,7 +684,6 @@
         private System.Windows.Forms.TextBox _trcFilePathTextBox;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.CheckBox _forceOverrideCheckBox;
-        private System.Windows.Forms.Label _labelInited;
     }
 }
 

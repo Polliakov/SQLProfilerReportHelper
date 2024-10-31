@@ -2,7 +2,7 @@
 using System.Data.SqlClient;
 using System.IO;
 using System.Threading.Tasks;
-using Tools.SQLProfilerReportHelper.Database.Common;
+using TraceKnife.Common;
 
 namespace Tools.SQLProfilerReportHelper.Database.TraceExports
 {

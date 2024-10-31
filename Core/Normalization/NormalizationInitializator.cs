@@ -1,58 +1,69 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Tools.SQLProfilerReportHelper.Database.Common;
+using TraceKnife.Common;
+using TraceKnife.Core.Abstractions;
+using TraceKnife.Core.DbUtils;
 
-namespace Tools.SQLProfilerReportHelper.Database.Aggregation
+namespace TraceKnife.Core.Normalization
 {
-    public class Normalizer
+    public class NormalizationInitialization : IDataPipelineJob<bool>
     {
-        public const string NormalizedTextDataColumn = "TextKey";
-        public const string NormalizationFunctionName = "NormalizeTextData0";
+        public event Action<bool> Progress;
 
         private readonly DbObjectsManager _dbManager;
         private readonly Sql _sql;
+        private readonly IApplicationOptions _options;
 
-        public Normalizer(DbObjectsManager dbManager, Sql sql)
+        public NormalizationInitialization(
+            DbObjectsManager dbManager,
+            Sql sql,
+            IApplicationOptions options)
         {
             _dbManager = dbManager;
             _sql = sql;
+            _options = options;
         }
 
-        public Task<bool> CheckPrepared(string tableName)
+        public async Task RunAsync(IDataPipelineContext context)
         {
-            return _dbManager.IsColumnExistInTable(tableName, NormalizedTextDataColumn);
-        }
+            if (!await _dbManager.IsTableExist(context.ProcessingTable))
+                throw new ArgumentException($"Table [{context.ProcessingTable}] not exists.", nameof(context.ProcessingTable));
 
-        public async Task Prepare(string tableName)
-        {
-			if (!await _dbManager.IsTableExist(tableName))
-				throw new ArgumentException($"Table [{tableName}] not exists.", nameof(tableName));
-
-            if (!await _dbManager.IsColumnExistInTable(tableName, NormalizedTextDataColumn))
+            if (!await _dbManager.IsColumnExistInTable(context.ProcessingTable, "Id"))
             {
-                await CreateTextKey(tableName);
+                await CreateClusteredId(context.ProcessingTable);
             }
-            if (!await _dbManager.IsFunctionExists(NormalizationFunctionName))
+            if (!await _dbManager.IsColumnExistInTable(context.ProcessingTable, _options.NormalizedTextDataColumn))
+            {
+                await CreateTextKey(context.ProcessingTable);
+            }
+            if (!await _dbManager.IsFunctionExists(_options.NormalizationFunctionName))
             {
                 await CreateTextDataNormalizationFunction();
             }
+
+            Progress?.Invoke(true);
         }
 
         private Task CreateTextKey(string tableName)
         {
-            return _sql.ExecuteNonQueryAsync(600, string.Format(@"
-BEGIN TRANSACTION
-ALTER TABLE [dbo].[{0}] ADD
+            return _sql.ExecuteNonQueryAsync(600, $@"
+ALTER TABLE [dbo].[{tableName}] ADD
 	[TextKey] varchar(1000) NULL
-ALTER TABLE [dbo].[{0}] SET (LOCK_ESCALATION = TABLE)
-COMMIT
-", tableName));
+");
+        }
+
+        private Task CreateClusteredId(string tableName)
+        {
+            return _sql.ExecuteNonQueryAsync($@"
+ALTER TABLE [dbo].[{tableName}] 
+ADD [Id] uniqueidentifier primary KEY CLUSTERED DEFAULT newsequentialid()");
         }
 
         private Task CreateTextDataNormalizationFunction()
         {
             return _sql.ExecuteNonQueryAsync(600, @"
-CREATE FUNCTION [dbo].[" + NormalizationFunctionName + @"]
+CREATE FUNCTION [dbo].[" + _options.NormalizationFunctionName + @"]
 (
 	@textData varchar(2000)
 )
@@ -63,9 +74,7 @@ BEGIN
 	if(@textData is NULL)
 		return 'NULL'
 
-	-- Declare the return variable here
 	DECLARE @textKey NVARCHAR(2000)
-
 	DECLARE @replaceTextIndex int
 
 	-- Замена перевода строки, табуляции на пробел
@@ -114,17 +123,12 @@ BEGIN
 			N'№0', N'№'),	N'№1', N'№'),	N'№2', N'№'),	N'№3', N'№'),	N'№4', N'№'),	N'№5', N'№'),	N'№6', N'№'),	N'№7', N'№'),	N'№8', N'№'),	N'№9', N'№'),	N'№№', N'№')
 		
 		SET @replaceTextIndex = 
-		    CHARINDEX(N'№0', @textKey)+
-			CHARINDEX(N'№1', @textKey)+
-			CHARINDEX(N'№2', @textKey)+
-			CHARINDEX(N'№3', @textKey)+
-			CHARINDEX(N'№4', @textKey)+
-			CHARINDEX(N'№5', @textKey)+
-			CHARINDEX(N'№6', @textKey)+
-			CHARINDEX(N'№7', @textKey)+
-			CHARINDEX(N'№8', @textKey)+
-			CHARINDEX(N'№9', @textKey)+
-			CHARINDEX(N'№№', @textKey)
+		    CHARINDEX(N'№0', @textKey)+ CHARINDEX(N'№6', @textKey)+
+			CHARINDEX(N'№1', @textKey)+	CHARINDEX(N'№7', @textKey)+
+			CHARINDEX(N'№2', @textKey)+	CHARINDEX(N'№8', @textKey)+
+			CHARINDEX(N'№3', @textKey)+	CHARINDEX(N'№9', @textKey)+
+			CHARINDEX(N'№4', @textKey)+	CHARINDEX(N'№№', @textKey)+
+			CHARINDEX(N'№5', @textKey)
 	END
 
 	-- Подготовка к обработке дробной части числовых констант
@@ -144,17 +148,11 @@ BEGIN
 			N'№0', N'№'),	N'№1', N'№'),	N'№2', N'№'),	N'№3', N'№'),	N'№4', N'№'),	N'№5', N'№'),	N'№6', N'№'),	N'№7', N'№'),	N'№8', N'№'),	N'№9', N'№'),	N'№№', N'№')
 		
 		SET @replaceTextIndex = 
-		    CHARINDEX(N'№0', @textKey)+
-			CHARINDEX(N'№1', @textKey)+
-			CHARINDEX(N'№2', @textKey)+
-			CHARINDEX(N'№3', @textKey)+
-			CHARINDEX(N'№4', @textKey)+
-			CHARINDEX(N'№5', @textKey)+
-			CHARINDEX(N'№6', @textKey)+
-			CHARINDEX(N'№7', @textKey)+
-			CHARINDEX(N'№8', @textKey)+
-			CHARINDEX(N'№9', @textKey)+
-			CHARINDEX(N'№№', @textKey)
+		    CHARINDEX(N'№0', @textKey)+ CHARINDEX(N'№6', @textKey)+
+			CHARINDEX(N'№1', @textKey)+ CHARINDEX(N'№7', @textKey)+
+			CHARINDEX(N'№2', @textKey)+ CHARINDEX(N'№8', @textKey)+
+			CHARINDEX(N'№3', @textKey)+ CHARINDEX(N'№9', @textKey)+
+			CHARINDEX(N'№4', @textKey)+ CHARINDEX(N'№№', @textKey)
 	END
 
 	SET @textKey=Replace(@textKey, N'№', '9')
@@ -167,40 +165,25 @@ BEGIN
 		SET @textKey=
 			Replace(Replace(Replace(Replace(Replace(Replace(Replace(Replace(Replace(Replace(Replace(Replace(Replace(Replace(Replace(Replace(
 			@textKey,
-			'{HEX0xFF*}0', '{HEX0xFF*}'),
-			'{HEX0xFF*}1', '{HEX0xFF*}'),
-			'{HEX0xFF*}2', '{HEX0xFF*}'),
-			'{HEX0xFF*}3', '{HEX0xFF*}'),
-			'{HEX0xFF*}4', '{HEX0xFF*}'),
-			'{HEX0xFF*}5', '{HEX0xFF*}'),
-			'{HEX0xFF*}6', '{HEX0xFF*}'),
-			'{HEX0xFF*}7', '{HEX0xFF*}'),
-			'{HEX0xFF*}8', '{HEX0xFF*}'),
-			'{HEX0xFF*}9', '{HEX0xFF*}'),
-			'{HEX0xFF*}A', '{HEX0xFF*}'),
-			'{HEX0xFF*}B', '{HEX0xFF*}'),
-			'{HEX0xFF*}C', '{HEX0xFF*}'),
-			'{HEX0xFF*}D', '{HEX0xFF*}'),
-			'{HEX0xFF*}E', '{HEX0xFF*}'),
-			'{HEX0xFF*}F', '{HEX0xFF*}')
+			'{HEX0xFF*}0', '{HEX0xFF*}'), '{HEX0xFF*}8', '{HEX0xFF*}'),
+			'{HEX0xFF*}1', '{HEX0xFF*}'), '{HEX0xFF*}9', '{HEX0xFF*}'),
+			'{HEX0xFF*}2', '{HEX0xFF*}'), '{HEX0xFF*}A', '{HEX0xFF*}'),
+			'{HEX0xFF*}3', '{HEX0xFF*}'), '{HEX0xFF*}B', '{HEX0xFF*}'),
+			'{HEX0xFF*}4', '{HEX0xFF*}'), '{HEX0xFF*}C', '{HEX0xFF*}'),
+			'{HEX0xFF*}5', '{HEX0xFF*}'), '{HEX0xFF*}D', '{HEX0xFF*}'),
+			'{HEX0xFF*}6', '{HEX0xFF*}'), '{HEX0xFF*}E', '{HEX0xFF*}'),
+			'{HEX0xFF*}7', '{HEX0xFF*}'), '{HEX0xFF*}F', '{HEX0xFF*}')
 		
 		SET @replaceTextIndex = 
-			CHARINDEX('{HEX0xFF*}0', @textKey)+
-			CHARINDEX('{HEX0xFF*}1', @textKey)+
-			CHARINDEX('{HEX0xFF*}2', @textKey)+
-		    CHARINDEX('{HEX0xFF*}3', @textKey)+
-			CHARINDEX('{HEX0xFF*}4', @textKey)+
-			CHARINDEX('{HEX0xFF*}5', @textKey)+
-			CHARINDEX('{HEX0xFF*}6', @textKey)+
-			CHARINDEX('{HEX0xFF*}7', @textKey)+
-			CHARINDEX('{HEX0xFF*}8', @textKey)+
-			CHARINDEX('{HEX0xFF*}9', @textKey)+
-			CHARINDEX('{HEX0xFF*}A', @textKey)+
-			CHARINDEX('{HEX0xFF*}B', @textKey)+
-			CHARINDEX('{HEX0xFF*}C', @textKey)+
-			CHARINDEX('{HEX0xFF*}D', @textKey)+
-			CHARINDEX('{HEX0xFF*}E', @textKey)+
-			CHARINDEX('{HEX0xFF*}F', @textKey)
+			CHARINDEX('{HEX0xFF*}0', @textKey)+ CHARINDEX('{HEX0xFF*}8', @textKey)+
+			CHARINDEX('{HEX0xFF*}1', @textKey)+	CHARINDEX('{HEX0xFF*}9', @textKey)+
+			CHARINDEX('{HEX0xFF*}2', @textKey)+	CHARINDEX('{HEX0xFF*}A', @textKey)+
+		    CHARINDEX('{HEX0xFF*}3', @textKey)+	CHARINDEX('{HEX0xFF*}B', @textKey)+
+			CHARINDEX('{HEX0xFF*}4', @textKey)+	CHARINDEX('{HEX0xFF*}C', @textKey)+
+			CHARINDEX('{HEX0xFF*}5', @textKey)+	CHARINDEX('{HEX0xFF*}D', @textKey)+
+			CHARINDEX('{HEX0xFF*}6', @textKey)+	CHARINDEX('{HEX0xFF*}E', @textKey)+
+			CHARINDEX('{HEX0xFF*}7', @textKey)+	CHARINDEX('{HEX0xFF*}F', @textKey)
+			
 	END
 	set @textKey = Replace(@textKey, '{HEX0xFF*}', '0xFF')
 

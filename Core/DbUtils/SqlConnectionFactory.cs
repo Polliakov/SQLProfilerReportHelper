@@ -1,7 +1,7 @@
 ﻿using System.Data.SqlClient;
 using System.Threading.Tasks;
 
-namespace Tools.SQLProfilerReportHelper.Database.Common
+namespace TraceKnife.Core.DbUtils
 {
     public class SqlConnectionFactory
     {

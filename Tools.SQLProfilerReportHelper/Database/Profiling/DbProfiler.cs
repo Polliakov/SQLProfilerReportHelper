@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Data;
-using System.Data.Common;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
-using Tools.SQLProfilerReportHelper.Database.Common;
+using TraceKnife.Common;
+using TraceKnife.Core.DbUtils;
 
 namespace Tools.SQLProfilerReportHelper.Database.Profiling
 {
@@ -72,7 +72,7 @@ namespace Tools.SQLProfilerReportHelper.Database.Profiling
         {
             await _sql.ExecuteNonQueryAsync(@"
 EXEC sp_trace_setstatus @traceId, @status = 0
-EXEC sp_trace_setstatus @traceId, @status = 2", 
+EXEC sp_trace_setstatus @traceId, @status = 2",
                 new SqlParameter("@traceId", traceId));
         }
 

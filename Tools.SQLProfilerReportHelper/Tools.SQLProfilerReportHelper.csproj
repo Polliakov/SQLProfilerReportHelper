@@ -93,17 +93,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Database\Aggregation\Normalizer.cs" />
     <Compile Include="Forms\ConnectSqlForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Forms\ConnectSqlForm.Designer.cs">
       <DependentUpon>ConnectSqlForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Database\Aggregation\TraceAggregator.cs" />
-    <Compile Include="Database\Common\Sql.cs" />
-    <Compile Include="Database\Common\SqlConnectionFactory.cs" />
-    <Compile Include="Database\Common\DbObjectsManager.cs" />
     <Compile Include="Database\Profiling\DbProfiler.cs" />
     <Compile Include="Database\Profiling\TraceColumn.cs" />
     <Compile Include="Database\TraceExports\TraceLoader.cs" />
@@ -187,6 +182,10 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Core\TraceKnife.Core.csproj">
+      <Project>{5dec5ef0-007a-40af-a4d1-2f56731a1679}</Project>
+      <Name>TraceKnife.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Tools\Tools.csproj">
       <Project>{0ee05969-f0fb-4a4a-b4ba-1ed7a5c1a796}</Project>
       <Name>Tools</Name>
@@ -194,6 +193,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\MsSqlProfilingMailIcon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
