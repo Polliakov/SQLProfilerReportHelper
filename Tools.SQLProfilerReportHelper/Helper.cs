@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Collections.ObjectModel;
     using System.Data.SqlClient;
 
     public class Helper
@@ -30,19 +29,11 @@
         }
 
         /// <summary>
-        /// get Имя таблицы с отчётом по производительности хранимых процедур (быстрый черновой отчёт)
-        /// </summary>
-        public string TableNameDraft
-        {
-            get { return TableName + ".DraftStat"; }
-        }
-
-        /// <summary>
         /// get Имя таблицы с отчётом по производительности всех SQL-запросов
         /// </summary>
         public string TableNameDetail
         {
-            get { return TableName + ".DetailStat"; }
+            get { return TableName + ".Grouped"; }
         }
 
         /// <summary>
@@ -71,7 +62,6 @@
             RowCountPrepared = 0;
         }
 
-        [Obsolete]
         public void DropIndexOnTextKeys()
         {
             var command = new SqlCommand();
@@ -94,23 +84,6 @@ CREATE NONCLUSTERED INDEX [IX_TraceTable_TextKey_DatabaseName]
 ON [dbo].[{0}] ([DatabaseName],[TextKey],[ObjectName])
 ", TableName);
             command.ExecuteNonQuery();
-        }
-
-        [Obsolete]
-        public void PrepareTextKeys()
-        {
-            var command = new SqlCommand();
-            command.Connection = Connection;
-            command.CommandTimeout = 10000;
-            command.CommandText = string.Format(@"
-update TOP (100)
-[dbo].[{0}]
-set [TextKey] =	dbo.NormalizeTextData0(CAST([TextData] as varchar(550)))
-where [TextKey] IS NULL
-and ([ObjectName] IS NULL OR [ObjectName] IN ('sp_executesql'))
-and [EventClass] IN (10, 12)
-", TableName);
-            RowCountPrepared += command.ExecuteNonQuery();
         }
 
         public string[] GetTables()
@@ -222,22 +195,23 @@ ORDER BY [GroupID]
             }
             catch { }
 
+            var scale = 4;
             var command = new SqlCommand();
             command.Connection = Connection;
             command.CommandTimeout = 160 * 60;
-            command.CommandText = string.Format(@"
-declare @CPUSumm int; 
-declare @DurationSumm float; 
-declare @ReadsSumm float;
-declare @WritesSumm float;
-declare @CountSumm float;
+            command.CommandText = $@"
+declare @CPUSum int; 
+declare @DurationSum float; 
+declare @ReadsSum float;
+declare @WritesSum float;
+declare @CountSum float;
 
-select @CPUSumm = SUM(CPU)
-     , @DurationSumm = SUM(Duration)
-     , @ReadsSumm = SUM(Reads)
-     , @WritesSumm = SUM(Writes)
-     , @CountSumm = count(*)
-from [dbo].[{0}] where EventClass in (10, 12)
+select @CPUSum = SUM(CPU)
+     , @DurationSum = SUM(Duration)
+     , @ReadsSum = SUM(Reads)
+     , @WritesSum = SUM(Writes)
+     , @CountSum = count(*)
+from [dbo].[{TableName}] where EventClass in (10, 12)
 
 
 select
@@ -285,12 +259,12 @@ select
 	, [max(Duration)raw]
     , [avg(Duration)raw]
 
-INTO [dbo].[{1}]
+INTO [dbo].[{TableNameDetail}]
 from
 (
 	select 
           *
-		, round(cast([sum(CPU)] as float) / @CPUSumm * 100, 3) as [% CPU]
+		, round(cast([sum(CPU)] as float) / @CPUSum * 100, {scale}) as [% CPU]
 
 		, [min(Duration)raw]/1000 as [min(Duration)]
 		, [avg(Duration)raw]/1000 as [avg(Duration)]
@@ -298,37 +272,37 @@ from
 		, [sum(Duration)raw]/1000 as [sum(Duration)]
 
 		, case 
-            when @DurationSumm > 0 
-            then round(cast([sum(Duration)raw] as float) / @DurationSumm * 100, 3)
-            else 0 
+            when @DurationSum > 0 
+            then round(cast([sum(Duration)raw] as float) / @DurationSum * 100, {scale})
+            else 0
           end as [% Duration]
 
 		, case
-            when @ReadsSumm > 0
-            then round(cast([sum(Reads)] as float) / @ReadsSumm * 100, 3)
+            when @ReadsSum > 0
+            then round(cast([sum(Reads)] as float) / @ReadsSum * 100, {scale})
             else 0
           end as [% Reads]
 
 		, case
-            when @WritesSumm > 0
-            then round(cast([sum(Writes)] as float) / @WritesSumm * 100, 3)
+            when @WritesSum > 0
+            then round(cast([sum(Writes)] as float) / @WritesSum * 100, {scale})
             else 0
           end as [% Writes]
 
 		, case
-            when @CountSumm > 0
-            then round([Count] / @CountSumm * 100, 3)
+            when @CountSum > 0
+            then round([Count] / @CountSum * 100, {scale})
             else 0
           end as [% Count]
 
-		--, (select top 1 [TextData] from [{0}]) as [TextData-min(Duration)]
-		--, (select top 1 [TextData] from [{0}]) as [TextData-max(Duration)]
-		--, (select top 1 [TextData] from [{0}]) as [TextData-min(CPU)]
-		--, (select top 1 [TextData] from [{0}]) as [TextData-max(CPU)]
-		--, (select top 1 [TextData] from [{0}]) as [TextData-min(Reads)]
-		--, (select top 1 [TextData] from [{0}]) as [TextData-max(Reads)]
-		--, (select top 1 [TextData] from [{0}]) as [TextData-min(Writes)]
-		--, (select top 1 [TextData] from [{0}]) as [TextData-max(Writes)]
+		--, (select top 1 [TextData] from [{TableName}]) as [TextData-min(Duration)]
+		--, (select top 1 [TextData] from [{TableName}]) as [TextData-max(Duration)]
+		--, (select top 1 [TextData] from [{TableName}]) as [TextData-min(CPU)]
+		--, (select top 1 [TextData] from [{TableName}]) as [TextData-max(CPU)]
+		--, (select top 1 [TextData] from [{TableName}]) as [TextData-min(Reads)]
+		--, (select top 1 [TextData] from [{TableName}]) as [TextData-max(Reads)]
+		--, (select top 1 [TextData] from [{TableName}]) as [TextData-min(Writes)]
+		--, (select top 1 [TextData] from [{TableName}]) as [TextData-max(Writes)]
 
 	from
 	(
@@ -359,14 +333,13 @@ from
 
 			count(*) as [Count]
 		from
-			[dbo].[{0}] as TTT -- Таблица, в которую сохранили трейс. 
+			[dbo].[{TableName}] as TTT -- Таблица, в которую сохранили трейс. 
 		where
 			EventClass in (10, 12)
 		group by
 			[DatabaseName], [TextKey], [ObjectName]
 	) as [Statistic]
-) as [Statistic2]",
-            TableName, TableNameDetail);
+) as [Statistic2]";
             command.ExecuteNonQuery();
 
             command.CommandText = string.Format(@"
@@ -375,53 +348,59 @@ ON [dbo].[{0}] ([DatabaseName],[TextKey], [ObjectName])
 ", TableNameDetail);
             command.ExecuteNonQuery();
 
-//            command.CommandText = string.Format(@"
-//UPDATE [dbo].[{1}] SET [TextData-min(Duration)] = 
-//(select top 1 [TextData] from [{0}] where [TextKey] = [dbo].[{1}].[TextKey] and [DatabaseName] = [dbo].[{1}].[DatabaseName] and Duration = [dbo].[{1}].[min(Duration)raw])
-//    ", TableName, TableNameDetail);
-//            command.ExecuteNonQuery();
+            //            command.CommandText = string.Format(@"
+            //UPDATE [dbo].[{1}] SET [TextData-min(Duration)] = 
+            //(select top 1 [TextData] from [{0}] where [TextKey] = [dbo].[{1}].[TextKey] and [DatabaseName] = [dbo].[{1}].[DatabaseName] and Duration = [dbo].[{1}].[min(Duration)raw])
+            //    ", TableName, TableNameDetail);
+            //            command.ExecuteNonQuery();
 
-//            command.CommandText = string.Format(@"
-//UPDATE [dbo].[{1}] SET [TextData-max(Duration)] = 
-//(select top 1 [TextData] from [{0}] where [TextKey] = [dbo].[{1}].[TextKey] and [DatabaseName] = [dbo].[{1}].[DatabaseName] and Duration = [dbo].[{1}].[max(Duration)raw])
-//    ", TableName, TableNameDetail);
-//            command.ExecuteNonQuery();
+            //            command.CommandText = string.Format(@"
+            //UPDATE [dbo].[{1}] SET [TextData-max(Duration)] = 
+            //(select top 1 [TextData] from [{0}] where [TextKey] = [dbo].[{1}].[TextKey] and [DatabaseName] = [dbo].[{1}].[DatabaseName] and Duration = [dbo].[{1}].[max(Duration)raw])
+            //    ", TableName, TableNameDetail);
+            //            command.ExecuteNonQuery();
 
-//            command.CommandText = string.Format(@"
-//UPDATE [dbo].[{1}] SET [TextData-min(CPU)] = 
-//(select top 1 [TextData] from [{0}] where [TextKey] = [dbo].[{1}].[TextKey] and [DatabaseName] = [dbo].[{1}].[DatabaseName] and CPU = [dbo].[{1}].[min(CPU)])
-//    ", TableName, TableNameDetail);
-//            command.ExecuteNonQuery();
+            //            command.CommandText = string.Format(@"
+            //UPDATE [dbo].[{1}] SET [TextData-min(CPU)] = 
+            //(select top 1 [TextData] from [{0}] where [TextKey] = [dbo].[{1}].[TextKey] and [DatabaseName] = [dbo].[{1}].[DatabaseName] and CPU = [dbo].[{1}].[min(CPU)])
+            //    ", TableName, TableNameDetail);
+            //            command.ExecuteNonQuery();
 
-//            command.CommandText = string.Format(@"
-//UPDATE [dbo].[{1}] SET [TextData-max(CPU)] = 
-//(select top 1 [TextData] from [{0}] where [TextKey] = [dbo].[{1}].[TextKey] and [DatabaseName] = [dbo].[{1}].[DatabaseName] and CPU = [dbo].[{1}].[max(CPU)])
-//    ", TableName, TableNameDetail);
-//            command.ExecuteNonQuery();
+            //            command.CommandText = string.Format(@"
+            //UPDATE [dbo].[{1}] SET [TextData-max(CPU)] = 
+            //(select top 1 [TextData] from [{0}] where [TextKey] = [dbo].[{1}].[TextKey] and [DatabaseName] = [dbo].[{1}].[DatabaseName] and CPU = [dbo].[{1}].[max(CPU)])
+            //    ", TableName, TableNameDetail);
+            //            command.ExecuteNonQuery();
 
-//            command.CommandText = string.Format(@"
-//UPDATE [dbo].[{1}] SET [TextData-min(Reads)] = 
-//(select top 1 [TextData] from [{0}] where [TextKey] = [dbo].[{1}].[TextKey] and [DatabaseName] = [dbo].[{1}].[DatabaseName] and Reads = [dbo].[{1}].[min(Reads)])
-//    ", TableName, TableNameDetail);
-//            command.ExecuteNonQuery();
+            //            command.CommandText = string.Format(@"
+            //UPDATE [dbo].[{1}] SET [TextData-min(Reads)] = 
+            //(select top 1 [TextData] from [{0}] where [TextKey] = [dbo].[{1}].[TextKey] and [DatabaseName] = [dbo].[{1}].[DatabaseName] and Reads = [dbo].[{1}].[min(Reads)])
+            //    ", TableName, TableNameDetail);
+            //            command.ExecuteNonQuery();
 
-//            command.CommandText = string.Format(@"
-//UPDATE [dbo].[{1}] SET [TextData-max(Reads)] = 
-//(select top 1 [TextData] from [{0}] where [TextKey] = [dbo].[{1}].[TextKey] and [DatabaseName] = [dbo].[{1}].[DatabaseName] and Reads = [dbo].[{1}].[max(Reads)])
-//    ", TableName, TableNameDetail);
-//            command.ExecuteNonQuery();
+            //            command.CommandText = string.Format(@"
+            //UPDATE [dbo].[{1}] SET [TextData-max(Reads)] = 
+            //(select top 1 [TextData] from [{0}] where [TextKey] = [dbo].[{1}].[TextKey] and [DatabaseName] = [dbo].[{1}].[DatabaseName] and Reads = [dbo].[{1}].[max(Reads)])
+            //    ", TableName, TableNameDetail);
+            //            command.ExecuteNonQuery();
 
-//            command.CommandText = string.Format(@"
-//UPDATE [dbo].[{1}] SET [TextData-min(Writes)] = 
-//(select top 1 [TextData] from [{0}] where [TextKey] = [dbo].[{1}].[TextKey] and [DatabaseName] = [dbo].[{1}].[DatabaseName] and Writes = [dbo].[{1}].[min(Writes)])
-//    ", TableName, TableNameDetail);
-//            command.ExecuteNonQuery();
+            //            command.CommandText = string.Format(@"
+            //UPDATE [dbo].[{1}] SET [TextData-min(Writes)] = 
+            //(select top 1 [TextData] from [{0}] where [TextKey] = [dbo].[{1}].[TextKey] and [DatabaseName] = [dbo].[{1}].[DatabaseName] and Writes = [dbo].[{1}].[min(Writes)])
+            //    ", TableName, TableNameDetail);
+            //            command.ExecuteNonQuery();
 
-//            command.CommandText = string.Format(@"
-//UPDATE [dbo].[{1}] SET [TextData-max(Writes)] = 
-//(select top 1 [TextData] from [{0}] where [TextKey] = [dbo].[{1}].[TextKey] and [DatabaseName] = [dbo].[{1}].[DatabaseName] and Writes = [dbo].[{1}].[max(Writes)])
-//    ", TableName, TableNameDetail);
-//            command.ExecuteNonQuery();
+            //            command.CommandText = string.Format(@"
+            //UPDATE [dbo].[{1}] SET [TextData-max(Writes)] = 
+            //(select top 1 [TextData] from [{0}] where [TextKey] = [dbo].[{1}].[TextKey] and [DatabaseName] = [dbo].[{1}].[DatabaseName] and Writes = [dbo].[{1}].[max(Writes)])
+            //    ", TableName, TableNameDetail);
+            //            command.ExecuteNonQuery();
+
+            try
+            {
+                DropIndexOnTextKeys();
+            }
+            catch { }
         }
 
         public void CreateErrorReport()
@@ -441,62 +420,6 @@ FROM
 GROUP BY [DatabaseName], [Error], [ApplicationName], [ErrorText]
 ORDER BY [DatabaseName], [Error], [ApplicationName], [ErrorText]
             ", TableName, TableNameError);
-            command.ExecuteNonQuery();
-        }
-
-        /// <summary>
-        /// Do not have usage
-        /// </summary>
-        public void CreateMinuteAndSecondColumn()
-        {
-            var command = new SqlCommand();
-            command.Connection = Connection;
-            command.CommandTimeout = 60 * 60;
-            command.CommandText = string.Format(@"
-BEGIN TRANSACTION
-ALTER TABLE [dbo].[{0}] ADD
-	[Second01] int NULL,
-	[Second05] int NULL,
-	[Second10] int NULL,
-	[Munute01] int NULL,
-	[Munute02] int NULL,
-	[Munute03] int NULL,
-	[Munute04] int NULL,
-	[Munute05] int NULL
-ALTER TABLE [dbo].[{0}] SET (LOCK_ESCALATION = TABLE)
-COMMIT
-", TableName);
-            command.ExecuteNonQuery();
-        }
-
-        /// <summary>
-        /// Do not have usage
-        /// </summary>
-        public void FillMinuteAndSecondColumn()
-        {
-            var command = new SqlCommand();
-            command.Connection = Connection;
-            command.CommandTimeout = 60 * 60;
-            command.CommandText = string.Format(@"
-declare @minStartDate datetime
-select @minStartDate = min([StartTime])
-from [dbo].[{0}]
-where EventClass in (10, 12)
-
-update [dbo].[{0}]
-set [Second01] = datediff(ss, @minStartDate, [StartTime]),
-    [Munute01] = datediff(mi, @minStartDate, [StartTime])
-where [EventClass] in (10, 12)
-
-update [dbo].[{0}]
-set [Second05] =  5 * ROUND([Second01] /  5, 0),
-	[Second10] = 10 * ROUND([Second01] / 10, 0),
-    [Munute02] =  2 * ROUND([Munute01] /  2, 0),
-    [Munute03] =  3 * ROUND([Munute01] /  3, 0),
-    [Munute04] =  4 * ROUND([Munute01] /  4, 0),
-    [Munute05] =  5 * ROUND([Munute01] /  5, 0)
-where [EventClass] in (10, 12)
-", TableName);
             command.ExecuteNonQuery();
         }
 
