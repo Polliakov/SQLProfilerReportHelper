@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using TraceKnife.Core.Abstractions;
 
@@ -15,7 +14,7 @@ namespace TraceKnife.Core.DataPipelines
             _context = context;
         }
 
-        public DataPipeline AddJob(IDataPipelineJob job)
+        public DataPipeline Add(IDataPipelineJob job)
         {
             _jobs.Add(job);
             return this;

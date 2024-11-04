@@ -1,4 +1,4 @@
-﻿namespace Tools.SQLProfilerReportHelper.Database.Profiling
+﻿namespace TraceKnife.Core.Profiling
 {
     public enum TraceColumn : byte
     {

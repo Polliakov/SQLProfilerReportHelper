@@ -3,14 +3,17 @@
     using System;
     using System.Globalization;
     using System.Windows.Forms;
-    using Tools.SQLProfilerReportHelper.Database.Profiling;
-    using Tools.SQLProfilerReportHelper.Database.TraceExports;
+    using TraceKnife.Core.Profiling;
+    using TraceKnife.Core.TraceExports;
     using Tools.SQLProfilerReportHelper.Forms;
     using TraceKnife.Common;
     using TraceKnife.Core.Abstractions;
     using TraceKnife.Core.DataPipelines;
     using TraceKnife.Core.DbUtils;
     using TraceKnife.Core.Normalization;
+    using TraceKnife.Core.DatabaseJobs.Reports;
+    using TraceKnife.Core.DatabaseJobs.ContextEnrichment;
+    using TraceKnife.Core.DatabaseJobs.Manipulations;
 
     public partial class MainForm : Form
     {
@@ -19,12 +22,10 @@
         private TraceLoader _traceLoader;
         private DbProfiler _profiler;
         private DbObjectsManager _dbManager;
-        private Normalizer _normalizer;
-        private NormalizationInitialization _normalizerIniter;
-        private readonly IApplicationOptions _options;
+        private Sql _sql;
+        private readonly IDbObjectsOptions _options;
 
-
-        public MainForm(IApplicationOptions options)
+        public MainForm(IDbObjectsOptions options)
         {
             TableUtil = new Helper();
             _options = options;
@@ -44,13 +45,12 @@
             var connData = connectForm.ConnectionData;
             TableUtil.Connect(connData.ConnectionString);
 
-            var f = new SqlConnectionFactory(connData.ConnectionString);
-            var s = new Sql(f, 120);
-            _profiler = new DbProfiler(f, s);
-            _dbManager = new DbObjectsManager(s);
-            _traceLoader = new TraceLoader(s);
-            _normalizer = new Normalizer(_dbManager, s, _options);
-            _normalizerIniter = new NormalizationInitialization(_dbManager, s, _options);
+            _sql = new Sql(
+                new SqlConnectionFactory(connData.ConnectionString), 120);
+
+            _dbManager = new DbObjectsManager(_sql);
+            _traceLoader = new TraceLoader(_sql);
+            _profiler = new DbProfiler(_sql);
 
             SetGroupBoxesEnabled(true);
 
@@ -85,7 +85,8 @@
                 var pipeline = new DataPipeline(new DataPipelineContext
                 {
                     ProcessingTable = tableName,
-                    PreferredParallelism = 10
+                    PreferredParallelism = 10,
+                    DbObjectsOptions = _options,
                 });
 
                 var done = 0;
@@ -108,12 +109,15 @@
                     _textBoxExpectedEndTime.Text = expectedTime.ToString(CultureInfo.InvariantCulture);
                 }
 
-                _normalizer.Progress += progressHandler;
+                var normalizer = new Normalizer(_sql);
+                normalizer.Progress += progressHandler;
                 await pipeline
-                     .AddJob(_normalizerIniter)
-                     .AddJob(_normalizer)
-                     .Execute();
-                _normalizer.Progress -= progressHandler;
+                    .Add(new MetadataReport(_sql))
+                    .Add(new EnrichTraceMetadata(_sql, _dbManager))
+                    .Add(new NormalizationInitialization(_dbManager, _sql))
+                    .Add(normalizer)
+                    .Execute();
+                normalizer.Progress -= progressHandler;
 
                 SetGroupBoxesEnabled(true);
             }
@@ -125,23 +129,53 @@
             }
         }
 
-        private void ButtonDetailReportCreate_Click(object sender, EventArgs e)
+        private async void ButtonDetailReportCreate_Click(object sender, EventArgs e)
         {
-            TableUtil.CreateDetailReport();
+            var tableName = _comboBoxTable.Text;
+            var pipeline = new DataPipeline(new DataPipelineContext
+            {
+                ProcessingTable = tableName,
+                PreferredParallelism = 10,
+                DbObjectsOptions = _options,
+            });
+            await pipeline
+                .Add(new EnrichTraceMetadata(_sql, _dbManager))
+                .Add(new CreateGroupAndSearchIndexes(_sql, _dbManager))
+                .Add(new GroupedReport(_sql))
+                .Execute();
+
             _checkBoxDetailReportStatus.Checked = true;
             _buttonDetailReportCreate.Enabled = false;
         }
 
-        private void ButtonErrorReportCreate_Click(object sender, EventArgs e)
+        private async void ButtonErrorReportCreate_Click(object sender, EventArgs e)
         {
-            TableUtil.CreateErrorReport();
+            var tableName = _comboBoxTable.Text;
+            var pipeline = new DataPipeline(new DataPipelineContext
+            {
+                ProcessingTable = tableName,
+                PreferredParallelism = 10,
+                DbObjectsOptions = _options,
+            });
+            await pipeline
+                .Add(new ErrorsReport(_sql))
+                .Execute();
             _checkBoxErrorReportStatus.Checked = true;
             _buttonErrorReportCreate.Enabled = false;
         }
 
-        private void ButtonDeadlockReportCreate_Click(object sender, EventArgs e)
+        private async void ButtonDeadlockReportCreate_Click(object sender, EventArgs e)
         {
-            TableUtil.CreateDeadlockReport();
+            var tableName = _comboBoxTable.Text;
+            var pipeline = new DataPipeline(new DataPipelineContext
+            {
+                ProcessingTable = tableName,
+                PreferredParallelism = 10,
+                DbObjectsOptions = _options,
+            });
+            await pipeline
+                .Add(new DeadlockReport(_sql))
+                .Execute();
             _checkBoxDeadlockReportStatus.Checked = true;
             buttonDeadlockReportCreate.Enabled = false;
         }
@@ -199,9 +233,9 @@
             {
                 TableUtil.TableName = tableName;
 
-                var detailExists = await _dbManager.IsTableExist(tableName + _options.TableDetailPostfix);
+                var detailExists = await _dbManager.IsTableExist(tableName + _options.TableGroupedPostfix);
                 var draftExists = await _dbManager.IsTableExist(tableName + _options.TableDraftPostfix);
-                var errorExists = await _dbManager.IsTableExist(tableName + _options.TableErrorPostfix);
+                var errorExists = await _dbManager.IsTableExist(tableName + _options.TableErrorsPostfix);
 
                 ToggleReportButtons(detailExists, draftExists, errorExists);
 

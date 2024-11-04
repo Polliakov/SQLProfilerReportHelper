@@ -44,17 +44,29 @@
     <Compile Include="Abstractions\IDataPipelineContext.cs" />
     <Compile Include="Abstractions\IDataPipelineJob.cs" />
     <Compile Include="Application\ApplicationFacade.cs" />
-    <Compile Include="Abstractions\IApplicationOptions.cs" />
+    <Compile Include="Abstractions\IDbObjectsOptions.cs" />
     <Compile Include="Application\ApplicationState.cs" />
+    <Compile Include="DatabaseJobs\Manipulations\CreateGroupAndSearchIndexes.cs" />
+    <Compile Include="DatabaseJobs\ContextEnrichment\EnrichTraceMetadata.cs" />
+    <Compile Include="DatabaseJobs\Reports\DeadlockReport.cs" />
+    <Compile Include="DatabaseJobs\Reports\ErrorsReport.cs" />
+    <Compile Include="DatabaseJobs\Reports\GroupedReport.cs" />
+    <Compile Include="DatabaseJobs\Reports\MetadataReport.cs" />
     <Compile Include="DataPipelines\DataPipeline.cs" />
     <Compile Include="DataPipelines\DataPipelineContext.cs" />
     <Compile Include="DbUtils\Sql.cs" />
-    <Compile Include="Options\ApplicationOptions.cs" />
+    <Compile Include="DbUtils\SqlExtensions.cs" />
+    <Compile Include="Models\TraceMetadata.cs" />
+    <Compile Include="Options\IDbObjectsOptions.cs" />
     <Compile Include="DbUtils\DbObjectsManager.cs" />
     <Compile Include="DbUtils\SqlConnectionFactory.cs" />
-    <Compile Include="Normalization\NormalizationInitializator.cs" />
-    <Compile Include="Normalization\Normalizer.cs" />
+    <Compile Include="DatabaseJobs\Normalization\NormalizationInitializator.cs" />
+    <Compile Include="DatabaseJobs\Normalization\Normalizer.cs" />
+    <Compile Include="Profiling\DbProfiler.cs" />
+    <Compile Include="Profiling\TraceColumn.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TraceExports\TraceLoader.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

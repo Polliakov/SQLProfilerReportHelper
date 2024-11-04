@@ -57,5 +57,14 @@ where o.type = 'FN' and name=@functionName", new SqlParameter("@functionName", S
 
             return count > 0;
         }
+
+        public async Task<bool> IsIndexExists(string indexName)
+        {
+            var count = await _sql.ExecuteScalarAsync<int>(@"
+select count(*) from sys.indexes
+where [name] = @IndexName
+",              new SqlParameter("@IndexName", indexName));
+            return count > 0;
+        }
     }
 }

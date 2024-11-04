@@ -12,14 +12,15 @@
         [STAThread]
         static void Main()
         {
-            var options = new ApplicationOptions
+            var options = new DbObjectsOptions
             {
                 NormalizationFunctionName = "NormalizeTextData0",
                 NormalizedTextDataColumn = "TextKey",
+                TableMetadataPostfix = ".Metadata",
                 TableDraftPostfix = ".Draft",
-                TableDetailPostfix = ".Detailed",
+                TableGroupedPostfix = ".Grouped",
                 TableDeadlockPostfix = ".Deadlocks",
-                TableErrorPostfix = ".Errors",
+                TableErrorsPostfix = ".Errors",
             };
 
             Application.EnableVisualStyles();

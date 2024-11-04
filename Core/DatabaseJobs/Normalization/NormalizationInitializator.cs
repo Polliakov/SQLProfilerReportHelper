@@ -6,22 +6,17 @@ using TraceKnife.Core.DbUtils;
 
 namespace TraceKnife.Core.Normalization
 {
-    public class NormalizationInitialization : IDataPipelineJob<bool>
+    public class NormalizationInitialization : IDataPipelineJob
     {
-        public event Action<bool> Progress;
-
         private readonly DbObjectsManager _dbManager;
         private readonly Sql _sql;
-        private readonly IApplicationOptions _options;
 
         public NormalizationInitialization(
             DbObjectsManager dbManager,
-            Sql sql,
-            IApplicationOptions options)
+            Sql sql)
         {
             _dbManager = dbManager;
             _sql = sql;
-            _options = options;
         }
 
         public async Task RunAsync(IDataPipelineContext context)
@@ -33,16 +28,17 @@ namespace TraceKnife.Core.Normalization
             {
                 await CreateClusteredId(context.ProcessingTable);
             }
-            if (!await _dbManager.IsColumnExistInTable(context.ProcessingTable, _options.NormalizedTextDataColumn))
+            if (!await _dbManager.IsColumnExistInTable(context.ProcessingTable, 
+				context.DbObjectsOptions.NormalizedTextDataColumn))
             {
                 await CreateTextKey(context.ProcessingTable);
             }
-            if (!await _dbManager.IsFunctionExists(_options.NormalizationFunctionName))
+            if (!await _dbManager.IsFunctionExists(
+				context.DbObjectsOptions.NormalizationFunctionName))
             {
-                await CreateTextDataNormalizationFunction();
+                await CreateTextDataNormalizationFunction(
+					context.DbObjectsOptions.NormalizationFunctionName);
             }
-
-            Progress?.Invoke(true);
         }
 
         private Task CreateTextKey(string tableName)
@@ -60,10 +56,10 @@ ALTER TABLE [dbo].[{tableName}]
 ADD [Id] uniqueidentifier primary KEY CLUSTERED DEFAULT newsequentialid()");
         }
 
-        private Task CreateTextDataNormalizationFunction()
+        private Task CreateTextDataNormalizationFunction(string functionName)
         {
             return _sql.ExecuteNonQueryAsync(600, @"
-CREATE FUNCTION [dbo].[" + _options.NormalizationFunctionName + @"]
+CREATE FUNCTION [dbo].[" + functionName + @"]
 (
 	@textData varchar(2000)
 )

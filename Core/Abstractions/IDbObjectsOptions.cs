@@ -1,12 +1,13 @@
 ﻿namespace TraceKnife.Core.Abstractions
 {
-    public interface IApplicationOptions
+    public interface IDbObjectsOptions
     {
         string NormalizationFunctionName { get; }
         string NormalizedTextDataColumn { get; }
+        string TableMetadataPostfix { get; }
         string TableDraftPostfix { get; }
-        string TableDetailPostfix { get; }
+        string TableGroupedPostfix { get; }
         string TableDeadlockPostfix { get; }
-        string TableErrorPostfix { get; set; }
+        string TableErrorsPostfix { get; }
     }
 }

@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using TraceKnife.Common;
 using TraceKnife.Core.Abstractions;
-using TraceKnife.Core.DbUtils;
 
 namespace TraceKnife.Core.Normalization
 {
@@ -14,20 +13,16 @@ namespace TraceKnife.Core.Normalization
 
         private const int _batchSize = 1000;
 
-        private readonly DbObjectsManager _dbManager;
         private readonly Sql _sql;
-        private readonly IApplicationOptions _options;
 
-        public Normalizer(DbObjectsManager dbManager, Sql sql, IApplicationOptions options)
+        public Normalizer(Sql sql)
         {
-            _dbManager = dbManager;
             _sql = sql;
-            _options = options;
         }
 
         public async Task RunAsync(IDataPipelineContext context)
         {
-            var countAll = await _dbManager.GetRowsCount(context.ProcessingTable);
+            var countAll = context.TraceMetadata.RowsCount;
 
             var tasks = new List<Task>(context.PreferredParallelism);
 
@@ -54,9 +49,9 @@ namespace TraceKnife.Core.Normalization
                 if (take <= 0)
                     return;
 
-                await _sql.ExecuteNonQueryAsync(720, $@"
+                await _sql.ExecuteNonQueryAsync(60 * 30, $@"
 update [dbo].[{context.ProcessingTable}]
-set [TextKey] =	dbo.{_options.NormalizationFunctionName}(CAST([TextData] as varchar(2000)))
+set [TextKey] =	dbo.{context.DbObjectsOptions.NormalizationFunctionName}(CAST([TextData] as varchar(2000)))
 where [Id] in (select [Id] from [dbo].[{context.ProcessingTable}] order by [Id]
 offset {startFrom} rows fetch next {take} rows only)
 ");

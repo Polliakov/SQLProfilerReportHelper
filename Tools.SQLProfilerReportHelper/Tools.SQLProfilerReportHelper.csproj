@@ -99,9 +99,6 @@
     <Compile Include="Forms\ConnectSqlForm.Designer.cs">
       <DependentUpon>ConnectSqlForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Database\Profiling\DbProfiler.cs" />
-    <Compile Include="Database\Profiling\TraceColumn.cs" />
-    <Compile Include="Database\TraceExports\TraceLoader.cs" />
     <Compile Include="Forms\CreateTraceForm.cs">
       <SubType>Form</SubType>
     </Compile>

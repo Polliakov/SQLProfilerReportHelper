@@ -1,57 +1,45 @@
 ﻿using System;
-using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using TraceKnife.Common;
 using TraceKnife.Core.DbUtils;
 
-namespace Tools.SQLProfilerReportHelper.Database.Profiling
+namespace TraceKnife.Core.Profiling
 {
     public class DbProfiler
     {
-        private readonly SqlConnectionFactory _connectionFactory;
         private readonly Sql _sql;
 
-        public DbProfiler(SqlConnectionFactory connectionFactory, Sql sql)
+        public DbProfiler(Sql sql)
         {
-            _connectionFactory = connectionFactory;
             _sql = sql;
         }
 
         public async Task<int> StartNewTrace(
             int duration,
             string reportsFolder,
-            int maxFileSizeMB)
+            long maxFileSizeMB)
         {
-            using (var connection = await _connectionFactory.Create())
-            {
-                reportsFolder = reportsFolder.Trim().TrimEnd('/', '\\');
-                var command = new SqlCommand()
-                {
-                    Connection = connection,
-                    CommandTimeout = 60,
-                    CommandText = CreateTraceScript(),
-                };
-                command.Parameters.AddWithValue("@traceDuration", duration);
-                command.Parameters.AddWithValue("@reportsFolder", reportsFolder);
-                command.Parameters.Add(new SqlParameter("@maxFileSizeMB", SqlDbType.BigInt)
-                {
-                    Value = maxFileSizeMB,
-                });
+            reportsFolder = reportsFolder.Trim().TrimEnd('/', '\\');
 
-                var reader = await command.ExecuteReaderAsync();
-                if (reader.HasRows)
+            var ds = await _sql.QueryDataSetAsync(GetTraceScript(),
+                new SqlParameter("@traceDuration", duration),
+                new SqlParameter("@reportsFolder", reportsFolder),
+                new SqlParameter("@maxFileSizeMB", maxFileSizeMB));
+
+            if (!ds.IsEmpty())
+            {
+                var cols = ds.Tables[0].Columns;
+                var resultName = cols[0].ColumnName;
+                var row = ds.First();
+                if (resultName == "TraceId")
                 {
-                    var columns = Enumerable.Range(0, reader.FieldCount).Select(reader.GetName).ToArray();
-                    var resultName = columns.FirstOrDefault();
-                    reader.Read();
-                    if (resultName == "TraceId")
-                        return (int)reader[resultName];
-                    throw new Exception($"Failed to start trace. ErrorCode: {reader[resultName]}");
+                    return (int)row["TraceId"];
                 }
-                throw new Exception($"Can't get start trace result.");
+                throw new Exception($"Failed to start trace. ErrorCode: {row[resultName]}");
             }
+            throw new Exception($"Can't get start trace result.");
         }
 
         public async Task StartTrace(int traceId)
@@ -76,7 +64,7 @@ EXEC sp_trace_setstatus @traceId, @status = 2",
                 new SqlParameter("@traceId", traceId));
         }
 
-        private string CreateTraceScript()
+        private string GetTraceScript()
         {
             return @"
 declare @fileName varchar(max) = CONCAT(@reportsFolder, '\trace_', format(getdate(), 'yyyy-MM-dd-HHmmss'))

@@ -4,7 +4,7 @@ using System.IO;
 using System.Threading.Tasks;
 using TraceKnife.Common;
 
-namespace Tools.SQLProfilerReportHelper.Database.TraceExports
+namespace TraceKnife.Core.TraceExports
 {
     public class TraceLoader
     {
