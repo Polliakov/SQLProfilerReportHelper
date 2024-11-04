@@ -17,8 +17,6 @@
 
     public partial class MainForm : Form
     {
-        public Helper TableUtil { get; set; }
-
         private TraceLoader _traceLoader;
         private DbProfiler _profiler;
         private DbObjectsManager _dbManager;
@@ -27,7 +25,6 @@
 
         public MainForm(IDbObjectsOptions options)
         {
-            TableUtil = new Helper();
             _options = options;
 
             InitializeComponent();
@@ -43,7 +40,6 @@
                 return;
 
             var connData = connectForm.ConnectionData;
-            TableUtil.Connect(connData.ConnectionString);
 
             _sql = new Sql(
                 new SqlConnectionFactory(connData.ConnectionString), 120);
@@ -184,9 +180,6 @@
         {
             MessageBox.Show("In development...", "Experimental",
                 MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
-            ReportViewForm reportView = new ReportViewForm(TableUtil);
-            reportView.LoadDetailStat(new Model.DetailStat[] { });
-            reportView.Show();
         }
 
         private void ButtonStartNewTrace_Click(object sender, EventArgs e)
@@ -231,8 +224,6 @@
             var tableExists = await _dbManager.IsTableExist(tableName);
             if (tableExists)
             {
-                TableUtil.TableName = tableName;
-
                 var detailExists = await _dbManager.IsTableExist(tableName + _options.TableGroupedPostfix);
                 var draftExists = await _dbManager.IsTableExist(tableName + _options.TableDraftPostfix);
                 var errorExists = await _dbManager.IsTableExist(tableName + _options.TableErrorsPostfix);

@@ -8,11 +8,8 @@ namespace Tools.SQLProfilerReportHelper
 {
     public partial class ReportViewForm : Form
     {
-        Helper TableUtil { get; set; }
-
-        public ReportViewForm(Helper tableUtil)
+        public ReportViewForm()
         {
-            TableUtil = tableUtil;
             InitializeComponent();
         }
 
@@ -117,7 +114,7 @@ namespace Tools.SQLProfilerReportHelper
             {
                 Model.DetailStat dataItem = item.Tag as Model.DetailStat;
 
-                dataItem = TableUtil.FillDetailStat(dataItem);
+                //dataItem = TableUtil.FillDetailStat(dataItem);
 
                 textBoxMinDuration.Text = trancate(dataItem.TextDataMinDuration);
                 textBoxMaxDuration.Text = trancate(dataItem.TextDataMaxDuration);
