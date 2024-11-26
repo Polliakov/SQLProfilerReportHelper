@@ -31,7 +31,7 @@ on [dbo].[{context.ProcessingTable}]([DatabaseName],[TextKey],[ObjectName])");
             if (!await _dbObjectsManager.IsIndexExists(searchIndex))
             {
                 await _sql.ExecuteNonQueryAsync(60 * 60, $@"
-create nonclustered [{searchIndex}]
+create nonclustered index [{searchIndex}]
 on [dbo].[{context.ProcessingTable}]([TextKey])");
             }
         }

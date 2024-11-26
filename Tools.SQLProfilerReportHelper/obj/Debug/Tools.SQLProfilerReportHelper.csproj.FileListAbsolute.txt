@@ -32,8 +32,6 @@ C:\Users\Администратор\source\repos\SQLProfilerReportHelper\Tools.S
 C:\Users\Anton_Polyakov_ADM\source\repos\SQLProfilerReportHelper\Tools.SQLProfilerReportHelper\bin\Debug\Tools.SQLProfilerReportHelper.exe.config
 C:\Users\Anton_Polyakov_ADM\source\repos\SQLProfilerReportHelper\Tools.SQLProfilerReportHelper\bin\Debug\Tools.SQLProfilerReportHelper.exe
 C:\Users\Anton_Polyakov_ADM\source\repos\SQLProfilerReportHelper\Tools.SQLProfilerReportHelper\bin\Debug\Tools.SQLProfilerReportHelper.pdb
-C:\Users\Anton_Polyakov_ADM\source\repos\SQLProfilerReportHelper\Tools.SQLProfilerReportHelper\bin\Debug\Tools.dll
-C:\Users\Anton_Polyakov_ADM\source\repos\SQLProfilerReportHelper\Tools.SQLProfilerReportHelper\bin\Debug\Tools.pdb
 C:\Users\Anton_Polyakov_ADM\source\repos\SQLProfilerReportHelper\Tools.SQLProfilerReportHelper\obj\Debug\Tools.SQLProfilerReportHelper.csproj.AssemblyReference.cache
 C:\Users\Anton_Polyakov_ADM\source\repos\SQLProfilerReportHelper\Tools.SQLProfilerReportHelper\obj\Debug\Tools.SQLProfilerReportHelper.ConnectSqlForm.resources
 C:\Users\Anton_Polyakov_ADM\source\repos\SQLProfilerReportHelper\Tools.SQLProfilerReportHelper\obj\Debug\Tools.SQLProfilerReportHelper.Forms.CreateTraceForm.resources
