@@ -6,7 +6,10 @@ namespace TraceKnife.Core.DbUtils
 {
     public static class SqlExtensions
     {
-        public static T GetValue<T>(this SqlDataReader reader, string column)
+        public static T GetValue<T>(this SqlDataReader reader, string column) => (T)reader[column];
+        public static T GetValue<T>(this DataRow row, string column) => (T)row[column];
+
+        public static T GetValueOrDefault<T>(this SqlDataReader reader, string column)
         {
             try
             {
@@ -18,7 +21,7 @@ namespace TraceKnife.Core.DbUtils
             }
         }
 
-        public static T GetValue<T>(this DataRow row, string column)
+        public static T GetValueOrDefault<T>(this DataRow row, string column)
         {
             try
             {
@@ -36,7 +39,7 @@ namespace TraceKnife.Core.DbUtils
                 return true;
 
             return Enumerable.Range(0, ds.Tables.Count)
-                .Any(i => ds.Tables[i].Rows.Count == 0);
+                .All(i => ds.Tables[i].Rows.Count == 0);
         }
 
         public static DataRow First(this DataSet ds)

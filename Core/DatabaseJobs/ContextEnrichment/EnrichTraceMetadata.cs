@@ -32,12 +32,12 @@ select top(1) * from [{context.MetadataTable}]");
             var row = ds.First();
             var metadata = new TraceMetadata
             {
-                CpuSum = row.GetValue<int>(nameof(TraceMetadata.CpuSum)),
-                DurationSumUs = row.GetValue<long>(nameof(TraceMetadata.DurationSumUs)),
-                WritesSum = row.GetValue<long>(nameof(TraceMetadata.WritesSum)),
-                ReadsSum = row.GetValue<long>(nameof(TraceMetadata.ReadsSum)),
-                RowsCount = row.GetValue<int>(nameof(TraceMetadata.RowsCount)),
-                QueriesCount = row.GetValue<int>(nameof(TraceMetadata.QueriesCount)),
+                CpuSum = row.GetValueOrDefault<int>(nameof(TraceMetadata.CpuSum)),
+                DurationSumUs = row.GetValueOrDefault<long>(nameof(TraceMetadata.DurationSumUs)),
+                WritesSum = row.GetValueOrDefault<long>(nameof(TraceMetadata.WritesSum)),
+                ReadsSum = row.GetValueOrDefault<long>(nameof(TraceMetadata.ReadsSum)),
+                RowsCount = row.GetValueOrDefault<int>(nameof(TraceMetadata.RowsCount)),
+                QueriesCount = row.GetValueOrDefault<int>(nameof(TraceMetadata.QueriesCount)),
             };
 
             context.TraceMetadata = metadata;

@@ -54,8 +54,10 @@
     <Compile Include="DatabaseJobs\Reports\MetadataReport.cs" />
     <Compile Include="DataPipelines\DataPipeline.cs" />
     <Compile Include="DataPipelines\DataPipelineContext.cs" />
+    <Compile Include="DbUtils\ISqlConnectionFactory.cs" />
     <Compile Include="DbUtils\Sql.cs" />
     <Compile Include="DbUtils\SqlExtensions.cs" />
+    <Compile Include="DbUtils\SqlOptions.cs" />
     <Compile Include="Models\TraceMetadata.cs" />
     <Compile Include="Options\IDbObjectsOptions.cs" />
     <Compile Include="DbUtils\DbObjectsManager.cs" />
